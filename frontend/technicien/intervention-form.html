@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Intervention - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1b5e20;
+            border-left: 4px solid #1b5e20;
+            padding-left: 12px;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .label {
+            width: 140px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .value {
+            flex: 1;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .priority {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+            font-weight: bold;
+        }
+
+        .priority-CRITIQUE { background: #ef4444; color: white; }
+        .priority-HAUTE { background: #f97316; color: white; }
+        .priority-MOYENNE { background: #eab308; color: white; }
+        .priority-BASSE { background: #22c55e; color: white; }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #334155;
+        }
+
+        textarea, input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        textarea:focus, input:focus, select:focus {
+            outline: none;
+            border-color: #1b5e20;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+
+        .btn-success { background: #22c55e; color: white; }
+        .btn-primary { background: #1b5e20; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #475569; }
+        .btn-danger { background: #ef4444; color: white; }
+
+        .empty-state { text-align: center; padding: 40px; color: #94a3b8; }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            .btn { width: 100%; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">
+    <a href="maintenances.html" class="back-link">← Retour</a>
+    <div id="content"><div class="empty-state">Chargement...</div></div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:5000/api';
+    const id = new URLSearchParams(location.search).get('id');
+
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    async function chargerEquipements() {
+        try {
+            const res = await fetch(`${API_URL}/equipements`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const eq = await res.json();
+            const select = document.getElementById('equipementId');
+            if (select) select.innerHTML = '<option value="">Sélectionner</option>' + eq.map(e => `<option value="${e.id}">${e.nom} (${e.codeInventaire})</option>`).join('');
+        } catch (error) { console.error('Erreur:', error); }
+    }
+
+    async function creerIntervention() {
+        const btn = document.querySelector('.btn-primary');
+        if (btn.disabled) return;
+        const equipementId = document.getElementById('equipementId').value;
+        const description = document.getElementById('description').value;
+        const priorite = document.getElementById('priorite').value;
+        if (!equipementId) { alert('Sélectionnez un équipement'); return; }
+        if (!description) { alert('Décrivez le problème'); return; }
+        btn.disabled = true;
+        btn.textContent = '⏳ Création...';
+        try {
+            const res = await fetch(`${API_URL}/maintenances`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+                body: JSON.stringify({ equipementId: parseInt(equipementId), description, priorite })
+            });
+            if (res.ok) { alert('✅ Intervention créée'); window.location.href = 'maintenances.html'; }
+            else { alert('❌ Erreur'); btn.disabled = false; btn.textContent = '✅ Créer'; }
+        } catch (error) { alert('❌ Erreur'); btn.disabled = false; btn.textContent = '✅ Créer'; }
+    }
+
+    async function terminerIntervention() {
+        const actions = document.getElementById('actions').value;
+        const rapport = document.getElementById('rapport').value;
+        const duree = document.getElementById('duree').value;
+        const data = { actionsRealisees: actions, rapportFinal: rapport, dureeMinutes: parseInt(duree) || null };
+        const res = await fetch(`${API_URL}/maintenances/${id}/terminer`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify(data) });
+        if (res.ok) { alert('✅ Intervention terminée'); window.location.href = 'maintenances.html'; }
+        else alert('❌ Erreur');
+    }
+
+    async function prendreEnCharge() {
+        if (!confirm('Prendre en charge ?')) return;
+        const res = await fetch(`${API_URL}/maintenances/${id}/prendre`, { method: 'PUT', headers: { 'Authorization': `Bearer ${getToken()}` } });
+        if (res.ok) { alert('✅ Prise en charge'); load(); }
+        else alert('❌ Erreur');
+    }
+
+    async function load() {
+        if (!id) {
+            document.getElementById('content').innerHTML = `
+                <div class="card"><div class="title">📝 Nouvelle intervention</div>
+                <div class="form-group"><label>Équipement *</label><select id="equipementId"><option>Chargement...</option></select></div>
+                <div class="form-group"><label>Description *</label><textarea id="description" rows="4"></textarea></div>
+                <div class="form-group"><label>Priorité</label><select id="priorite"><option value="CRITIQUE">🔴 Critique</option><option value="HAUTE">🟠 Haute</option><option value="MOYENNE">🟡 Moyenne</option><option value="BASSE">🟢 Basse</option></select></div>
+                <button class="btn btn-primary" onclick="creerIntervention()">✅ Créer</button>
+                <button class="btn btn-secondary" onclick="window.location.href='maintenances.html'">Annuler</button></div>`;
+            await chargerEquipements();
+            return;
+        }
+        try {
+            const res = await fetch(`${API_URL}/maintenances/${id}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const i = await res.json();
+            const isTermine = i.statut === 'TERMINE';
+            const isEnCours = i.statut === 'EN_COURS';
+            const isEnAttente = i.statut === 'EN_ATTENTE';
+            document.getElementById('content').innerHTML = `
+                <div class="card"><div class="title">🔧 Intervention #${i.id}</div>
+                <div class="info-row"><div class="label">Équipement</div><div class="value"><strong>${i.equipement?.nom}</strong> (${i.equipement?.codeInventaire})</div></div>
+                <div class="info-row"><div class="label">Service</div><div class="value">${i.equipement?.service}</div></div>
+                <div class="info-row"><div class="label">Priorité</div><div class="value"><span class="priority priority-${i.signalement?.priorite || 'MOYENNE'}">${i.signalement?.priorite || 'NORMALE'}</span></div></div>
+                <div class="info-row"><div class="label">Signalé par</div><div class="value">${i.signalement?.signalePar?.nom || 'Technicien'}</div></div>
+                <div class="info-row"><div class="label">Date</div><div class="value">${new Date(i.dateDebut).toLocaleString()}</div></div>
+                <div class="info-row"><div class="label">Description</div><div class="value">${i.signalement?.description || i.diagnostic || '-'}</div></div>
+                <div class="info-row"><div class="label">Statut</div><div class="value">${getStatutBadge(i.statut)}</div></div></div>
+                ${!isTermine ? `<div class="card"><div class="title">📝 Rapport</div>
+                <div class="form-group"><label>Actions</label><textarea id="actions" rows="4">${i.actionsRealisees || ''}</textarea></div>
+                <div class="form-group"><label>Rapport final</label><textarea id="rapport" rows="4"></textarea></div>
+                <div class="form-group"><label>Durée (min)</label><input type="number" id="duree" value="${i.dureeMinutes || ''}"></div>
+                ${isEnAttente ? `<button class="btn btn-primary" onclick="prendreEnCharge()">📋 Prendre</button>` : ''}
+                ${isEnCours ? `<button class="btn btn-success" onclick="terminerIntervention()">✅ Terminer</button>` : ''}</div>` : `
+                <div class="card"><div class="title">📋 Rapport final</div>
+                <div class="info-row"><div class="label">Actions</div><div class="value">${i.actionsRealisees || '-'}</div></div>
+                <div class="info-row"><div class="label">Rapport</div><div class="value">${i.rapportFinal || '-'}</div></div>
+                <div class="info-row"><div class="label">Durée</div><div class="value">${i.dureeMinutes || 0} min</div></div>
+                <div class="info-row"><div class="label">Terminé le</div><div class="value">${new Date(i.dateFin).toLocaleString()}</div></div></div>`}
+            `;
+        } catch (error) { document.getElementById('content').innerHTML = `<div class="card"><div class="title">❌ Erreur</div><button class="btn btn-secondary" onclick="window.location.href='maintenances.html'">Retour</button></div>`; }
+    }
+
+    function getStatutBadge(s) {
+        const map = { 'EN_ATTENTE': '<span style="background:#fef3c7; padding:4px 12px; border-radius:20px;">⏳ Attente</span>', 'EN_COURS': '<span style="background:#dbeafe; padding:4px 12px; border-radius:20px;">🔧 Cours</span>', 'TERMINE': '<span style="background:#dcfce7; padding:4px 12px; border-radius:20px;">✅ Terminé</span>' };
+        return map[s] || s;
+    }
+
+    loadSidebar();
+    load();
+</script>
+</body>
+</html>

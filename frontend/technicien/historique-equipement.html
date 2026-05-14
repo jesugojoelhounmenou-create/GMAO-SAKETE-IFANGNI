@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historique - GMAO Sakété</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            padding: 20px;
+        }
+        .main-content { max-width: 1000px; margin: 0 auto; }
+        .card { background: white; border-radius: 20px; padding: 24px; margin-bottom: 20px; }
+        .title { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #1b5e20; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background: #f8fafc; }
+        .back-link { display: inline-block; margin-bottom: 20px; color: #3b82f6; text-decoration: none; }
+        .badge-termine { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; display: inline-block; }
+        .badge-cours { background: #dbeafe; color: #2563eb; padding: 4px 12px; border-radius: 20px; display: inline-block; }
+    </style>
+</head>
+<body>
+<div id="sidebar-container"></div>
+<div class="main-content">
+    <a href="inventaire.html" class="back-link">← Retour à l'inventaire</a>
+    <div class="card">
+        <div class="title" id="equipementTitle">Chargement...</div>
+        <div style="overflow-x: auto;">
+            <table>
+                <thead>
+                    <tr><th>Date</th><th>Type</th><th>Description</th><th>Technicien</th><th>Durée</th><th>Statut</th></tr>
+                </thead>
+                <tbody id="historiqueBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:5000/api';
+    const id = new URLSearchParams(location.search).get('id');
+    
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(r => r.text())
+            .then(d => document.getElementById('sidebar-container').innerHTML = d);
+    }
+
+    async function loadHistorique() {
+        // Charger l'équipement
+        const eqRes = await fetch(`${API_URL}/equipements/${id}`, {
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+        });
+        const equipement = await eqRes.json();
+        document.getElementById('equipementTitle').innerHTML = `📋 Historique - ${equipement.nom} (${equipement.codeInventaire})`;
+        
+        // Charger l'historique des interventions
+        const histRes = await fetch(`${API_URL}/maintenances/historique/${id}`, {
+            headers: { 'Authorization': `Bearer ${getToken()}` }
+        });
+        const interventions = await histRes.json();
+        
+        if (interventions.length === 0) {
+            document.getElementById('historiqueBody').innerHTML = '<tr><td colspan="6" style="text-align:center">Aucune intervention</td></tr>';
+            return;
+        }
+        
+        document.getElementById('historiqueBody').innerHTML = interventions.map(i => `
+            <tr>
+                <td>${new Date(i.dateDebut).toLocaleDateString()}</td
+                <td>${i.type === 'CORRECTIF' ? '🛠️ Panne' : '📅 Préventive'}</td
+                <td>${i.diagnostic || '-'}</td
+                <td>${i.technicien?.nom || '-'}</td
+                <td>${i.dureeMinutes ? i.dureeMinutes + ' min' : '-'}</td
+                <td>${i.statut === 'TERMINE' ? '<span class="badge-termine">✅ Terminé</span>' : '<span class="badge-cours">🔧 En cours</span>'}</td
+            </tr>
+        `).join('');
+    }
+
+    loadSidebar();
+    loadHistorique();
+</script>
+</body>
+</html>

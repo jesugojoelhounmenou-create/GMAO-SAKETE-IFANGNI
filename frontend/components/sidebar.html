@@ -1,0 +1,156 @@
+<!-- frontend/components/sidebar.html - Version verte -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">🏥 <span>GMAO</span> Sakété</div>
+    </div>
+    <div class="sidebar-menu">
+        <a href="dashboard.html" class="sidebar-item">
+            <span class="sidebar-icon">📊</span>
+            <span class="sidebar-text">Accueil</span>
+        </a>
+        <a href="inventaire.html" class="sidebar-item">
+            <span class="sidebar-icon">📦</span>
+            <span class="sidebar-text">Inventaire</span>
+        </a>
+        <a href="maintenances.html" class="sidebar-item">
+            <span class="sidebar-icon">🔧</span>
+            <span class="sidebar-text">Maintenance</span>
+
+            <a href="historique-travaux.html" class="sidebar-item">
+    <span class="sidebar-icon">📋</span>
+    <span class="sidebar-text">Historique travaux</span>
+</a>
+        </a>
+        <a href="stock.html" class="sidebar-item">
+            <span class="sidebar-icon">⚙️</span>
+            <span class="sidebar-text">Pièces</span>
+        </a>
+        <a href="gestion-techniciens.html" class="sidebar-item">
+            <span class="sidebar-icon">👥</span>
+            <span class="sidebar-text">Techniciens</span>
+        </a>
+        <a href="planning-garde.html" class="sidebar-item">
+            <span class="sidebar-icon">📅</span>
+            <span class="sidebar-text">Planning garde</span>
+        </a>
+        <a href="codir-rapports.html" class="sidebar-item">
+            <span class="sidebar-icon">📈</span>
+            <span class="sidebar-text">Rapports CoDIR</span>
+        </a>
+        <a href="fournisseurs.html" class="sidebar-item">
+            <span class="sidebar-icon">🏭</span>
+            <span class="sidebar-text">Fournisseurs</span>
+        </a>
+        <a href="utilisateurs.html" class="sidebar-item">
+            <span class="sidebar-icon">👥</span>
+            <span class="sidebar-text">Utilisateurs</span>
+        </a>
+        <a href="alertes.html" class="sidebar-item">
+            <span class="sidebar-icon">⚠️</span>
+            <span class="sidebar-text">Alertes</span>
+        </a>
+        <a href="documents.html" class="sidebar-item">
+            <span class="sidebar-icon">📚</span>
+            <span class="sidebar-text">Documents</span>
+        </a>
+        <a href="parametres.html" class="sidebar-item">
+            <span class="sidebar-icon">⚙️</span>
+            <span class="sidebar-text">Paramètres</span>
+        </a>
+        <a href="profil.html" class="sidebar-item">
+            <span class="sidebar-icon">👤</span>
+            <span class="sidebar-text">Mon profil</span>
+        </a>
+        <a href="diagnostic-bot.html" class="sidebar-item">
+            <span class="sidebar-icon">🤖</span>
+            <span class="sidebar-text">Diagnostic expert</span>
+        </a>
+    </div>
+</div>
+
+<style>
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 280px;
+        height: 100vh;
+        background: #1b5e20;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        z-index: 1000;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        overflow-y: auto;
+    }
+
+    .sidebar-header {
+        padding: 25px 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.2);
+        background: #2e7d32;
+    }
+
+    .sidebar-logo {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .sidebar-logo span {
+        color: #ffd600;
+    }
+
+    .sidebar-menu {
+        flex: 1;
+        padding: 15px 0;
+    }
+
+    .sidebar-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 20px;
+        color: rgba(255,255,255,0.9);
+        text-decoration: none;
+        transition: all 0.3s;
+        border-left: 3px solid transparent;
+    }
+
+    .sidebar-item:hover {
+        background: #2e7d32;
+        color: white;
+        border-left-color: #ffd600;
+    }
+
+    .sidebar-item.active {
+        background: #2e7d32;
+        color: white;
+        border-left-color: #ffd600;
+    }
+
+    .sidebar-icon { width: 24px; text-align: center; font-size: 18px; }
+    .sidebar-text { font-size: 14px; font-weight: 500; }
+
+    @media (max-width: 768px) {
+        .sidebar { transform: translateX(-100%); width: 260px; }
+        .sidebar.open { transform: translateX(0); }
+    }
+</style>
+
+<script>
+    // Marquer l'onglet actif
+    const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        const href = item.getAttribute('href');
+        if (href && href.includes(currentPage)) {
+            item.classList.add('active');
+        } else if (currentPage === '' && href === 'dashboard.html') {
+            item.classList.add('active');
+        }
+    });
+
+    // Gestion déconnexion globale
+    window.logout = function() {
+        localStorage.clear();
+        window.location.href = '/login.html';
+    };
+</script>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Gestion utilisateurs - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: #1b5e20;
+            font-size: 24px;
+        }
+
+        .stats-cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        .stat-label {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .search-bar input,
+        .search-bar select {
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 14px;
+            background: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow-x: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        .btn-validate {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .btn-validate:hover {
+            background: #16a34a;
+        }
+
+        .btn-reject {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-reject:hover {
+            background: #dc2626;
+        }
+
+        .btn-toggle {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-toggle:hover {
+            background: #2563eb;
+        }
+
+        .btn-details {
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .btn-details:hover {
+            background: #cbd5e1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #94a3b8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h3 {
+            color: #1b5e20;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .info-row {
+            display: flex;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .info-label {
+            width: 120px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .info-value {
+            flex: 1;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            th, td { padding: 10px; font-size: 12px; }
+            .btn-validate, .btn-reject, .btn-toggle, .btn-details { padding: 4px 10px; font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">
+    <div class="header">
+        <h1>👥 GESTION DES UTILISATEURS</h1>
+    </div>
+
+    <div class="stats-cards">
+        <div class="stat-card"><div class="stat-number" id="totalUsers">0</div><div class="stat-label">📊 Total</div></div>
+        <div class="stat-card"><div class="stat-number" id="pendingUsers">0</div><div class="stat-label">⏳ En attente</div></div>
+        <div class="stat-card"><div class="stat-number" id="activeUsers">0</div><div class="stat-label">✅ Actifs</div></div>
+        <div class="stat-card"><div class="stat-number" id="techniciensCount">0</div><div class="stat-label">🔧 Techniciens</div></div>
+    </div>
+
+    <div class="search-bar">
+        <input type="text" id="search" placeholder="🔍 Rechercher..." onkeyup="loadUsers()">
+        <select id="roleFilter" onchange="loadUsers()"><option value="">📋 Tous rôles</option><option value="SOIGNANT">👨‍⚕️ Soignant</option><option value="TECHNICIEN">🔧 Technicien</option></select>
+        <select id="statutFilter" onchange="loadUsers()"><option value="">📊 Tous statuts</option><option value="ACTIF">✅ Actif</option><option value="EN_ATTENTE">⏳ En attente</option><option value="INACTIF">❌ Inactif</option></select>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Nom</th><th>Email</th><th>Service</th><th>Rôle</th><th>Statut</th><th>Inscrit le</th><th>Actions</th></tr></thead>
+            <tbody id="tableBody"><tr><td colspan="7" class="empty-state">Chargement...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="detailsModal" class="modal">
+    <div class="modal-content"><h3>👤 Détails</h3><div id="detailsContent"></div><button class="btn-toggle" onclick="closeDetailsModal()" style="width:100%;">Fermer</button></div>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:5000/api';
+
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    async function loadUsers() {
+        const search = document.getElementById('search').value;
+        const role = document.getElementById('roleFilter').value;
+        const statut = document.getElementById('statutFilter').value;
+        let url = `${API_URL}/users?search=${encodeURIComponent(search)}`;
+        if (role) url += `&role=${role}`;
+        if (statut) url += `&statut=${statut}`;
+        
+        try {
+            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const data = await res.json();
+            const users = data.users || data;
+            if (users.length === 0) {
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="empty-state">📭 Aucun utilisateur</td></tr>';
+                document.getElementById('totalUsers').innerText = '0';
+                document.getElementById('pendingUsers').innerText = '0';
+                document.getElementById('activeUsers').innerText = '0';
+                document.getElementById('techniciensCount').innerText = '0';
+                return;
+            }
+            document.getElementById('totalUsers').innerText = users.length;
+            document.getElementById('pendingUsers').innerText = users.filter(u => u.statut === 'EN_ATTENTE').length;
+            document.getElementById('activeUsers').innerText = users.filter(u => u.statut === 'ACTIF').length;
+            document.getElementById('techniciensCount').innerText = users.filter(u => u.role === 'TECHNICIEN').length;
+            document.getElementById('tableBody').innerHTML = users.map(u => `
+                <tr>
+                    <td><strong>${escapeHtml(u.nom)}</strong> ${u.prenom || ''}</td>
+                    <td>${escapeHtml(u.email)}</td>
+                    <td>${escapeHtml(u.service) || '-'}</td>
+                    <td>${u.role === 'TECHNICIEN' ? '🔧 Technicien' : '👨‍⚕️ Soignant'}</td>
+                    <td>${getStatusBadge(u.statut)}</td>
+                    <td>${new Date(u.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-details" onclick="viewUserDetails(${u.id})">👁️ Détails</button>
+                        ${u.statut === 'EN_ATTENTE' ? `<button class="btn-validate" onclick="validateUser(${u.id})">✅ Valider</button><button class="btn-reject" onclick="rejectUser(${u.id})">❌ Rejeter</button>` : `<button class="btn-toggle" onclick="toggleStatus(${u.id}, ${u.statut !== 'ACTIF'})">${u.statut === 'ACTIF' ? '🔒 Désactiver' : '🔓 Activer'}</button>`}
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) { console.error('Erreur:', error); }
+    }
+
+    function getStatusBadge(statut) {
+        const badges = { 'EN_ATTENTE': '<span class="status-pending">⏳ En attente</span>', 'ACTIF': '<span class="status-active">✅ Actif</span>', 'INACTIF': '<span class="status-inactive">❌ Inactif</span>' };
+        return badges[statut] || statut;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+
+    async function viewUserDetails(id) {
+        const res = await fetch(`${API_URL}/users/${id}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+        const u = await res.json();
+        document.getElementById('detailsContent').innerHTML = `
+            <div class="info-row"><div class="info-label">Matricule</div><div class="info-value">${u.matricule || '-'}</div></div>
+            <div class="info-row"><div class="info-label">Nom</div><div class="info-value">${u.nom} ${u.prenom || ''}</div></div>
+            <div class="info-row"><div class="info-label">Email</div><div class="info-value">${u.email}</div></div>
+            <div class="info-row"><div class="info-label">Téléphone</div><div class="info-value">${u.telephone || '-'}</div></div>
+            <div class="info-row"><div class="info-label">Service</div><div class="info-value">${u.service || '-'}</div></div>
+            <div class="info-row"><div class="info-label">Rôle</div><div class="info-value">${u.role === 'TECHNICIEN' ? '🔧 Technicien' : '👨‍⚕️ Soignant'}</div></div>
+            <div class="info-row"><div class="info-label">Statut</div><div class="info-value">${getStatusBadge(u.statut)}</div></div>
+            <div class="info-row"><div class="info-label">Inscrit le</div><div class="info-value">${new Date(u.createdAt).toLocaleString()}</div></div>
+        `;
+        document.getElementById('detailsModal').style.display = 'flex';
+    }
+
+    function closeDetailsModal() { document.getElementById('detailsModal').style.display = 'none'; }
+
+    async function validateUser(id) {
+        if (!confirm('Valider ce compte ?')) return;
+        await fetch(`${API_URL}/auth/users/${id}/validate`, { method: 'PUT', headers: { 'Authorization': `Bearer ${getToken()}` } });
+        loadUsers();
+    }
+
+    async function rejectUser(id) {
+        if (!confirm('Rejeter ?')) return;
+        await fetch(`${API_URL}/auth/users/${id}/reject`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } });
+        loadUsers();
+    }
+
+    async function toggleStatus(id, activate) {
+        const action = activate ? 'activer' : 'désactiver';
+        if (confirm(`${action} ce compte ?`)) {
+            await fetch(`${API_URL}/auth/users/${id}/toggle-status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify({ actif: activate }) });
+            loadUsers();
+        }
+    }
+
+    loadSidebar();
+    loadUsers();
+</script>
+</body>
+</html>

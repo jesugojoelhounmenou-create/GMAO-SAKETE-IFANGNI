@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Intervention - GMAO Mobile</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; padding: 16px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .title { font-size: 20px; font-weight: bold; margin-bottom: 16px; color: #1a2a4f; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid #e2e8f0; }
+        .label { color: #64748b; }
+        .value { font-weight: 500; }
+        .priority { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+        .priority-CRITIQUE { background: #ef4444; color: white; }
+        .priority-HAUTE { background: #f97316; color: white; }
+        .priority-MOYENNE { background: #eab308; color: white; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 40px; font-size: 16px; font-weight: 600; margin-top: 10px; cursor: pointer; }
+        .btn-primary { background: #3b82f6; color: white; }
+        .btn-success { background: #22c55e; color: white; }
+        .btn-secondary { background: #e2e8f0; color: #475569; }
+        textarea { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 16px; font-size: 14px; margin-top: 8px; }
+        .back-link { text-align: center; margin-top: 20px; color: #3b82f6; text-decoration: none; display: block; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="content">Chargement...</div>
+    <a href="javascript:history.back()" class="back-link">← Retour</a>
+</div>
+<script>
+    const id = new URLSearchParams(location.search).get('id');
+    const token = localStorage.getItem('token');
+    
+    async function load() {
+        const response = await fetch(`/api/mobile/interventions/${id}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const i = await response.json();
+        
+        document.getElementById('content').innerHTML = `
+            <div class="card">
+                <div class="title">🔧 Intervention #${i.id}</div>
+                <div class="info-row"><span class="label">Équipement</span><span class="value">${i.equipement?.nom}</span></div>
+                <div class="info-row"><span class="label">Service</span><span class="value">${i.equipement?.service}</span></div>
+                <div class="info-row"><span class="label">Priorité</span><span class="priority priority-${i.signalement?.priorite || 'MOYENNE'}">${i.signalement?.priorite || 'NORMALE'}</span></div>
+                <div class="info-row"><span class="label">Date signalement</span><span class="value">${new Date(i.signalement?.dateSignalement).toLocaleString()}</span></div>
+                <div class="info-row"><span class="label">Statut</span><span class="value">${i.statut === 'EN_ATTENTE' ? '⏳ En attente' : i.statut === 'EN_COURS' ? '🔧 En cours' : '✅ Terminé'}</span></div>
+            </div>
+            
+            <div class="card">
+                <div class="title">📝 Description</div>
+                <p>${i.signalement?.description || i.diagnostic || 'Aucune description'}</p>
+            </div>
+            
+            ${i.statut !== 'TERMINE' ? `
+                <div class="card">
+                    <div class="title">📋 Actions réalisées</div>
+                    <textarea id="actions" rows="3" placeholder="Décrivez les actions effectuées...">${i.actionsRealisees || ''}</textarea>
+                    <textarea id="rapport" rows="3" placeholder="Rapport final..."></textarea>
+                    <input type="number" id="duree" placeholder="Durée (minutes)" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:16px; margin-top:8px;">
+                    ${i.statut === 'EN_ATTENTE' ? `<button class="btn btn-primary" onclick="prendreEnCharge()">Prendre en charge</button>` : ''}
+                    ${i.statut === 'EN_COURS' ? `<button class="btn btn-success" onclick="terminer()">Terminer l'intervention</button>` : ''}
+                </div>
+            ` : `
+                <div class="card">
+                    <div class="title">📋 Rapport final</div>
+                    <p>${i.rapportFinal || 'Aucun rapport'}</p>
+                    <div class="info-row"><span class="label">Durée</span><span class="value">${i.dureeMinutes || 0} minutes</span></div>
+                </div>
+            `}
+        `;
+    }
+    
+    async function prendreEnCharge() {
+        const response = await fetch(`/api/mobile/interventions/${id}/prendre`, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if(response.ok) { alert('Prise en charge effectuée'); load(); }
+        else alert('Erreur');
+    }
+    
+    async function terminer() {
+        const actions = document.getElementById('actions').value;
+        const rapport = document.getElementById('rapport').value;
+        const duree = document.getElementById('duree').value;
+        
+        const response = await fetch(`/api/mobile/interventions/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ actionsRealisees: actions, rapportFinal: rapport, dureeMinutes: duree, statut: 'TERMINE' })
+        });
+        if(response.ok) { alert('Intervention terminée'); load(); }
+        else alert('Erreur');
+    }
+    
+    if(!token) window.location.href = '/login.html';
+    load();
+</script>
+</body>
+</html>

@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GMAO Sakété - Tableau de bord global</title>
+    <!-- Leaflet pour la carte -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* ========== SIDEBAR VERTE (inspirée capture) ========== */
+        .sidebar {
+            width: 280px;
+            background: #1b5e20;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 100;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            background: #2e7d32;
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .sidebar-logo span {
+            color: #ffd600;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 15px 0;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255,255,255,0.9);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: #2e7d32;
+            color: white;
+            border-left-color: #ffd600;
+        }
+
+        .sidebar-item.active {
+            background: #2e7d32;
+            color: white;
+            border-left-color: #ffd600;
+        }
+
+        .sidebar-icon { width: 24px; text-align: center; font-size: 18px; }
+        .sidebar-text { font-size: 14px; font-weight: 500; }
+
+        /* ========== CONTENU PRINCIPAL ========== */
+        .main-content {
+            margin-left: 280px;
+            padding: 20px;
+            width: calc(100% - 280px);
+            min-height: 100vh;
+        }
+
+        /* En-tête */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .header h1 {
+            color: #1b5e20;
+            font-size: 22px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-name {
+            font-weight: 500;
+            color: #333;
+        }
+
+        .logout-btn {
+            background: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        /* Grille principale */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        /* Cartes */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1b5e20;
+            border-left: 4px solid #ffd600;
+            padding-left: 10px;
+        }
+
+        /* Carte */
+        #hospitalMap {
+            height: 320px;
+            width: 100%;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Indicateurs */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* Section alertes */
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #1b5e20;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .priority-critical {
+            width: 10px;
+            height: 10px;
+            background: #dc2626;
+            border-radius: 50%;
+        }
+
+        .btn-sm {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .btn-sm:hover {
+            background: #2e7d32;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; width: 100%; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<<!-- SIDEBAR VERTE -->
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">🏥 <span>GMAO</span> Sakété</div>
+    </div>
+    <div class="sidebar-menu">
+        <a href="dashboard.html" class="sidebar-item active"><span class="sidebar-icon">📊</span><span class="sidebar-text">Accueil</span></a>
+        <a href="inventaire.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span class="sidebar-text">Inventaire</span></a>
+        <a href="maintenances.html" class="sidebar-item"><span class="sidebar-icon">🔧</span><span class="sidebar-text">Maintenance</span></a>
+        <a href="stock.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Pièces</span></a>
+        <a href="gestion-techniciens.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span class="sidebar-text">Techniciens</span></a>
+        <a href="planning-garde.html" class="sidebar-item"><span class="sidebar-icon">📅</span><span class="sidebar-text">Planning garde</span></a>
+        <a href="codir-rapports.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span class="sidebar-text">Rapports CoDIR</span></a>
+        <a href="fournisseurs.html" class="sidebar-item"><span class="sidebar-icon">🏭</span><span class="sidebar-text">Fournisseurs</span></a>
+        <a href="utilisateurs.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span class="sidebar-text">Utilisateurs</span></a>
+        <a href="alertes.html" class="sidebar-item"><span class="sidebar-icon">⚠️</span><span class="sidebar-text">Alertes</span></a>
+        <a href="documents.html" class="sidebar-item"><span class="sidebar-icon">📚</span><span class="sidebar-text">Documents</span></a>
+        <a href="parametres.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Paramètres</span></a>
+        <a href="profil.html" class="sidebar-item"><span class="sidebar-icon">👤</span><span class="sidebar-text">Mon profil</span></a>
+        <a href="diagnostic-bot.html" class="sidebar-item"><span class="sidebar-icon">🤖</span><span class="sidebar-text">Diagnostic expert</span></a>
+    </div>
+</div>
+<!-- CONTENU PRINCIPAL -->
+<div class="main-content">
+    <div class="header">
+        <h1>📊 TABLEAU DE BORD GLOBAL</h1>
+        <div class="user-info">
+            <span class="user-name" id="userName">Jean ADJOVI</span>
+            <button class="logout-btn" onclick="logout()">Déconnexion</button>
+        </div>
+    </div>
+
+    <!-- LOCALISATION + PERFORMANCES -->
+    <div class="dashboard-grid">
+        <div class="card">
+            <div class="card-title">📍 LOCALISATION DU PARC</div>
+            <div id="hospitalMap"></div>
+            <div style="margin-top: 10px; font-size: 12px; text-align: center; color: #666;">
+                🏥 Hôpital de Zone Sakété-Ifangni - Sakété, Bénin
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">📊 PERFORMANCES GLOBALES</div>
+            <div class="stats-grid" style="margin-bottom: 0;">
+                <div class="stat-card"><div class="stat-value" id="disponibilite">94%</div><div class="stat-label">Disponibilité</div></div>
+                <div class="stat-card"><div class="stat-value" id="tauxPannes">12%</div><div class="stat-label">Taux de panne</div></div>
+                <div class="stat-card"><div class="stat-value" id="mtbf">87j</div><div class="stat-label">MTBF</div></div>
+                <div class="stat-card"><div class="stat-value" id="mttr">4.2h</div><div class="stat-label">MTTR</div></div>
+            </div>
+            <div style="margin-top: 15px;">
+                <canvas id="performanceChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- FLUX D'ALERTES DIRECT -->
+    <div class="section">
+        <div class="section-title">
+            <span>🚨 FLUX D'ALERTES DIRECT</span>
+            <button class="btn-sm" onclick="voirToutesUrgences()">Voir tout</button>
+        </div>
+        <div id="alertesList">
+            <div class="alert-item"><div class="priority-critical"></div><div><strong>Respirateur - Bloc</strong><br><small>Panne critique signalée</small></div><span style="margin-left:auto;">Il y a 5 min</span></div>
+            <div class="alert-item"><div class="priority-critical"></div><div><strong>Échographe - Radiologie</strong><br><small>Image floue</small></div><span style="margin-left:auto;">Il y a 15 min</span></div>
+            <div class="alert-item"><div class="priority-critical"></div><div><strong>Moniteur - Urgences</strong><br><small>SpO2 inexacte</small></div><span style="margin-left:auto;">Il y a 32 min</span></div>
+        </div>
+    </div>
+
+    <!-- BOUTON IMPRIMER BILAN -->
+    <div style="text-align: right; margin-top: 20px;">
+        <button class="btn-sm" style="background:#1b5e20; padding: 10px 25px;" onclick="imprimerBilan()">🖨️ IMPRIMER BILAN</button>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'http://192.168.62.215:5500/api';
+    let map = null;
+    let performanceChart = null;
+
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    // Carte
+    function initMap() {
+        const saketeCoords = [6.7367, 2.6586];
+        map = L.map('hospitalMap').setView(saketeCoords, 14);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap',
+            subdomains: 'abcd'
+        }).addTo(map);
+        L.marker(saketeCoords).addTo(map).bindPopup('🏥 Hôpital Sakété-Ifangni').openPopup();
+        L.circle(saketeCoords, { color: '#1b5e20', fillColor: '#4caf50', fillOpacity: 0.1, radius: 600 }).addTo(map);
+    }
+
+    // Graphique performances
+    function initChart() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        if (performanceChart) performanceChart.destroy();
+        performanceChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin'],
+                datasets: [{
+                    label: 'Disponibilité (%)',
+                    data: [92, 93, 94, 95, 94, 96],
+                    borderColor: '#1b5e20',
+                    backgroundColor: 'rgba(27, 94, 32, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: true }
+        });
+    }
+
+    async function chargerAlertes() {
+        try {
+            const res = await fetch(`${API_URL}/maintenances/urgences`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const urgences = await res.json();
+            if (urgences.length > 0) {
+                document.getElementById('alertesList').innerHTML = urgences.slice(0, 5).map(u => `
+                    <div class="alert-item" onclick="voirIntervention(${u.id})">
+                        <div class="priority-critical"></div>
+                        <div><strong>${u.equipement?.nom}</strong><br><small>${u.equipement?.service}</small></div>
+                        <span style="margin-left:auto;">${new Date(u.dateDebut).toLocaleTimeString()}</span>
+                    </div>
+                `).join('');
+            }
+        } catch (error) { console.error('Erreur alertes:', error); }
+    }
+
+    function voirIntervention(id) { window.location.href = `intervention-form.html?id=${id}`; }
+    function voirToutesUrgences() { window.location.href = 'maintenances.html?filter=urgences'; }
+    function imprimerBilan() { window.print(); }
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+
+    setTimeout(initMap, 300);
+    initChart();
+    chargerAlertes();
+    document.getElementById('userName').innerText = localStorage.getItem('userName') || 'Jean ADJOVI';
+</script>
+</body>
+</html>

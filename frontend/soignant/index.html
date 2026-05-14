@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GMAO Sakété - Espace Soignant</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a2a4f 0%, #1e3a5f 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        .logo-section { text-align: center; margin-bottom: 30px; }
+        .logo {
+            background: rgba(255,255,255,0.15);
+            width: 80px; height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 40px;
+        }
+        h1 { color: white; font-size: 24px; }
+        .subtitle { color: rgba(255,255,255,0.8); font-size: 13px; }
+        
+        .user-card {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .user-avatar {
+            width: 55px; height: 55px;
+            background: #00d4ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+        .user-info { flex: 1; }
+        .user-name { color: white; font-weight: bold; font-size: 16px; }
+        .user-service { color: rgba(255,255,255,0.7); font-size: 12px; }
+        .logout-btn { background: rgba(239,68,68,0.8); border: none; color: white; padding: 8px 16px; border-radius: 30px; cursor: pointer; font-size: 12px; }
+        
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .menu-item {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            text-decoration: none;
+            display: block;
+        }
+        .menu-item:hover { background: rgba(255,255,255,0.2); transform: translateY(-3px); }
+        .menu-icon { font-size: 40px; margin-bottom: 10px; }
+        .menu-title { color: white; font-weight: 600; font-size: 14px; }
+        .menu-desc { color: rgba(255,255,255,0.7); font-size: 11px; margin-top: 5px; }
+        
+        .chatbot-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            background: #3b82f6;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            cursor: pointer;
+            border: none;
+            z-index: 100;
+        }
+        .footer { text-align: center; margin-top: 20px; }
+        .footer a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 12px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="logo-section">
+        <div class="logo">🏥</div>
+        <h1>GMAO Sakété</h1>
+        <div class="subtitle">Espace Personnel Soignant</div>
+    </div>
+
+    <div class="user-card">
+        <div class="user-avatar">👨‍⚕️</div>
+        <div class="user-info">
+            <div class="user-name" id="userName">Chargement...</div>
+            <div class="user-service" id="userService">Service Urgences</div>
+        </div>
+        <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+
+    <div class="menu-grid">
+        <a href="dashboard.html" class="menu-item">
+            <div class="menu-icon">📊</div>
+            <div class="menu-title">Tableau de bord</div>
+            <div class="menu-desc">Vue d'ensemble</div>
+        </a>
+        <a href="scanner.html" class="menu-item">
+            <div class="menu-icon">📱</div>
+            <div class="menu-title">Scanner QR</div>
+            <div class="menu-desc">Scanner un équipement</div>
+        </a>
+        <a href="signaler-panne.html" class="menu-item">
+            <div class="menu-icon">⚠️</div>
+            <div class="menu-title">Signaler une panne</div>
+            <div class="menu-desc">Signaler un problème</div>
+        </a>
+        <a href="historique.html" class="menu-item">
+            <div class="menu-icon">📋</div>
+            <div class="menu-title">Historique</div>
+            <div class="menu-desc">Mes signalements</div>
+        </a>
+        <a href="profil.html" class="menu-item">
+            <div class="menu-icon">👤</div>
+            <div class="menu-title">Mon profil</div>
+            <div class="menu-desc">Informations</div>
+        </a>
+    </div>
+
+    <div class="footer">
+        <a href="#" onclick="openChatbot()">🤖 Assistant maintenance</a> | 
+        <a href="/login.html">🔐 Changer de compte</a>
+    </div>
+</div>
+
+<button class="chatbot-float" onclick="openChatbot()">🤖</button>
+
+<script>
+    function getToken() { return localStorage.getItem('token'); }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/login.html';
+    }
+
+    function openChatbot() {
+        window.location.href = 'dashboard.html?openChat=true';
+    }
+
+    function loadUserInfo() {
+        document.getElementById('userName').innerText = localStorage.getItem('userName') || 'Personnel Soignant';
+        document.getElementById('userService').innerText = localStorage.getItem('userService') || 'Service';
+    }
+
+    if(!getToken()) {
+        window.location.href = '/login.html';
+    }
+    loadUserInfo();
+</script>
+</body>
+</html>

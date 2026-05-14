@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GMAO Sakété - Espace Technicien</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            min-height: 100vh;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+        }
+
+        /* ============================================
+           SIDEBAR VERTE
+        ============================================ */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            height: 100vh;
+            background: #1b5e20;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            background: #2e7d32;
+        }
+
+        .sidebar-logo {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .sidebar-logo span {
+            color: #ffd600;
+        }
+
+        .sidebar-menu {
+            flex: 1;
+            padding: 20px 0;
+            overflow-y: auto;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-item:hover {
+            background: #2e7d32;
+            color: white;
+            border-left-color: #ffd600;
+        }
+
+        .sidebar-item.active {
+            background: #2e7d32;
+            color: white;
+            border-left-color: #ffd600;
+        }
+
+        .sidebar-icon {
+            width: 24px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .sidebar-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sidebar-footer {
+            padding: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: #ffd600;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #1b5e20;
+        }
+
+        .user-info { flex: 1; }
+        .user-name { font-weight: bold; font-size: 14px; }
+        .user-role { font-size: 11px; opacity: 0.8; }
+
+        .sidebar-logout {
+            width: 100%;
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* ============================================
+           CONTENU PRINCIPAL
+        ============================================ */
+        .main-content {
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            background: rgba(27, 94, 32, 0.15);
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 40px;
+            border: 2px solid rgba(27, 94, 32, 0.3);
+        }
+
+        .logo-section h1 {
+            color: #1b5e20;
+            font-size: 24px;
+        }
+
+        .logo-section .subtitle {
+            color: #4a7c59;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .menu-item {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid #e2e8f0;
+            text-decoration: none;
+            display: block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: #1b5e20;
+        }
+
+        .menu-icon {
+            font-size: 40px;
+            margin-bottom: 12px;
+        }
+
+        .menu-title {
+            color: #1b5e20;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .menu-desc {
+            color: #64748b;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+
+        .user-info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .user-avatar-large {
+            width: 50px;
+            height: 50px;
+            background: #1b5e20;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+
+        .user-name-display {
+            color: #1b5e20;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .user-role-display {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .mobile-logout {
+            background: #ef4444;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .footer a {
+            color: #4a7c59;
+            text-decoration: none;
+            font-size: 12px;
+            margin: 0 10px;
+        }
+
+        .footer a:hover {
+            color: #1b5e20;
+        }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            .sidebar { transform: translateX(-100%); width: 260px; }
+            .sidebar.open { transform: translateX(0); }
+            .menu-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+            .menu-item { padding: 15px; }
+            .menu-icon { font-size: 30px; }
+            .menu-title { font-size: 13px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-logo">🏥 <span>GMAO</span> Sakété</div>
+    </div>
+    <div class="sidebar-menu">
+        <a href="index.html" class="sidebar-item active"><span class="sidebar-icon">🏠</span><span class="sidebar-text">Accueil</span></a>
+        <a href="dashboard.html" class="sidebar-item"><span class="sidebar-icon">📊</span><span class="sidebar-text">Tableau de bord</span></a>
+        <a href="inventaire.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span class="sidebar-text">Inventaire</span></a>
+        <a href="maintenances.html" class="sidebar-item"><span class="sidebar-icon">🔧</span><span class="sidebar-text">Maintenances</span></a>
+        <a href="diagnostic-bot.html" class="sidebar-item"><span class="sidebar-icon">🤖</span><span class="sidebar-text">Diagnostic</span></a>
+        <a href="stock.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Stock</span></a>
+        <a href="gestion-techniciens.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span class="sidebar-text">Techniciens</span></a>
+        <a href="planning-garde.html" class="sidebar-item"><span class="sidebar-icon">📅</span><span class="sidebar-text">Planning</span></a>
+        <a href="codir-rapports.html" class="sidebar-item"><span class="sidebar-icon">📈</span><span class="sidebar-text">CoDIR</span></a>
+        <a href="fournisseurs.html" class="sidebar-item"><span class="sidebar-icon">🏭</span><span class="sidebar-text">Fournisseurs</span></a>
+        <a href="alertes.html" class="sidebar-item"><span class="sidebar-icon">⚠️</span><span class="sidebar-text">Alertes</span></a>
+        <a href="documents.html" class="sidebar-item"><span class="sidebar-icon">📚</span><span class="sidebar-text">Documents</span></a>
+        <a href="parametres.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Paramètres</span></a>
+        <a href="profil.html" class="sidebar-item"><span class="sidebar-icon">👤</span><span class="sidebar-text">Mon profil</span></a>
+    </div>
+    <div class="sidebar-footer">
+        <div class="sidebar-user">
+            <span class="user-avatar">👨‍🔧</span>
+            <div class="user-info">
+                <div class="user-name" id="sidebarUserName">Chargement...</div>
+                <div class="user-role">Technicien</div>
+            </div>
+        </div>
+        <button class="sidebar-logout" onclick="logout()">🚪 Déconnexion</button>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="logo-section">
+        <div class="logo">🏥</div>
+        <h1>GMAO Sakété</h1>
+        <div class="subtitle">Espace Technicien Biomédical</div>
+    </div>
+
+    <div class="user-info-card">
+        <div class="user-avatar-large">👨‍🔧</div>
+        <div class="user-details">
+            <div class="user-name-display" id="userName">Chargement...</div>
+            <div class="user-role-display">Technicien Biomédical • Hôpital Zone Sakété-Ifangni</div>
+        </div>
+        <button class="mobile-logout" onclick="logout()">Déconnexion</button>
+    </div>
+
+    <div class="menu-grid">
+        <a href="dashboard.html" class="menu-item"><div class="menu-icon">📊</div><div class="menu-title">Tableau de bord</div><div class="menu-desc">Indicateurs</div></a>
+        <a href="inventaire.html" class="menu-item"><div class="menu-icon">📦</div><div class="menu-title">Inventaire</div><div class="menu-desc">Équipements</div></a>
+        <a href="maintenances.html" class="menu-item"><div class="menu-icon">🔧</div><div class="menu-title">Maintenances</div><div class="menu-desc">Pannes</div></a>
+        <a href="diagnostic-bot.html" class="menu-item"><div class="menu-icon">🤖</div><div class="menu-title">Diagnostic</div><div class="menu-desc">IA expert</div></a>
+        <a href="stock.html" class="menu-item"><div class="menu-icon">⚙️</div><div class="menu-title">Stock</div><div class="menu-desc">Pièces</div></a>
+        <a href="gestion-techniciens.html" class="menu-item"><div class="menu-icon">👥</div><div class="menu-title">Techniciens</div><div class="menu-desc">Comptes</div></a>
+        <a href="planning-garde.html" class="menu-item"><div class="menu-icon">📅</div><div class="menu-title">Planning</div><div class="menu-desc">Garde</div></a>
+        <a href="codir-rapports.html" class="menu-item"><div class="menu-icon">📈</div><div class="menu-title">CoDIR</div><div class="menu-desc">Rapports</div></a>
+        <a href="fournisseurs.html" class="menu-item"><div class="menu-icon">🏭</div><div class="menu-title">Fournisseurs</div><div class="menu-desc">Gestion</div></a>
+        <a href="alertes.html" class="menu-item"><div class="menu-icon">⚠️</div><div class="menu-title">Alertes</div><div class="menu-desc">Notifications</div></a>
+        <a href="documents.html" class="menu-item"><div class="menu-icon">📚</div><div class="menu-title">Documents</div><div class="menu-desc">Bibliothèque</div></a>
+        <a href="parametres.html" class="menu-item"><div class="menu-icon">⚙️</div><div class="menu-title">Paramètres</div><div class="menu-desc">Configuration</div></a>
+        <a href="profil.html" class="menu-item"><div class="menu-icon">👤</div><div class="menu-title">Mon profil</div><div class="menu-desc">Informations</div></a>
+    </div>
+
+    <div class="footer">
+        <a href="/mobile/index.html">📱 Version mobile</a> | 
+        <a href="/login.html">🔐 Changer de compte</a>
+    </div>
+</div>
+
+<script>
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+
+    function loadUserInfo() {
+        const name = localStorage.getItem('userName') || 'Technicien';
+        document.getElementById('userName').innerText = name;
+        document.getElementById('sidebarUserName').innerText = name;
+    }
+
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.sidebar-item').forEach(item => {
+        const href = item.getAttribute('href');
+        if (href && currentPath.includes(href)) item.classList.add('active');
+    });
+
+    loadUserInfo();
+</script>
+</body>
+</html>

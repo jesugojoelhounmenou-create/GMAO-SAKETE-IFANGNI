@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Formulaire équipement - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f1f5f9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        /* ============================================
+           CONTENU PRINCIPAL
+        ============================================ */
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1a2a4f;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #334155;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
+        }
+
+        .qr-preview {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .info-message {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                margin-left: 0;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            .main-content {
+                padding: 0 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div id="sidebar-container"></div>
+
+<!-- CONTENU PRINCIPAL -->
+<div class="main-content">
+    <a href="inventaire.html" class="back-link">← Retour à l'inventaire</a>
+    
+    <div class="card">
+        <div class="title" id="formTitle">➕ Ajouter un équipement</div>
+        
+        <div id="infoMessage" class="info-message"></div>
+        
+        <form id="equipmentForm">
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Nom *</label>
+                    <input type="text" id="nom" required placeholder="Ex: Respirateur Siemens">
+                </div>
+                <div class="form-group">
+                    <label>Code inventaire *</label>
+                    <input type="text" id="codeInventaire" required placeholder="Ex: RES-001">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Marque</label>
+                    <input type="text" id="marque" placeholder="Ex: Siemens, GE, Philips">
+                </div>
+                <div class="form-group">
+                    <label>Modèle</label>
+                    <input type="text" id="modele" placeholder="Ex: Servo-i">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Numéro de série</label>
+                    <input type="text" id="numeroSerie" placeholder="Numéro unique">
+                </div>
+                <div class="form-group">
+                    <label>Fabricant</label>
+                    <input type="text" id="fabricant">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Type médical *</label>
+                    <select id="typeMedical">
+                        <option value="IMAGERIE">🖥️ Imagerie</option>
+                        <option value="MONITORING">📊 Monitoring</option>
+                        <option value="RESPIRATION">💨 Respiration</option>
+                        <option value="LABORATOIRE">🔬 Laboratoire</option>
+                        <option value="CHIRURGICAL">🔪 Chirurgical</option>
+                        <option value="STERILISATION">🧼 Stérilisation</option>
+                        <option value="AUTRE">📌 Autre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Criticité</label>
+                    <select id="criticite">
+                        <option value="CRITIQUE">🔴 Critique</option>
+                        <option value="HAUTE">🟠 Haute</option>
+                        <option value="MOYENNE">🟡 Moyenne</option>
+                        <option value="BASSE">🟢 Basse</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Service *</label>
+                    <select id="service">
+                        <option value="URGENCES">🚨 Urgences</option>
+                        <option value="RADIOLOGIE">🩻 Radiologie</option>
+                        <option value="BLOC_OPERATOIRE">🏥 Bloc opératoire</option>
+                        <option value="PEDIATRIE">👶 Pédiatrie</option>
+                        <option value="LABORATOIRE">🔬 Laboratoire</option>
+                        <option value="USI">💓 USI</option>
+                        <option value="MEDECINE_INTERNE">💊 Médecine interne</option>
+                        <option value="CHIRURGIE">🔪 Chirurgie</option>
+                        <option value="AUTRE">📌 Autre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Bâtiment</label>
+                    <input type="text" id="batiment" placeholder="A, B, C, D">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Salle</label>
+                    <input type="text" id="salle" placeholder="Salle 101, Bloc 2">
+                </div>
+                <div class="form-group">
+                    <label>Étage</label>
+                    <input type="number" id="etage" placeholder="0=RDC">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Date mise en service</label>
+                    <input type="date" id="dateMiseService">
+                </div>
+                <div class="form-group">
+                    <label>Fin de garantie</label>
+                    <input type="date" id="garantieFin">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Statut</label>
+                <select id="statut">
+                    <option value="FONCTIONNEL">✅ Fonctionnel</option>
+                    <option value="EN_PANNE">❌ En panne</option>
+                    <option value="EN_MAINTENANCE">🔧 En maintenance</option>
+                    <option value="HORS_SERVICE">⚠️ Hors service</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Spécifications techniques</label>
+                <textarea id="specifications" rows="3" placeholder="Tension: 220V, Puissance: 500W, Dimensions: 50x40x30cm..."></textarea>
+            </div>
+            
+            <div class="qr-preview" id="qrPreview"></div>
+            
+            <button type="button" class="btn btn-primary" onclick="save()">💾 Enregistrer</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='inventaire.html'">❌ Annuler</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const API_URL = 'http://192.168.62.215:5500/api';
+    const id = new URLSearchParams(location.search).get('id');
+
+    function getToken() { 
+        return localStorage.getItem('token'); 
+    }
+
+    // Vérifier l'authentification
+    if (!getToken()) {
+        window.location.href = '/login.html';
+    }
+
+    // ============================================
+    // CHARGEMENT DE LA SIDEBAR
+    // ============================================
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+            })
+            .catch(error => {
+                console.error('Erreur chargement sidebar:', error);
+            });
+    }
+
+    // ============================================
+    // CHARGEMENT DES DONNÉES (si modification)
+    // ============================================
+    async function load() {
+        if (id) {
+            document.getElementById('formTitle').innerHTML = '✏️ Modifier équipement';
+            document.getElementById('infoMessage').style.display = 'block';
+            document.getElementById('infoMessage').innerHTML = '📝 Modification de l\'équipement en cours...';
+            
+            try {
+                const res = await fetch(`${API_URL}/equipements/${id}`, { 
+                    headers: { 'Authorization': `Bearer ${getToken()}` } 
+                });
+                const e = await res.json();
+                
+                document.getElementById('nom').value = e.nom || '';
+                document.getElementById('codeInventaire').value = e.codeInventaire || '';
+                document.getElementById('marque').value = e.marque || '';
+                document.getElementById('modele').value = e.modele || '';
+                document.getElementById('numeroSerie').value = e.numeroSerie || '';
+                document.getElementById('fabricant').value = e.fabricant || '';
+                document.getElementById('typeMedical').value = e.typeMedical || 'IMAGERIE';
+                document.getElementById('criticite').value = e.criticite || 'MOYENNE';
+                document.getElementById('service').value = e.service || 'URGENCES';
+                document.getElementById('batiment').value = e.batiment || '';
+                document.getElementById('salle').value = e.salle || '';
+                document.getElementById('etage').value = e.etage || '';
+                document.getElementById('dateMiseService').value = e.dateMiseService?.split('T')[0] || '';
+                document.getElementById('garantieFin').value = e.garantieFin?.split('T')[0] || '';
+                document.getElementById('statut').value = e.statut || 'FONCTIONNEL';
+                document.getElementById('specifications').value = e.specifications || '';
+                
+                document.getElementById('infoMessage').innerHTML = '✅ Équipement chargé avec succès';
+                setTimeout(() => {
+                    document.getElementById('infoMessage').style.display = 'none';
+                }, 2000);
+            } catch (error) {
+                console.error('Erreur chargement:', error);
+                document.getElementById('infoMessage').innerHTML = '❌ Erreur lors du chargement de l\'équipement';
+            }
+        }
+    }
+
+    // ============================================
+    // SAUVEGARDE
+    // ============================================
+    async function save() {
+        // Validation des champs requis
+        const nom = document.getElementById('nom').value.trim();
+        const codeInventaire = document.getElementById('codeInventaire').value.trim();
+        
+        if (!nom || !codeInventaire) {
+            alert('⚠️ Veuillez remplir les champs obligatoires : Nom et Code inventaire');
+            return;
+        }
+        
+        const data = {
+            nom: nom,
+            codeInventaire: codeInventaire,
+            marque: document.getElementById('marque').value,
+            modele: document.getElementById('modele').value,
+            numeroSerie: document.getElementById('numeroSerie').value,
+            fabricant: document.getElementById('fabricant').value,
+            typeMedical: document.getElementById('typeMedical').value,
+            criticite: document.getElementById('criticite').value,
+            service: document.getElementById('service').value,
+            batiment: document.getElementById('batiment').value,
+            salle: document.getElementById('salle').value,
+            etage: parseInt(document.getElementById('etage').value) || null,
+            dateMiseService: document.getElementById('dateMiseService').value || null,
+            garantieFin: document.getElementById('garantieFin').value || null,
+            statut: document.getElementById('statut').value,
+            specifications: document.getElementById('specifications').value
+        };
+        
+        const url = id ? `${API_URL}/equipements/${id}` : `${API_URL}/equipements`;
+        const method = id ? 'PUT' : 'POST';
+        
+        try {
+            const res = await fetch(url, { 
+                method, 
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${getToken()}` 
+                }, 
+                body: JSON.stringify(data) 
+            });
+            
+            if (res.ok) {
+                alert(id ? '✅ Équipement modifié avec succès !' : '✅ Équipement ajouté avec succès !');
+                window.location.href = 'inventaire.html';
+            } else {
+                const error = await res.json();
+                alert('❌ Erreur : ' + (error.message || 'Une erreur est survenue'));
+            }
+        } catch (error) {
+            console.error('Erreur sauvegarde:', error);
+            alert('❌ Erreur de connexion au serveur');
+        }
+    }
+
+    // ============================================
+    // INITIALISATION
+    // ============================================
+    loadSidebar();
+    load();
+</script>
+</body>
+</html>

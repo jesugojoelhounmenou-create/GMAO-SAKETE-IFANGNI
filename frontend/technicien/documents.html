@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Documents - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: #1b5e20;
+            font-size: 24px;
+        }
+
+        .btn-add {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+
+        .btn-add:hover {
+            background: #2e7d32;
+            transform: translateY(-2px);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 14px;
+            background: white;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .document-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .document-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .document-icon { font-size: 40px; }
+        .document-info { flex: 1; }
+        .document-title { font-weight: bold; margin-bottom: 5px; }
+        .document-meta { font-size: 11px; color: #94a3b8; }
+        .document-type { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 10px; margin-top: 5px; }
+        .type-manuel { background: #dbeafe; color: #2563eb; }
+        .type-notice { background: #fef3c7; color: #d97706; }
+        .type-schema { background: #dcfce7; color: #166534; }
+        .type-certificat { background: #e2e8f0; color: #475569; }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px;
+            color: #94a3b8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+        }
+
+        .modal h3 {
+            color: #1b5e20;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+
+        .btn-primary {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .btn-primary:hover {
+            background: #2e7d32;
+        }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            .document-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">
+    <div class="header">
+        <h1>📚 BIBLIOTHÈQUE DE DOCUMENTS</h1>
+        <button class="btn-add" onclick="openAddModal()">📤 Upload document</button>
+    </div>
+
+    <div class="filter-bar">
+        <input type="text" id="search" placeholder="🔍 Rechercher..." onkeyup="loadDocuments()">
+        <select id="typeFilter" onchange="loadDocuments()">
+            <option value="">📋 Tous les types</option>
+            <option value="MANUEL">📖 Manuels</option>
+            <option value="NOTICE">📄 Notices</option>
+            <option value="SCHEMA">📐 Schémas</option>
+            <option value="CERTIFICAT">📜 Certificats</option>
+        </select>
+    </div>
+
+    <div id="documentsList" class="document-grid">
+        <div class="empty-state">Chargement des documents...</div>
+    </div>
+</div>
+
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <h3>📤 Uploader un document</h3>
+        <div class="form-group"><label>Titre</label><input type="text" id="titre"></div>
+        <div class="form-group"><label>Type</label><select id="type"><option value="MANUEL">📖 Manuel</option><option value="NOTICE">📄 Notice</option><option value="SCHEMA">📐 Schéma</option><option value="CERTIFICAT">📜 Certificat</option></select></div>
+        <div class="form-group"><label>Équipement lié</label><select id="equipementId"><option value="">Aucun</option></select></div>
+        <div class="form-group"><label>Fichier (PDF, DOC)</label><input type="file" id="fichier" accept=".pdf,.doc,.docx"></div>
+        <button class="btn-primary" onclick="uploadDocument()">📤 Uploader</button>
+        <button onclick="closeModal()" style="margin-top:10px; background:#e2e8f0; border:none; padding:10px; border-radius:30px;">Annuler</button>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'http://192.168.62.215:5500/api';
+
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    async function loadDocuments() {
+        const search = document.getElementById('search').value;
+        const type = document.getElementById('typeFilter').value;
+        let url = `${API_URL}/documents?search=${encodeURIComponent(search)}`;
+        if (type) url += `&type=${type}`;
+        
+        try {
+            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const docs = await res.json();
+            if (docs.length === 0) {
+                document.getElementById('documentsList').innerHTML = '<div class="empty-state">📭 Aucun document</div>';
+                return;
+            }
+            document.getElementById('documentsList').innerHTML = docs.map(d => {
+                let typeClass = '', icon = '📄';
+                if (d.type === 'MANUEL') { typeClass = 'type-manuel'; icon = '📖'; }
+                else if (d.type === 'NOTICE') { typeClass = 'type-notice'; icon = '📄'; }
+                else if (d.type === 'SCHEMA') { typeClass = 'type-schema'; icon = '📐'; }
+                else { typeClass = 'type-certificat'; icon = '📜'; }
+                return `<div class="document-card" onclick="window.open('${d.url}', '_blank')"><div class="document-icon">${icon}</div><div class="document-info"><div class="document-title">${d.titre}</div><div class="document-meta">Ajouté le ${new Date(d.dateUpload).toLocaleDateString()}</div><span class="document-type ${typeClass}">${d.type}</span></div></div>`;
+            }).join('');
+        } catch (error) { document.getElementById('documentsList').innerHTML = '<div class="empty-state">❌ Erreur</div>'; }
+    }
+
+    async function loadEquipements() {
+        const res = await fetch(`${API_URL}/equipements`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+        const equipements = await res.json();
+        const select = document.getElementById('equipementId');
+        select.innerHTML = '<option value="">Aucun</option>' + equipements.map(e => `<option value="${e.id}">${e.nom} (${e.codeInventaire})</option>`).join('');
+    }
+
+    function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('addModal').style.display = 'none'; }
+
+    async function uploadDocument() {
+        const titre = document.getElementById('titre').value;
+        const fichier = document.getElementById('fichier').files[0];
+        if (!titre || !fichier) { alert('Titre et fichier requis'); return; }
+        const formData = new FormData();
+        formData.append('titre', titre);
+        formData.append('type', document.getElementById('type').value);
+        formData.append('equipementId', document.getElementById('equipementId').value);
+        formData.append('fichier', fichier);
+        const res = await fetch(`${API_URL}/documents/upload`, { method: 'POST', headers: { 'Authorization': `Bearer ${getToken()}` }, body: formData });
+        if (res.ok) { alert('✅ Document uploadé'); closeModal(); document.getElementById('titre').value = ''; document.getElementById('fichier').value = ''; loadDocuments(); }
+        else alert('❌ Erreur');
+    }
+
+    loadSidebar();
+    loadDocuments();
+    loadEquipements();
+</script>
+</body>
+</html>
