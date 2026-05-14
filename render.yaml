@@ -16,4 +16,6 @@ services:
   - type: postgresql
     name: gmao-db
     plan: free
-    diskSizeGB: 1
+    databaseName: gmao_db
+    databaseUser: gmao_user
+    ipAllowList: []
