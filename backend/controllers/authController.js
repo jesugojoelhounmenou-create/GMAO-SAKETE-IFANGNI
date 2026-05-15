@@ -20,7 +20,7 @@ export const register = async (req, res) => {
         // Hasher le mot de passe
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // 🔧 Déterminer rôle et statut selon l'email (création du premier technicien)
+        // Déterminer rôle et statut selon l'email (création du premier technicien)
         let role = 'SOIGNANT';
         let statut = 'EN_ATTENTE';
         if (email === 'tech.biomedical@hopital.bj') {
@@ -43,15 +43,17 @@ export const register = async (req, res) => {
             },
         });
 
-        // Envoyer email avec les identifiants (optionnel)
+        // ENVOI D'EMAIL DÉSACTIVÉ (évite les timeouts sur Render)
+        /*
         try {
             await sendWelcomeEmail(user, password);
         } catch (emailError) {
             console.log('Email non envoyé (configuration manquante)');
         }
+        */
 
         res.status(201).json({
-            message: 'Inscription réussie ! Un email avec vos identifiants a été envoyé.',
+            message: 'Inscription réussie ! Vous pouvez vous connecter.',
             user: {
                 id: user.id,
                 nom: user.nom,
@@ -140,11 +142,14 @@ export const validateUser = async (req, res) => {
             },
         });
 
+        // Email désactivé
+        /*
         try {
             await sendValidationEmail(user);
         } catch (emailError) {
             console.log('Email de validation non envoyé');
         }
+        */
 
         res.json({ message: 'Compte validé avec succès', user });
     } catch (error) {
