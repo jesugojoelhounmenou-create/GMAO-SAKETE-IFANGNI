@@ -7,14 +7,15 @@ import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import compression from 'compression';
+import { exec } from 'child_process';
+import util from 'util';
+import prisma from './config/database.js';  // ✅ IMPORT AJOUTÉ
 
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-import { exec } from 'child_process';
-import util from 'util';
 const execPromise = util.promisify(exec);
 
 // Exécute les migrations PostgreSQL au démarrage (sur Render)
@@ -22,7 +23,6 @@ async function runMigrations() {
   if (process.env.NODE_ENV === 'production' || process.env.RUN_MIGRATIONS === 'true') {
     console.log('📦 Synchronisation du schéma avec la base de données...');
     try {
-      // Remplacer migrate deploy par db push
       const { stdout, stderr } = await execPromise('npx prisma db push');
       console.log('✅ Résultat:', stdout);
       if (stderr) console.warn('⚠️', stderr);
@@ -113,20 +113,32 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// ============ NE PAS SERVIR LE FRONTEND SUR RENDER ============
-// Sur Render, on sert uniquement l'API
-// Le frontend est sur Netlify
+// ============ ROUTE TEMPORAIRE D'ACTIVATION ============
+// (placée ici avant le middleware 404 pour être atteignable)
+app.post('/api/debug/activate/:email', async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await prisma.user.update({
+      where: { email },
+      data: { statut: 'ACTIF' }
+    });
+    res.json({ message: 'Compte activé', user: { email: user.email, statut: user.statut } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
+// ============ PAGE D'ACCUEIL API ============
 app.get('/', (req, res) => {
   res.json({ message: 'API GMAO Sakété-Ifangni est en ligne' });
 });
 
-// Gestion erreurs 404 pour les routes API
+// ============ GESTION DES ERREURS 404 (doit être après toutes les routes) ============
 app.use((req, res) => {
   res.status(404).json({ message: 'Route non trouvée' });
 });
 
-// Gestion erreurs globales
+// ============ GESTION DES ERREURS GLOBALES ============
 app.use((err, req, res, next) => {
   console.error('Erreur serveur:', err.stack);
   res.status(500).json({
@@ -135,7 +147,7 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Démarrer le serveur
+// ============ DÉMARRAGE DU SERVEUR ============
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Serveur démarré sur http://0.0.0.0:${PORT}`);
   console.log(`📱 Mode: ${process.env.NODE_ENV || 'development'}`);
