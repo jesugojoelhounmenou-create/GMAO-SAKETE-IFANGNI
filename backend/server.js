@@ -18,7 +18,7 @@ const PORT = process.env.PORT || 5000;
 
 // ============ CONFIGURATION CORS ============
 const corsOptions = {
-    origin: ['http://localhost:5500', 'http://127.0.0.1:5500'],
+    origin: ['https://gmao-sakete.netlify.app', 'https://*.netlify.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -91,20 +91,15 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Servir le frontend
-const frontendPath = path.join(__dirname, '../frontend');
-if (fs.existsSync(frontendPath)) {
-  app.use(express.static(frontendPath));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(frontendPath, 'index.html'));
-  });
-} else {
-  app.get('/', (req, res) => {
-    res.json({ message: 'API GMAO Sakété-Ifangni est en ligne' });
-  });
-}
+// ============ NE PAS SERVIR LE FRONTEND SUR RENDER ============
+// Sur Render, on sert uniquement l'API
+// Le frontend est sur Netlify
 
-// Gestion erreurs 404
+app.get('/', (req, res) => {
+  res.json({ message: 'API GMAO Sakété-Ifangni est en ligne' });
+});
+
+// Gestion erreurs 404 pour les routes API
 app.use((req, res) => {
   res.status(404).json({ message: 'Route non trouvée' });
 });
@@ -121,4 +116,6 @@ app.use((err, req, res, next) => {
 // Démarrer le serveur
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Serveur démarré sur http://0.0.0.0:${PORT}`);
+  console.log(`📱 Mode: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🗄️ Base de données: PostgreSQL`);
 });

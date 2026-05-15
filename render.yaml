@@ -16,6 +16,6 @@ services:
   - type: postgresql
     name: gmao-db
     plan: free
-    databaseName: gmao_db
-    databaseUser: gmao_user
+    databaseName: gmao_db_c4qe
+    databaseUser: gmao_db_c4qe_user
     ipAllowList: []

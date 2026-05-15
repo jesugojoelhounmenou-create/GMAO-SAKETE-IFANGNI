@@ -61,7 +61,7 @@ export async function sendWelcomeEmail(user, plainPassword) {
                     <p>Vous recevrez un email de confirmation dès son activation.</p>
                     
                     <p style="margin-top: 20px;">
-                        <a href="${process.env.FRONTEND_URL || 'http://localhost:5500'}/login.html" class="btn">🔐 Se connecter</a>
+                        <a href="${process.env.FRONTEND_URL || 'https://gmao-sakete.netlify.app'}/login.html" class="btn">🔐 Se connecter</a>
                     </p>
                 </div>
                 <div class="footer">
@@ -117,7 +117,7 @@ export async function sendValidationEmail(user) {
                         <li>📊 Consulter l'état des équipements</li>
                     </ul>
                     <p style="margin-top: 20px;">
-                        <a href="${process.env.FRONTEND_URL || 'http://localhost:5500'}/login.html" class="btn">🔐 Se connecter</a>
+                        <a href="${process.env.FRONTEND_URL || 'https://gmao-sakete.netlify.app'}/login.html" class="btn">🔐 Se connecter</a>
                     </p>
                 </div>
                 <div class="footer">
