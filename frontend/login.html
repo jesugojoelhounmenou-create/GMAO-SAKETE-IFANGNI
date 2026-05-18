@@ -357,8 +357,6 @@
         <button class="role-tab" onclick="selectRole('soignant')">👨‍⚕️ Soignant</button>
     </div>
 
-    
-
     <!-- Formulaire de connexion -->
     <div id="loginForm" class="form-card">
         <div id="loginError" class="error-message"></div>
@@ -517,7 +515,8 @@
                 localStorage.setItem('userService', data.user.service || '');
                 showSuccess('loginError', 'Connexion réussie ! Redirection...');
                 setTimeout(() => {
-                    window.location.href = data.user.role === 'TECHNICIEN' ? '/technicien/dashboard.html' : '/soignant/dashboard.html';
+                    // REDIRECTION CORRIGÉE : soignant vers index.html
+                    window.location.href = data.user.role === 'TECHNICIEN' ? '/technicien/dashboard.html' : '/soignant/index.html';
                 }, 1000);
             } else {
                 showError('loginError', data.message || 'Email ou mot de passe incorrect');
@@ -593,10 +592,10 @@
 
     function closeHelp() { document.getElementById('helpModal').style.display = 'none'; }
 
-    // Vérifier session existante
+    // Vérifier session existante - REDIRECTION CORRIGÉE
     if (localStorage.getItem('token')) {
         const userRole = localStorage.getItem('userRole');
-        window.location.href = userRole === 'TECHNICIEN' ? '/technicien/dashboard.html' : '/soignant/dashboard.html';
+        window.location.href = userRole === 'TECHNICIEN' ? '/technicien/dashboard.html' : '/soignant/index.html';
     }
 
     // Initialisation : pré-remplir technicien
