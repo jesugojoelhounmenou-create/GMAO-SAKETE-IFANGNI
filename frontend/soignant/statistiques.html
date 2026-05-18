@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Mes Statistiques - GMAO Sakété</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f1f5f9;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+        .container { max-width: 500px; margin: 0 auto; }
+        .header {
+            background: linear-gradient(135deg, #1a2a4f, #1e3a5f);
+            color: white;
+            padding: 20px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .back-link {
+            display: inline-block;
+            margin-bottom: 15px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a2a4f;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .stat-icon {
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .card-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #1a2a4f;
+            border-left: 4px solid #00d4ff;
+            padding-left: 10px;
+        }
+        canvas { max-height: 200px; width: 100%; }
+        .status-resolved { color: #22c55e; }
+        .status-pending { color: #f97316; }
+        .status-progress { color: #3b82f6; }
+        .demande-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .demande-item:last-child { border-bottom: none; }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 11px;
+        }
+        .refresh-btn {
+            background: #1a2a4f;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="index.html" class="back-link">← Retour à l'accueil</a>
+    
+    <div class="header">
+        <h2>📊 Mes Statistiques</h2>
+        <p>Suivi de vos signalements et performances</p>
+    </div>
+
+    <!-- Cartes statistiques -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <div class="stat-value" id="totalDemandes">0</div>
+            <div class="stat-label">Total signalements</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" id="resolues">0</div>
+            <div class="stat-label">Résolues</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🔄</div>
+            <div class="stat-value" id="encours">0</div>
+            <div class="stat-label">En cours</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value" id="tempsMoyen">0<span style="font-size:14px;">j</span></div>
+            <div class="stat-label">Temps moyen</div>
+        </div>
+    </div>
+
+    <!-- Graphique -->
+    <div class="card">
+        <div class="card-title">📈 Évolution de mes signalements</div>
+        <canvas id="demandesChart"></canvas>
+    </div>
+
+    <!-- Dernières demandes -->
+    <div class="card">
+        <div class="card-title" style="display: flex; justify-content: space-between;">
+            <span>📋 Mes dernières demandes</span>
+            <button class="refresh-btn" onclick="chargerStatistiques()">🔄 Rafraîchir</button>
+        </div>
+        <div id="dernieresDemandes">
+            <div style="text-align:center; padding:20px;">Chargement...</div>
+        </div>
+    </div>
+
+    <!-- Répartition par service -->
+    <div class="card">
+        <div class="card-title">🏥 Signalements par service</div>
+        <canvas id="serviceChart" style="max-height: 180px;"></canvas>
+    </div>
+
+    <div class="footer">
+        GMAO - Hôpital de Zone Sakété-Ifangni • Données mises à jour en temps réel
+    </div>
+</div>
+
+<script>
+    const API_URL = '/api';
+    let demandesChart = null;
+    let serviceChart = null;
+
+    function getToken() { return localStorage.getItem('token'); }
+
+    // Vérification du rôle
+    const userRole = localStorage.getItem('userRole');
+    if (!getToken()) window.location.href = '/login.html';
+    if (userRole === 'TECHNICIEN') window.location.href = '/technicien/dashboard.html';
+
+    async function chargerStatistiques() {
+        try {
+            // Récupérer les signalements du soignant
+            const res = await fetch(`${API_URL}/maintenances/soignant`, {
+                headers: { 'Authorization': `Bearer ${getToken()}` }
+            });
+            const signalements = await res.json();
+
+            // Statistiques
+            const total = signalements.length;
+            const resolues = signalements.filter(s => s.statut === 'TERMINE').length;
+            const encours = signalements.filter(s => s.statut !== 'TERMINE').length;
+
+            // Temps moyen de résolution (en jours)
+            let tempsTotal = 0;
+            let tempsCount = 0;
+            signalements.forEach(s => {
+                if (s.statut === 'TERMINE' && s.dateDebut && s.dateFin) {
+                    const debut = new Date(s.dateDebut);
+                    const fin = new Date(s.dateFin);
+                    const jours = Math.ceil((fin - debut) / (1000 * 60 * 60 * 24));
+                    if (jours > 0) {
+                        tempsTotal += jours;
+                        tempsCount++;
+                    }
+                }
+            });
+            const tempsMoyen = tempsCount > 0 ? (tempsTotal / tempsCount).toFixed(1) : 0;
+
+            // Mise à jour des cartes
+            document.getElementById('totalDemandes').innerText = total;
+            document.getElementById('resolues').innerText = resolues;
+            document.getElementById('encours').innerText = encours;
+            document.getElementById('tempsMoyen').innerHTML = tempsMoyen + '<span style="font-size:14px;">j</span>';
+
+            // Dernières demandes (5 dernières)
+            const dernieres = [...signalements].sort((a,b) => new Date(b.dateDebut) - new Date(a.dateDebut)).slice(0,5);
+            const demandesHtml = dernieres.map(s => `
+                <div class="demande-item">
+                    <div>
+                        <strong>${s.equipement?.nom || 'Équipement'}</strong><br>
+                        <small>${new Date(s.dateDebut).toLocaleDateString()}</small>
+                    </div>
+                    <div class="${s.statut === 'TERMINE' ? 'status-resolved' : (s.statut === 'EN_COURS' ? 'status-progress' : 'status-pending')}">
+                        ${s.statut === 'TERMINE' ? '✅ Résolu' : (s.statut === 'EN_COURS' ? '🔄 En cours' : '⏳ En attente')}
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('dernieresDemandes').innerHTML = demandesHtml || '<div style="text-align:center; padding:20px;">Aucune demande</div>';
+
+            // Graphique évolution (par mois)
+            const mois = {};
+            signalements.forEach(s => {
+                const date = new Date(s.dateDebut);
+                const key = `${date.getFullYear()}-${date.getMonth()+1}`;
+                if (!mois[key]) mois[key] = { total: 0, resolues: 0 };
+                mois[key].total++;
+                if (s.statut === 'TERMINE') mois[key].resolues++;
+            });
+
+            const labels = Object.keys(mois).sort();
+            const totalData = labels.map(l => mois[l].total);
+            const resoluesData = labels.map(l => mois[l].resolues);
+
+            if (demandesChart) demandesChart.destroy();
+            const ctx = document.getElementById('demandesChart').getContext('2d');
+            demandesChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Total signalements', data: totalData, borderColor: '#1a2a4f', backgroundColor: 'rgba(26,42,79,0.1)', fill: true, tension: 0.3 },
+                        { label: 'Résolus', data: resoluesData, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, tension: 0.3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+
+            // Répartition par service
+            const services = {};
+            signalements.forEach(s => {
+                const service = s.equipement?.service || 'Autre';
+                services[service] = (services[service] || 0) + 1;
+            });
+
+            const serviceLabels = Object.keys(services);
+            const serviceData = Object.values(services);
+
+            if (serviceChart) serviceChart.destroy();
+            const ctx2 = document.getElementById('serviceChart').getContext('2d');
+            serviceChart = new Chart(ctx2, {
+                type: 'doughnut',
+                data: {
+                    labels: serviceLabels,
+                    datasets: [{ data: serviceData, backgroundColor: ['#1a2a4f', '#3b82f6', '#22c55e', '#f97316', '#a855f7', '#ef4444'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: true }
+            });
+
+        } catch(e) {
+            console.error(e);
+            document.getElementById('dernieresDemandes').innerHTML = '<div style="text-align:center; padding:20px;">Erreur de chargement</div>';
+        }
+    }
+
+    // Rafraîchir les données
+    function refresh() {
+        chargerStatistiques();
+    }
+
+    // Déconnexion
+    function logout() {
+        localStorage.clear();
+        window.location.href = '/login.html';
+    }
+
+    // Chargement initial
+    chargerStatistiques();
+    // Rafraîchissement automatique toutes les 30 secondes
+    setInterval(chargerStatistiques, 30000);
+</script>
+</body>
+</html>
