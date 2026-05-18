@@ -506,11 +506,6 @@ export const getMobileEquipementDetail = async (req, res) => {
       return res.status(404).json({ message: 'Équipement non trouvé' });
     }
 
-    // Calculer la disponibilité
-    const totalJours = equipement.dateMiseService 
-      ? Math.floor((new Date() - equipement.dateMiseService) / (1000 * 60 * 60 * 24))
-      : 0;
-
     res.json(equipement);
   } catch (error) {
     console.error('Erreur mobile equipement detail:', error);
@@ -557,7 +552,7 @@ export const getMobileAlertes = async (req, res) => {
 };
 
 // ============================================
-// STATISTIQUES MOBILE (pour graphiques)
+// STATISTIQUES MOBILE (PostgreSQL compatible)
 // ============================================
 
 export const getMobileStats = async (req, res) => {
@@ -567,15 +562,15 @@ export const getMobileStats = async (req, res) => {
   dateDebut.setDate(dateDebut.getDate() - jours);
 
   try {
-    // Interventions par jour
+    // Interventions par jour (PostgreSQL)
     const interventionsParJour = await prisma.$queryRaw`
       SELECT 
-        strftime('%Y-%m-%d', dateDebut) as date,
-        COUNT(*) as total,
-        SUM(CASE WHEN statut = 'TERMINE' THEN 1 ELSE 0 END) as terminees
-      FROM Intervention
-      WHERE dateDebut >= ${dateDebut}
-      GROUP BY strftime('%Y-%m-%d', dateDebut)
+        TO_CHAR("dateDebut", 'YYYY-MM-DD') as date,
+        COUNT(*)::int as total,
+        SUM(CASE WHEN statut = 'TERMINE' THEN 1 ELSE 0 END)::int as terminees
+      FROM "Intervention"
+      WHERE "dateDebut" >= ${dateDebut}
+      GROUP BY TO_CHAR("dateDebut", 'YYYY-MM-DD')
       ORDER BY date ASC
     `;
 
@@ -583,11 +578,11 @@ export const getMobileStats = async (req, res) => {
     const pannesParService = await prisma.$queryRaw`
       SELECT 
         e.service,
-        COUNT(*) as total
-      FROM Intervention i
-      JOIN Equipement e ON i.equipementId = e.id
+        COUNT(*)::int as total
+      FROM "Intervention" i
+      JOIN "Equipement" e ON i."equipementId" = e.id
       WHERE i.type = 'CORRECTIF'
-        AND i.dateDebut >= ${dateDebut}
+        AND i."dateDebut" >= ${dateDebut}
       GROUP BY e.service
       ORDER BY total DESC
       LIMIT 5
@@ -597,25 +592,25 @@ export const getMobileStats = async (req, res) => {
     const topEquipements = await prisma.$queryRaw`
       SELECT 
         e.nom,
-        e.codeInventaire,
-        COUNT(*) as nombrePannes
-      FROM Intervention i
-      JOIN Equipement e ON i.equipementId = e.id
+        e."codeInventaire",
+        COUNT(*)::int as "nombrePannes"
+      FROM "Intervention" i
+      JOIN "Equipement" e ON i."equipementId" = e.id
       WHERE i.type = 'CORRECTIF'
-        AND i.dateDebut >= ${dateDebut}
-      GROUP BY e.id
-      ORDER BY nombrePannes DESC
+        AND i."dateDebut" >= ${dateDebut}
+      GROUP BY e.id, e.nom, e."codeInventaire"
+      ORDER BY "nombrePannes" DESC
       LIMIT 5
     `;
 
     // Temps moyen d'intervention
     const tempsMoyen = await prisma.$queryRaw`
       SELECT 
-        AVG(dureeMinutes) as moyenne
-      FROM Intervention
+        AVG("dureeMinutes")::int as moyenne
+      FROM "Intervention"
       WHERE statut = 'TERMINE'
-        AND dureeMinutes IS NOT NULL
-        AND dateDebut >= ${dateDebut}
+        AND "dureeMinutes" IS NOT NULL
+        AND "dateDebut" >= ${dateDebut}
     `;
 
     res.json({
@@ -689,7 +684,10 @@ export const getMobileProfil = async (req, res) => {
   }
 };
 
-// Mise à jour position GPS (pour traçage)
+// ============================================
+// MISE À JOUR POSITION GPS
+// ============================================
+
 export const updateMobilePosition = async (req, res) => {
   const { latitude, longitude } = req.body;
   const technicienId = req.user.id;
@@ -711,7 +709,10 @@ export const updateMobilePosition = async (req, res) => {
   }
 };
 
-// Notifications push token
+// ============================================
+// NOTIFICATIONS PUSH TOKEN
+// ============================================
+
 export const registerPushToken = async (req, res) => {
   const { pushToken } = req.body;
   const technicienId = req.user.id;
