@@ -23,7 +23,44 @@
             min-height: 100vh;
         }
 
-        /* ========== SIDEBAR VERTE (inspirée capture) ========== */
+        /* Loader pendant le chargement */
+        .loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #e8f5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #1b5e20;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Masquer le contenu pendant le chargement */
+        body.loading .main-content {
+            opacity: 0;
+            visibility: hidden;
+        }
+        body:not(.loading) .main-content {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease;
+        }
+
+        /* ========== SIDEBAR VERTE ========== */
         .sidebar {
             width: 280px;
             background: #1b5e20;
@@ -261,7 +298,12 @@
 </head>
 <body>
 
-<<!-- SIDEBAR VERTE -->
+<!-- LOADER -->
+<div class="loader-container" id="loaderContainer">
+    <div class="spinner"></div>
+</div>
+
+<!-- SIDEBAR VERTE -->
 <div class="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-logo">🏥 <span>GMAO</span> Sakété</div>
@@ -283,6 +325,7 @@
         <a href="diagnostic-bot.html" class="sidebar-item"><span class="sidebar-icon">🤖</span><span class="sidebar-text">Diagnostic expert</span></a>
     </div>
 </div>
+
 <!-- CONTENU PRINCIPAL -->
 <div class="main-content">
     <div class="header">
@@ -336,12 +379,29 @@
 </div>
 
 <script>
-   const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
     let map = null;
     let performanceChart = null;
 
     function getToken() { return localStorage.getItem('token'); }
-    if (!getToken()) window.location.href = '/login.html';
+    
+    // Vérification de la session
+    if (!getToken()) {
+        window.location.href = '/login.html';
+    }
+
+    // Masquer le loader après chargement complet
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            const loader = document.getElementById('loaderContainer');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(function() {
+                    loader.style.display = 'none';
+                }, 500);
+            }
+        }, 800);
+    });
 
     // Carte
     function initMap() {
@@ -397,7 +457,7 @@
     function imprimerBilan() { window.print(); }
     function logout() { localStorage.clear(); window.location.href = '/login.html'; }
 
-    setTimeout(initMap, 300);
+    setTimeout(initMap, 500);
     initChart();
     chargerAlertes();
     document.getElementById('userName').innerText = localStorage.getItem('userName') || 'Jean ADJOVI';
