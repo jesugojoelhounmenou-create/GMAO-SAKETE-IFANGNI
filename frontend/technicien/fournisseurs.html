@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Fournisseurs - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: #1b5e20;
+            font-size: 24px;
+        }
+
+        .btn-add {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+
+        .btn-add:hover {
+            background: #2e7d32;
+            transform: translateY(-2px);
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .filter-bar input,
+        .filter-bar select {
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow-x: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 5px;
+            font-size: 12px;
+        }
+
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .rating {
+            color: #f59e0b;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            color: #1b5e20;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover {
+            background: #2e7d32;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            th, td { padding: 8px 10px; font-size: 12px; }
+            .btn-edit, .btn-delete { padding: 4px 10px; font-size: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">
+    <div class="header">
+        <h1>🏭 GESTION DES FOURNISSEURS</h1>
+        <button class="btn-add" onclick="openAddModal()">➕ Ajouter un fournisseur</button>
+    </div>
+
+    <div class="filter-bar">
+        <input type="text" id="search" placeholder="🔍 Rechercher par nom, contact..." onkeyup="loadFournisseurs()">
+        <select id="typeFilter" onchange="loadFournisseurs()">
+            <option value="">📋 Tous types</option>
+            <option value="EQUIPEMENT">🖥️ Équipements</option>
+            <option value="PIECES">🔧 Pièces détachées</option>
+            <option value="MAINTENANCE">🛠️ Maintenance</option>
+            <option value="SERVICES">📞 Services</option>
+        </select>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr><th>Nom</th><th>Contact</th><th>Téléphone</th><th>Email</th><th>Type</th><th>Note</th><th>Délai</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="tableBody"><tr><td colspan="8" class="empty-state">Chargement...</td</tr></tbody>
+        </table>
+    </div>
+</div>
+
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <h3 id="modalTitle">Ajouter un fournisseur</h3>
+        <div class="form-group"><label>Nom *</label><input type="text" id="nom"></div>
+        <div class="form-group"><label>Contact</label><input type="text" id="contact"></div>
+        <div class="form-group"><label>Téléphone</label><input type="tel" id="telephone"></div>
+        <div class="form-group"><label>Email</label><input type="email" id="email"></div>
+        <div class="form-group"><label>Adresse</label><input type="text" id="adresse"></div>
+        <div class="form-group"><label>Site web</label><input type="text" id="siteWeb"></div>
+        <div class="form-group"><label>Type</label><select id="type"><option value="EQUIPEMENT">Équipements</option><option value="PIECES">Pièces</option><option value="MAINTENANCE">Maintenance</option></select></div>
+        <div class="form-group"><label>Note (0-5)</label><input type="number" id="note" step="0.1" max="5"></div>
+        <div class="form-group"><label>Délai moyen (jours)</label><input type="number" id="delaiMoyen"></div>
+        <button class="btn-primary" onclick="saveFournisseur()">💾 Enregistrer</button>
+        <button onclick="closeModal()" style="margin-top:10px; background:#e2e8f0; border:none; padding:10px; border-radius:30px;">Annuler</button>
+    </div>
+</div>
+
+<script>
+   const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    let currentEditId = null;
+
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    async function loadFournisseurs() {
+        const search = document.getElementById('search').value;
+        const type = document.getElementById('typeFilter').value;
+        let url = `${API_URL}/fournisseurs?search=${encodeURIComponent(search)}`;
+        if (type) url += `&type=${type}`;
+        
+        try {
+            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const data = await res.json();
+            if (data.length === 0) {
+                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="empty-state">📭 Aucun fournisseur</td</tr>';
+                return;
+            }
+            document.getElementById('tableBody').innerHTML = data.map(f => `
+                <tr>
+                    <td><strong>${escapeHtml(f.nom)}</strong></td>
+                    <td>${escapeHtml(f.contact || '-')}</td>
+                    <td>${escapeHtml(f.telephone || '-')}</td>
+                    <td>${escapeHtml(f.email || '-')}</td>
+                    <td>${getTypeIcon(f.type)} ${f.type || '-'}</td>
+                    <td class="rating">${f.note ? '⭐'.repeat(Math.floor(f.note)) + ' ' + f.note : '-'}</td
+                    <td>${f.delaiMoyen ? f.delaiMoyen + ' j' : '-'}</td
+                    <td><button class="btn-edit" onclick="editFournisseur(${f.id})">✏️ Modifier</button><button class="btn-delete" onclick="deleteFournisseur(${f.id})">🗑️ Supprimer</button></td
+                </tr>
+            `).join('');
+        } catch (error) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="empty-state">❌ Erreur</td</tr>'; }
+    }
+
+    function getTypeIcon(type) {
+        const icons = { 'EQUIPEMENT': '🖥️', 'PIECES': '🔧', 'MAINTENANCE': '🛠️', 'SERVICES': '📞' };
+        return icons[type] || '📦';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+    }
+
+    function openAddModal() { currentEditId = null; document.getElementById('modalTitle').innerText = '➕ Ajouter un fournisseur'; document.getElementById('modal').style.display = 'flex'; }
+    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+    async function editFournisseur(id) {
+        const res = await fetch(`${API_URL}/fournisseurs/${id}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+        const f = await res.json();
+        currentEditId = id;
+        document.getElementById('modalTitle').innerText = '✏️ Modifier fournisseur';
+        document.getElementById('nom').value = f.nom;
+        document.getElementById('contact').value = f.contact || '';
+        document.getElementById('telephone').value = f.telephone || '';
+        document.getElementById('email').value = f.email || '';
+        document.getElementById('adresse').value = f.adresse || '';
+        document.getElementById('siteWeb').value = f.siteWeb || '';
+        document.getElementById('type').value = f.type;
+        document.getElementById('note').value = f.note || '';
+        document.getElementById('delaiMoyen').value = f.delaiMoyen || '';
+        document.getElementById('modal').style.display = 'flex';
+    }
+
+    async function saveFournisseur() {
+        const data = {
+            nom: document.getElementById('nom').value,
+            contact: document.getElementById('contact').value,
+            telephone: document.getElementById('telephone').value,
+            email: document.getElementById('email').value,
+            adresse: document.getElementById('adresse').value,
+            siteWeb: document.getElementById('siteWeb').value,
+            type: document.getElementById('type').value,
+            note: parseFloat(document.getElementById('note').value) || null,
+            delaiMoyen: parseInt(document.getElementById('delaiMoyen').value) || null
+        };
+        const url = currentEditId ? `${API_URL}/fournisseurs/${currentEditId}` : `${API_URL}/fournisseurs`;
+        const method = currentEditId ? 'PUT' : 'POST';
+        const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify(data) });
+        if (res.ok) { alert(currentEditId ? '✅ Fournisseur modifié' : '✅ Fournisseur ajouté'); closeModal(); loadFournisseurs(); }
+        else alert('❌ Erreur');
+    }
+
+    async function deleteFournisseur(id) {
+        if (confirm('Supprimer ce fournisseur ?')) {
+            await fetch(`${API_URL}/fournisseurs/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } });
+            loadFournisseurs();
+        }
+    }
+
+    loadSidebar();
+    loadFournisseurs();
+</script>
+</body>
+</html>

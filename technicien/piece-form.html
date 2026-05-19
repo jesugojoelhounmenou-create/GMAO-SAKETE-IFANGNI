@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Pièce détachée - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1b5e20;
+            border-left: 4px solid #1b5e20;
+            padding-left: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #334155;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #1b5e20;
+            box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .info-text {
+            font-size: 11px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: #1b5e20;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2e7d32;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .btn { width: 100%; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">
+    <a href="stock.html" class="back-link">← Retour au stock</a>
+    
+    <div class="card">
+        <div class="title" id="formTitle">➕ Ajouter une pièce</div>
+        
+        <div class="form-row">
+            <div class="form-group"><label>Code *</label><input type="text" id="code" placeholder="Ex: SONDE-O2-01"><div class="info-text">Identifiant unique</div></div>
+            <div class="form-group"><label>Désignation *</label><input type="text" id="designation" placeholder="Nom de la pièce"><div class="info-text">Nom descriptif</div></div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group"><label>Catégorie</label><select id="categorie"><option value="ELECTRONIQUE">🖥️ Électronique</option><option value="MECANIQUE">⚙️ Mécanique</option><option value="CONSOMMABLE">📦 Consommable</option><option value="SONDE">🔬 Sonde</option><option value="CABLE">🔌 Câble</option><option value="BATTERIE">🔋 Batterie</option><option value="CARTE_MERE">💻 Carte mère</option><option value="AUTRE">📌 Autre</option></select></div>
+            <div class="form-group"><label>Description</label><input type="text" id="description"></div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group"><label>Prix unitaire (FCFA)</label><input type="number" id="prixUnitaire" value="0" step="100"><div class="info-text">Prix d'achat unitaire</div></div>
+            <div class="form-group"><label>Quantité initiale</label><input type="number" id="quantiteStock" value="0"><div class="info-text">Stock de départ</div></div>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group"><label>Seuil d'alerte</label><input type="number" id="seuilAlerte" value="5"><div class="info-text">Alerte quand stock ≤ seuil</div></div>
+            <div class="form-group"><label>Emplacement</label><input type="text" id="emplacement" placeholder="Ex: Etagère A3"><div class="info-text">Localisation</div></div>
+        </div>
+        
+        <div class="form-group"><label>Fournisseur</label><input type="text" id="fournisseur" placeholder="Nom du fournisseur"></div>
+        
+        <div style="margin-top: 24px; display: flex; gap: 10px;">
+            <button class="btn btn-primary" onclick="savePiece()">💾 Enregistrer</button>
+            <button class="btn btn-secondary" onclick="window.location.href='stock.html'">❌ Annuler</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    const id = new URLSearchParams(location.search).get('id');
+
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    async function loadPiece() {
+        if (id) {
+            document.getElementById('formTitle').innerHTML = '✏️ Modifier la pièce';
+            const res = await fetch(`${API_URL}/stock/${id}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const p = await res.json();
+            document.getElementById('code').value = p.code || '';
+            document.getElementById('designation').value = p.designation || '';
+            document.getElementById('categorie').value = p.categorie || 'ELECTRONIQUE';
+            document.getElementById('description').value = p.description || '';
+            document.getElementById('prixUnitaire').value = p.prixUnitaire || 0;
+            document.getElementById('quantiteStock').value = p.quantiteStock || 0;
+            document.getElementById('seuilAlerte').value = p.seuilAlerte || 5;
+            document.getElementById('emplacement').value = p.emplacement || '';
+            document.getElementById('fournisseur').value = p.fournisseur || '';
+        }
+    }
+
+    async function savePiece() {
+        const code = document.getElementById('code').value.trim();
+        const designation = document.getElementById('designation').value.trim();
+        if (!code) { alert('Code requis'); return; }
+        if (!designation) { alert('Désignation requise'); return; }
+        
+        const data = {
+            code, designation,
+            categorie: document.getElementById('categorie').value,
+            description: document.getElementById('description').value,
+            prixUnitaire: parseFloat(document.getElementById('prixUnitaire').value) || 0,
+            quantiteStock: parseInt(document.getElementById('quantiteStock').value) || 0,
+            seuilAlerte: parseInt(document.getElementById('seuilAlerte').value) || 5,
+            emplacement: document.getElementById('emplacement').value,
+            fournisseur: document.getElementById('fournisseur').value
+        };
+        
+        const url = id ? `${API_URL}/stock/${id}` : `${API_URL}/stock`;
+        const method = id ? 'PUT' : 'POST';
+        const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify(data) });
+        if (res.ok) { alert(id ? '✅ Pièce modifiée' : '✅ Pièce ajoutée'); window.location.href = 'stock.html'; }
+        else alert('❌ Erreur');
+    }
+
+    loadSidebar();
+    loadPiece();
+</script>
+</body>
+</html>

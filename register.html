@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#1a2a4f">
+    <title>Inscription - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(26, 42, 79, 0.92) 0%, rgba(30, 58, 95, 0.92) 100%),
+                        url('https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1600') center/cover no-repeat fixed;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .logo {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 35px;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+
+        h1 {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .form-card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 28px;
+            padding: 28px 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .form-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #1a2a4f;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon span {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 12px 12px 40px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 14px;
+            transition: 0.2s;
+            background: white;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+        }
+
+        small {
+            display: block;
+            margin-top: 5px;
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #1a2a4f 0%, #1e3a5f 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .error-message, .success-message, .info-message {
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            border-left: 3px solid #dc2626;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+            border-left: 3px solid #22c55e;
+        }
+
+        .info-message {
+            background: #dbeafe;
+            color: #1e40af;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .back-link a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .back-link a:hover {
+            color: white;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 20px;
+            }
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="auth-container">
+    <div class="logo-section">
+        <div class="logo">🏥</div>
+        <h1>GMAO Sakété</h1>
+        <div class="subtitle">Créer un compte personnel soignant</div>
+    </div>
+
+    <div class="form-card">
+        <div class="form-title">📝 Inscription</div>
+
+        <div id="registerError" class="error-message"></div>
+        <div id="registerSuccess" class="success-message"></div>
+        <div id="pendingMessage" class="info-message">
+            ⏳ Votre compte est en attente de validation par le technicien biomédical.<br>
+            📧 Un email avec vos identifiants vous a été envoyé.
+        </div>
+
+        <!-- Formulaire sans matricule (généré automatiquement) -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Nom *</label>
+                <div class="input-icon">
+                    <span>👨‍⚕️</span>
+                    <input type="text" id="regNom" placeholder="DOSSOU">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Prénom</label>
+                <div class="input-icon">
+                    <span>👤</span>
+                    <input type="text" id="regPrenom" placeholder="Paul">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Email personnel *</label>
+            <div class="input-icon">
+                <span>📧</span>
+                <input type="email" id="regEmail" placeholder="votre.email@gmail.com">
+            </div>
+            <small>📌 Vous recevrez vos identifiants sur cet email</small>
+        </div>
+
+        <div class="form-group">
+            <label>Service *</label>
+            <div class="input-icon">
+                <span>🏥</span>
+                <select id="regService">
+                    <option value="">Sélectionnez votre service</option>
+                    <option value="URGENCES">🚨 Urgences</option>
+                    <option value="RADIOLOGIE">🩻 Radiologie</option>
+                    <option value="BLOC_OPERATOIRE">🏥 Bloc opératoire</option>
+                    <option value="PEDIATRIE">👶 Pédiatrie</option>
+                    <option value="MEDECINE_INTERNE">💊 Médecine interne</option>
+                    <option value="CHIRURGIE">🔪 Chirurgie</option>
+                    <option value="LABORATOIRE">🔬 Laboratoire</option>
+                    <option value="USI">💓 USI</option>
+                    <option value="REANIMATION">🫀 Réanimation</option>
+                    <option value="AUTRE">📌 Autre</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Téléphone (optionnel)</label>
+            <div class="input-icon">
+                <span>📞</span>
+                <input type="tel" id="regPhone" placeholder="+229 97 12 34 56">
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label>Mot de passe *</label>
+                <div class="input-icon">
+                    <span>🔒</span>
+                    <input type="password" id="regPassword" placeholder="Minimum 6 caractères">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Confirmer *</label>
+                <div class="input-icon">
+                    <span>✓</span>
+                    <input type="password" id="regConfirmPassword" placeholder="">
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-primary" onclick="register()" id="registerBtn">
+            📝 S'inscrire
+        </button>
+
+        <div class="back-link">
+            <a href="login.html">🔐 Déjà un compte ? Se connecter</a> | 
+            <a href="index.html">🏠 Accueil</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Configuration
+const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+   
+    async function register() {
+        const nom = document.getElementById('regNom').value.trim();
+        const prenom = document.getElementById('regPrenom').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const service = document.getElementById('regService').value;
+        const telephone = document.getElementById('regPhone').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+        // Reset messages
+        document.getElementById('registerError').style.display = 'none';
+        document.getElementById('registerSuccess').style.display = 'none';
+        document.getElementById('pendingMessage').style.display = 'none';
+
+        // Validations
+        if (!nom || !email || !service || !password) {
+            showError('registerError', 'Veuillez remplir tous les champs obligatoires (*)');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            showError('registerError', 'Les mots de passe ne correspondent pas');
+            return;
+        }
+
+        if (password.length < 6) {
+            showError('registerError', 'Le mot de passe doit contenir au moins 6 caractères');
+            return;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showError('registerError', 'Email invalide');
+            return;
+        }
+
+        const btn = document.getElementById('registerBtn');
+        btn.innerHTML = '<span class="loader"></span> Inscription...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    nom,
+                    prenom: prenom || null,
+                    email,
+                    service,
+                    telephone: telephone || null,
+                    password,
+                    role: 'SOIGNANT'
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById('pendingMessage').style.display = 'block';
+                showSuccess('registerSuccess', '✅ Inscription réussie ! Un email avec vos identifiants a été envoyé.');
+
+                // Réinitialiser le formulaire
+                document.getElementById('regNom').value = '';
+                document.getElementById('regPrenom').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regService').value = '';
+                document.getElementById('regPhone').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regConfirmPassword').value = '';
+
+                // Rediriger vers login après 4 secondes
+                setTimeout(() => {
+                    window.location.href = 'login.html?registered=true';
+                }, 4000);
+            } else {
+                showError('registerError', data.message || 'Erreur lors de l\'inscription');
+            }
+        } catch (error) {
+            console.error('Erreur:', error);
+            showError('registerError', 'Erreur de connexion. Vérifiez que le backend tourne sur http://localhost:5000');
+        } finally {
+            btn.innerHTML = '📝 S\'inscrire';
+            btn.disabled = false;
+        }
+    }
+
+    function showError(elementId, message) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.innerHTML = message;
+            el.style.display = 'block';
+            setTimeout(() => {
+                if (el) el.style.display = 'none';
+            }, 5000);
+        }
+    }
+
+    function showSuccess(elementId, message) {
+        const el = document.getElementById(elementId);
+        if (el) {
+            el.innerHTML = message;
+            el.style.display = 'block';
+            setTimeout(() => {
+                if (el) el.style.display = 'none';
+            }, 3000);
+        }
+    }
+</script>
+</body>
+</html>

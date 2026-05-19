@@ -1,0 +1,55 @@
+<!-- Footer commun -->
+<footer class="gmao-footer">
+    <div class="footer-container">
+        <div class="footer-info">
+            <div class="footer-logo">🏥 GMAO Sakété-Ifangni</div>
+            <div class="footer-version">Version 2.0 | © 2026</div>
+        </div>
+        <div class="footer-links">
+            <a href="/index.html">🏠 Accueil</a>
+            <a href="#" onclick="showHelp()">❓ Aide</a>
+            <a href="#" onclick="showAbout()">ℹ️ À propos</a>
+            <a href="/mobile/index.html">📱 Version mobile</a>
+        </div>
+        <div class="footer-contact">
+            📞 Service Biomédical: +229 97 12 34 56
+        </div>
+    </div>
+</footer>
+
+<style>
+    .gmao-footer {
+        background: #1e293b;
+        color: #94a3b8;
+        padding: 20px;
+        margin-top: 40px;
+    }
+    .footer-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    .footer-logo { font-weight: bold; color: white; margin-bottom: 5px; }
+    .footer-version { font-size: 11px; }
+    .footer-links a {
+        color: #94a3b8;
+        text-decoration: none;
+        margin: 0 10px;
+        font-size: 12px;
+    }
+    .footer-links a:hover { color: white; }
+    .footer-contact { font-size: 12px; }
+    @media (max-width: 768px) {
+        .footer-container { flex-direction: column; text-align: center; }
+        .footer-links { margin: 10px 0; }
+    }
+</style>
+
+<script>
+    function showHelp() { alert('📖 Aide GMAO\n\n🔧 Technicien: Gestion complète\n👨‍⚕️ Soignant: Signalement de pannes\n📱 Version mobile disponible'); }
+    function showAbout() { alert('🏥 GMAO - Hôpital de Zone Sakété-Ifangni\n\nGestion de Maintenance Assistée par Ordinateur\nVersion 2.0\n\n© 2026 - Tous droits réservés'); }
+</script>

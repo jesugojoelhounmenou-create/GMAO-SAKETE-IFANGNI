@@ -1,0 +1,174 @@
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import helmet from 'helmet';
+import morgan from 'morgan';
+import compression from 'compression';
+import { exec } from 'child_process';
+import util from 'util';
+import prisma from './config/database.js';  // ✅ IMPORT AJOUTÉ
+
+dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const execPromise = util.promisify(exec);
+
+// Exécute les migrations PostgreSQL au démarrage (sur Render)
+async function runMigrations() {
+  if (process.env.NODE_ENV === 'production' || process.env.RUN_MIGRATIONS === 'true') {
+    console.log('📦 Synchronisation du schéma avec la base de données...');
+    try {
+      const { stdout, stderr } = await execPromise('npx prisma db push');
+      console.log('✅ Résultat:', stdout);
+      if (stderr) console.warn('⚠️', stderr);
+    } catch (error) {
+      console.error('❌ Échec de la synchronisation:', error.message);
+    }
+  }
+}
+
+// Attendre que les migrations soient faites avant de démarrer le serveur
+await runMigrations();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+const corsOptions = {
+    origin: [
+        'https://gmao-sakete.netlify.app', 
+        'https://*.netlify.app', 
+        'https://gmao-sakete.vercel.app', 
+        'https://gmao-sakete-ifangni.vercel.app',  // ← AJOUTE CETTE LIGNE
+        'https://gmao-sakete-ifangni-hlmd03cpo.vercel.app',  // ← AJOUTE CETTE LIGNE AUSSI
+        'https://*.vercel.app'
+    ],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+    optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
+// Middleware
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(compression());
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Dossiers statiques
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/qrcodes', express.static(path.join(__dirname, 'uploads/qrcodes')));
+
+// Créer les dossiers uploads
+const uploadDirs = ['uploads', 'uploads/photos', 'uploads/documents', 'uploads/qrcodes', 'uploads/rapports'];
+uploadDirs.forEach(dir => {
+  const dirPath = path.join(__dirname, dir);
+  if (!fs.existsSync(dirPath)) {
+    fs.mkdirSync(dirPath, { recursive: true });
+  }
+});
+
+// ============ IMPORTS ROUTES ============
+import authRoutes from './routes/auth.js';
+import userRoutes from './routes/users.js';
+import equipmentRoutes from './routes/equipements.js';
+import maintenanceRoutes from './routes/maintenances.js';
+import preventiveRoutes from './routes/preventive.js';
+import stockRoutes from './routes/stocks.js';
+import chatbotRoutes from './routes/chatbot.js';
+import diagnosticRoutes from './routes/diagnostic.js';
+import codirRoutes from './routes/codir.js';
+import planningRoutes from './routes/planning.js';
+import dashboardRoutes from './routes/dashboard.js';
+import mobileRoutes from './routes/mobile.js';
+import alerteRoutes from './routes/alertes.js';
+import fournisseurRoutes from './routes/fournisseurs.js';
+import technicienRoutes from './routes/techniciens.js';
+
+// ============ ROUTES API ============
+app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/equipements', equipmentRoutes);
+app.use('/api/maintenances', maintenanceRoutes);
+app.use('/api/preventif', preventiveRoutes);
+app.use('/api/stock', stockRoutes);
+app.use('/api/chatbot', chatbotRoutes);
+app.use('/api/diagnostic', diagnosticRoutes);
+app.use('/api/codir', codirRoutes);
+app.use('/api/planning', planningRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/mobile', mobileRoutes);
+app.use('/api/alertes', alerteRoutes);
+app.use('/api/fournisseurs', fournisseurRoutes);
+app.use('/api/techniciens', technicienRoutes);
+
+// Route de santé
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    timestamp: new Date(), 
+    uptime: process.uptime(),
+    cors: 'enabled'
+  });
+});
+
+// ============ ROUTE TEMPORAIRE D'ACTIVATION ============
+// (placée ici avant le middleware 404 pour être atteignable)
+app.post('/api/debug/activate/:email', async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await prisma.user.update({
+      where: { email },
+      data: { statut: 'ACTIF' }
+    });
+    res.json({ message: 'Compte activé', user: { email: user.email, statut: user.statut } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+// TEMPORAIRE : Mettre à jour le rôle sans token
+app.put('/api/debug/set-technician/:email', async (req, res) => {
+  const { email } = req.params;
+  try {
+    const user = await prisma.user.update({
+      where: { email },
+      data: { role: 'TECHNICIEN', statut: 'ACTIF' }
+    });
+    res.json({ success: true, user: { email: user.email, role: user.role, statut: user.statut } });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============ PAGE D'ACCUEIL API ============
+app.get('/', (req, res) => {
+  res.json({ message: 'API GMAO Sakété-Ifangni est en ligne' });
+});
+
+// ============ GESTION DES ERREURS 404 (doit être après toutes les routes) ============
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route non trouvée' });
+});
+
+// ============ GESTION DES ERREURS GLOBALES ============
+app.use((err, req, res, next) => {
+  console.error('Erreur serveur:', err.stack);
+  res.status(500).json({
+    message: 'Erreur interne du serveur',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// ============ DÉMARRAGE DU SERVEUR ============
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Serveur démarré sur http://0.0.0.0:${PORT}`);
+  console.log(`📱 Mode: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`🗄️ Base de données: PostgreSQL`);
+});

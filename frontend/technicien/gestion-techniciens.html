@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Gestion Techniciens - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: #1b5e20;
+            font-size: 24px;
+        }
+
+        .btn-add {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: bold;
+        }
+
+        .btn-add:hover {
+            background: #2e7d32;
+            transform: translateY(-2px);
+        }
+
+        .btn-depart {
+            background: #f97316;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: 0.2s;
+        }
+
+        .btn-depart:hover {
+            background: #ea580c;
+        }
+
+        .btn-reactivate {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-right: 5px;
+            transition: 0.2s;
+        }
+
+        .btn-reactivate:hover {
+            background: #16a34a;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            flex-wrap: wrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .filter-bar select,
+        .filter-bar input {
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .table-container {
+            background: white;
+            border-radius: 20px;
+            overflow-x: auto;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .status-active {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        .status-inactive {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        .badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .stats-cards {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            flex: 1;
+            min-width: 150px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            color: #1b5e20;
+        }
+
+        .depart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+
+        .modal h3 {
+            color: #1b5e20;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #2e7d32;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            th, td { padding: 8px 10px; font-size: 12px; }
+            .btn-depart, .btn-reactivate, .btn-delete { padding: 4px 10px; font-size: 11px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">
+    <div class="header">
+        <h1>👨‍🔧 GESTION DES TECHNICIENS</h1>
+        <button class="btn-add" onclick="openAddModal()">➕ Nouveau technicien</button>
+    </div>
+
+    <div class="stats-cards">
+        <div class="stat-card"><div class="stat-number" id="totalActifs">-</div><div>✅ Actifs</div></div>
+        <div class="stat-card"><div class="stat-number" id="totalArchives">-</div><div>📦 Archivés</div></div>
+        <div class="stat-card"><div class="stat-number" id="totalDeparts">-</div><div>📤 Départs</div></div>
+    </div>
+
+    <div class="filter-bar">
+        <select id="filterStatus" onchange="loadTechniciens()">
+            <option value="all">📋 Tous les techniciens</option>
+            <option value="active">✅ Actifs</option>
+            <option value="archived">📦 Archivés</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="🔍 Rechercher par nom, email..." onkeyup="loadTechniciens()">
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead><tr><th>Matricule</th><th>Nom</th><th>Email</th><th>Service</th><th>Interventions</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody id="techniciensList"><tr><td colspan="7" class="empty-state">Chargement...</td></tr></tbody>
+        </table>
+    </div>
+
+    <div class="section">
+        <div class="section-title">📤 DERNIERS DÉPARTS ENREGISTRÉS</div>
+        <div id="departsList"><div class="empty-state">Chargement...</div></div>
+    </div>
+</div>
+
+<div id="addModal" class="modal">
+    <div class="modal-content">
+        <h3>➕ Ajouter un technicien</h3>
+        <div class="form-group"><label>Nom *</label><input type="text" id="techNom" placeholder="Ex: ADJOVI"></div>
+        <div class="form-group"><label>Prénom</label><input type="text" id="techPrenom" placeholder="Ex: Jean"></div>
+        <div class="form-group"><label>Email *</label><input type="email" id="techEmail" placeholder="tech@hopital.bj"></div>
+        <div class="form-group"><label>Téléphone</label><input type="tel" id="techPhone" placeholder="+229 XX XX XX XX"></div>
+        <div class="form-group"><label>Service</label><input type="text" id="techService" value="MAINTENANCE"></div>
+        <div class="form-group"><label>Mot de passe *</label><input type="password" id="techPassword" value="tech123"></div>
+        <button class="btn-primary" onclick="createTechnicien()">✅ Créer le technicien</button>
+        <button class="btn-danger" onclick="closeAddModal()">Annuler</button>
+    </div>
+</div>
+
+<div id="departModal" class="modal">
+    <div class="modal-content">
+        <h3>📤 Enregistrer un départ</h3>
+        <div class="form-group"><label>Technicien</label><input type="text" id="departTechnicienNom" readonly style="background:#f1f5f9;"></div>
+        <div class="form-group"><label>Nouvel hôpital *</label><input type="text" id="nouveauHopital" placeholder="Ex: CHU Cotonou"></div>
+        <div class="form-group"><label>Motif</label><select id="motifDepart"><option value="MUTATION">Mutation</option><option value="DEMISSION">Démission</option><option value="FIN_CONTRAT">Fin contrat</option><option value="RETRAITE">Retraite</option></select></div>
+        <div class="form-group"><label>Remarques</label><textarea id="rapportDepart" rows="3"></textarea></div>
+        <button class="btn-primary" onclick="confirmerDepart()">✅ Confirmer</button>
+        <button class="btn-danger" onclick="closeDepartModal()">Annuler</button>
+    </div>
+</div>
+
+<script>
+   const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    let currentDepartId = null;
+
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    async function loadTechniciens() {
+        const filter = document.getElementById('filterStatus').value;
+        const search = document.getElementById('searchInput').value;
+        let url = `${API_URL}/techniciens?search=${encodeURIComponent(search)}`;
+        if (filter === 'active') url += '&archived=false';
+        else if (filter === 'archived') url += '&archived=true';
+        
+        try {
+            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const data = await res.json();
+            if (data.length === 0) {
+                document.getElementById('techniciensList').innerHTML = '<tr><td colspan="7" class="empty-state">📭 Aucun technicien trouvé</td></tr>';
+                return;
+            }
+            document.getElementById('techniciensList').innerHTML = data.map(t => `
+                <tr>
+                    <td>${t.matricule || 'N/A'}${t.prenom ? `/${t.prenom.charAt(0)}` : ''}</td>
+                    <td><strong>${t.nom} ${t.prenom || ''}</strong></td>
+                    <td>${t.email}</td>
+                    <td>${t.service || 'MAINTENANCE'}</td>
+                    <td><span class="badge">📋 ${t.interventions?.length || 0}</span></td>
+                    <td><span class="${t.statut === 'ACTIF' ? 'status-active' : 'status-inactive'}">${t.statut === 'ACTIF' ? '✅ Actif' : '📦 Archivé'}</span></td>
+                    <td>
+                        ${t.statut === 'ACTIF' ? 
+                            `<button class="btn-depart" onclick="openDepartModal(${t.id}, '${t.nom} ${t.prenom || ''}')">📤 Départ</button>
+                             <button class="btn-delete" onclick="deleteTechnicien(${t.id})">🗑️ Suppr</button>` : 
+                            `<button class="btn-reactivate" onclick="reactiverTechnicien(${t.id})">🔄 Réactiver</button>
+                             <button class="btn-delete" onclick="deleteTechnicien(${t.id})">🗑️ Suppr</button>`
+                        }
+                    </td>
+                </tr>
+            `).join('');
+        } catch (error) { console.error('Erreur:', error); }
+    }
+
+    async function loadDeparts() {
+        try {
+            const res = await fetch(`${API_URL}/techniciens/departs/liste`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const departs = await res.json();
+            if (departs.length === 0) { document.getElementById('departsList').innerHTML = '<div class="empty-state">📭 Aucun départ enregistré</div>'; return; }
+            document.getElementById('departsList').innerHTML = departs.slice(0, 5).map(d => `
+                <div class="depart-item"><div>📤</div><div style="flex:1"><strong>${d.technicien?.nom}</strong><br><small>🎯 ${d.nouveauHopital} | ${d.motif}</small><br><small>📅 ${new Date(d.dateDepart).toLocaleDateString()}</small></div></div>
+            `).join('');
+        } catch (error) { console.error('Erreur:', error); }
+    }
+
+    async function loadStats() {
+        try {
+            const res = await fetch(`${API_URL}/techniciens`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const data = await res.json();
+            document.getElementById('totalActifs').innerText = data.filter(t => t.statut === 'ACTIF').length;
+            document.getElementById('totalArchives').innerText = data.filter(t => t.statut === 'INACTIF').length;
+            const resDeparts = await fetch(`${API_URL}/techniciens/departs/stats`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const stats = await resDeparts.json();
+            document.getElementById('totalDeparts').innerText = stats.total || 0;
+        } catch (error) { console.error('Erreur stats:', error); }
+    }
+
+    async function createTechnicien() {
+        const data = {
+            nom: document.getElementById('techNom').value,
+            prenom: document.getElementById('techPrenom').value,
+            email: document.getElementById('techEmail').value,
+            telephone: document.getElementById('techPhone').value,
+            service: document.getElementById('techService').value,
+            password: document.getElementById('techPassword').value
+        };
+        const res = await fetch(`${API_URL}/techniciens`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify(data) });
+        if (res.ok) { alert('✅ Technicien ajouté'); closeAddModal(); loadTechniciens(); loadStats(); }
+        else alert('❌ Erreur');
+    }
+
+    function openDepartModal(id, nom) {
+        currentDepartId = id;
+        document.getElementById('departTechnicienNom').value = nom;
+        document.getElementById('nouveauHopital').value = '';
+        document.getElementById('motifDepart').value = 'MUTATION';
+        document.getElementById('rapportDepart').value = '';
+        document.getElementById('departModal').style.display = 'flex';
+    }
+
+    async function confirmerDepart() {
+        const data = {
+            nouveauHopital: document.getElementById('nouveauHopital').value,
+            motif: document.getElementById('motifDepart').value,
+            rapport: document.getElementById('rapportDepart').value,
+            archiveInterventions: true
+        };
+        const res = await fetch(`${API_URL}/techniciens/${currentDepartId}/depart`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify(data) });
+        if (res.ok) { alert('✅ Départ enregistré'); closeDepartModal(); loadTechniciens(); loadDeparts(); loadStats(); }
+        else alert('❌ Erreur');
+    }
+
+    async function reactiverTechnicien(id) {
+        if (confirm('Réactiver ce technicien ?')) {
+            await fetch(`${API_URL}/techniciens/${id}/reactiver`, { method: 'PUT', headers: { 'Authorization': `Bearer ${getToken()}` } });
+            loadTechniciens(); loadStats();
+        }
+    }
+
+    async function deleteTechnicien(id) {
+        if (confirm('Supprimer définitivement ?')) {
+            await fetch(`${API_URL}/techniciens/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } });
+            loadTechniciens(); loadStats();
+        }
+    }
+
+    function openAddModal() { document.getElementById('addModal').style.display = 'flex'; }
+    function closeAddModal() { document.getElementById('addModal').style.display = 'none'; }
+    function closeDepartModal() { document.getElementById('departModal').style.display = 'none'; }
+
+    loadSidebar();
+    loadTechniciens();
+    loadDeparts();
+    loadStats();
+</script>
+</body>
+</html>

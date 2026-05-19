@@ -1,0 +1,95 @@
+<!-- Modal générique réutilisable -->
+<div id="genericModal" class="generic-modal" style="display: none;">
+    <div class="generic-modal-content">
+        <div class="generic-modal-header">
+            <h3 id="modalTitle">Titre</h3>
+            <span class="generic-modal-close" onclick="closeGenericModal()">&times;</span>
+        </div>
+        <div class="generic-modal-body" id="modalBody">
+            Contenu du modal
+        </div>
+        <div class="generic-modal-footer">
+            <button class="modal-btn modal-btn-secondary" onclick="closeGenericModal()">Fermer</button>
+            <button class="modal-btn modal-btn-primary" id="modalConfirmBtn" onclick="confirmModalAction()">Confirmer</button>
+        </div>
+    </div>
+</div>
+
+<style>
+    .generic-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .generic-modal-content {
+        background: white;
+        border-radius: 24px;
+        max-width: 500px;
+        width: 90%;
+        max-height: 85vh;
+        overflow-y: auto;
+        animation: modalFadeIn 0.3s ease;
+    }
+    @keyframes modalFadeIn {
+        from { opacity: 0; transform: translateY(-20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .generic-modal-header {
+        padding: 20px 24px;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .generic-modal-header h3 { color: #1a2a4f; margin: 0; }
+    .generic-modal-close {
+        font-size: 28px;
+        cursor: pointer;
+        color: #94a3b8;
+    }
+    .generic-modal-close:hover { color: #ef4444; }
+    .generic-modal-body { padding: 24px; }
+    .generic-modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+    }
+    .modal-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 30px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .modal-btn-primary { background: #3b82f6; color: white; }
+    .modal-btn-secondary { background: #e2e8f0; color: #475569; }
+    .modal-btn-danger { background: #ef4444; color: white; }
+</style>
+
+<script>
+    let modalCallback = null;
+    function openGenericModal(title, body, confirmText = 'Confirmer', callback = null) {
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalBody').innerHTML = body;
+        document.getElementById('modalConfirmBtn').innerText = confirmText;
+        modalCallback = callback;
+        document.getElementById('genericModal').style.display = 'flex';
+    }
+    function closeGenericModal() {
+        document.getElementById('genericModal').style.display = 'none';
+        modalCallback = null;
+    }
+    function confirmModalAction() {
+        if (modalCallback) modalCallback();
+        closeGenericModal();
+    }
+</script>

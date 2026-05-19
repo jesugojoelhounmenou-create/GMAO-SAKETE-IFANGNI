@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Historique des travaux - GMAO Sakété</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            padding: 20px;
+        }
+        .main-content { max-width: 1400px; margin: 0 auto; }
+        .header {
+            background: white;
+            padding: 15px 25px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        h1 { color: #1b5e20; }
+        .filter-bar {
+            background: white;
+            padding: 16px;
+            border-radius: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .filter-bar input, .filter-bar select {
+            padding: 10px 16px;
+            border: 1px solid #ddd;
+            border-radius: 40px;
+        }
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            border-collapse: collapse;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        th { background: #f8fafc; }
+        .badge-termine { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; display: inline-block; }
+        .badge-cours { background: #dbeafe; color: #2563eb; padding: 4px 12px; border-radius: 20px; display: inline-block; }
+        .btn-excel {
+            background: #1b5e20;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+        @media (max-width: 768px) { body { margin-left: 0; } th, td { font-size: 12px; padding: 8px; } }
+    </style>
+</head>
+<body>
+<div id="sidebar-container"></div>
+<div class="main-content">
+    <div class="header">
+        <h1>📋 HISTORIQUE COMPLET DES TRAVAUX</h1>
+        <button class="btn-excel" onclick="exporterExcel()">📊 Exporter Excel</button>
+    </div>
+
+    <div class="filter-bar">
+        <input type="text" id="search" placeholder="🔍 Équipement, technicien..." onkeyup="loadHistorique()">
+        <select id="statutFilter" onchange="loadHistorique()">
+            <option value="">Tous statuts</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="EN_COURS">En cours</option>
+            <option value="ANNULE">Annulé</option>
+        </select>
+        <select id="typeFilter" onchange="loadHistorique()">
+            <option value="">Tous types</option>
+            <option value="CORRECTIF">Correctif (Panne)</option>
+            <option value="PREVENTIF">Préventif</option>
+        </select>
+        <input type="date" id="dateDebut" placeholder="Date début" onchange="loadHistorique()">
+        <input type="date" id="dateFin" placeholder="Date fin" onchange="loadHistorique()">
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table id="historiqueTable">
+            <thead>
+                <tr><th>ID</th><th>Date</th><th>Équipement</th><th>Service</th><th>Type</th><th>Problème/Action</th><th>Technicien</th><th>Durée</th><th>Statut</th></tr>
+            </thead>
+            <tbody id="tableBody"><tr><td colspan="9" style="text-align:center">Chargement...</td></tr></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+   const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    function getToken() { return localStorage.getItem('token'); }
+
+    async function loadHistorique() {
+        const search = document.getElementById('search').value;
+        const statut = document.getElementById('statutFilter').value;
+        const type = document.getElementById('typeFilter').value;
+        const dateDebut = document.getElementById('dateDebut').value;
+        const dateFin = document.getElementById('dateFin').value;
+
+        let url = `${API_URL}/maintenances/historique-complet?search=${search}&statut=${statut}&type=${type}`;
+        if (dateDebut) url += `&dateDebut=${dateDebut}`;
+        if (dateFin) url += `&dateFin=${dateFin}`;
+
+        const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+        const data = await res.json();
+        const interventions = data.interventions || data;
+
+        if (interventions.length === 0) {
+            document.getElementById('tableBody').innerHTML = '<tr><td colspan="9" style="text-align:center">📭 Aucun historique</td></tr>';
+            return;
+        }
+
+        document.getElementById('tableBody').innerHTML = interventions.map(i => `
+            <tr onclick="voirDetail(${i.id})" style="cursor:pointer">
+                <td>#${i.id}</td>
+                <td>${new Date(i.dateDebut).toLocaleDateString()}</td>
+                <td><strong>${i.equipement?.nom}</strong><br><small>${i.equipement?.codeInventaire}</small></td>
+                <td>${i.equipement?.service || '-'}</td>
+                <td>${i.type === 'CORRECTIF' ? '🛠️ Panne' : '📅 Préventive'}</td>
+                <td>${(i.signalement?.description || i.diagnostic || '').substring(0, 50)}${(i.signalement?.description?.length > 50 ? '...' : '')}</td>
+                <td>${i.technicien?.nom || '-'}</td>
+                <td>${i.dureeMinutes ? i.dureeMinutes + ' min' : '-'}</td>
+                <td>${i.statut === 'TERMINE' ? '<span class="badge-termine">✅ Terminé</span>' : '<span class="badge-cours">🔧 En cours</span>'}</td>
+            </tr>
+        `).join('');
+    }
+
+    function voirDetail(id) { window.location.href = `intervention-form.html?id=${id}`; }
+    function exporterExcel() { window.location.href = `${API_URL}/maintenances/export-excel`; }
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(r => r.text())
+            .then(d => document.getElementById('sidebar-container').innerHTML = d);
+    }
+
+    loadSidebar();
+    loadHistorique();
+</script>
+</body>
+</html>

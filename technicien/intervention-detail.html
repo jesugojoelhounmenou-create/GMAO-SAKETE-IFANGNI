@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Détail équipement - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #3b82f6;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1b5e20;
+            border-left: 4px solid #1b5e20;
+            padding-left: 12px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .info-item {
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .status-FONCTIONNEL { background: #dcfce7; color: #166534; }
+        .status-EN_PANNE { background: #fee2e2; color: #dc2626; }
+        .status-EN_MAINTENANCE { background: #fef3c7; color: #d97706; }
+
+        .qr-container {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 16px;
+            margin-top: 10px;
+        }
+
+        .qr-container img {
+            max-width: 150px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px;
+            background: white;
+        }
+
+        .btn {
+            padding: 8px 20px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-right: 10px;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #1b5e20;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2e7d32;
+        }
+
+        .btn-warning {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #f8fafc;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">
+    <a href="inventaire.html" class="back-link">← Retour</a>
+    <div id="content"><div class="empty-state">Chargement...</div></div>
+</div>
+
+<script>
+    const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    const id = new URLSearchParams(location.search).get('id');
+
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+    if (!id) window.location.href = 'inventaire.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    async function load() {
+        try {
+            const res = await fetch(`${API_URL}/equipements/${id}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            if (!res.ok) throw new Error();
+            const e = await res.json();
+            const dateMiseService = e.dateMiseService ? new Date(e.dateMiseService).toLocaleDateString('fr-FR') : '-';
+            const garantieFin = e.garantieFin ? new Date(e.garantieFin).toLocaleDateString('fr-FR') : '-';
+
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="title">📦 ${escapeHtml(e.nom)}</div>
+                    <div class="info-grid">
+                        <div class="info-item"><div class="info-label">Code inventaire</div><div class="info-value">${escapeHtml(e.codeInventaire)}</div></div>
+                        <div class="info-item"><div class="info-label">Statut</div><div class="info-value"><span class="status status-${e.statut}">${getStatusText(e.statut)}</span></div></div>
+                        <div class="info-item"><div class="info-label">Marque / Modèle</div><div class="info-value">${escapeHtml(e.marque)} ${escapeHtml(e.modele || '')}</div></div>
+                        <div class="info-item"><div class="info-label">Numéro de série</div><div class="info-value">${escapeHtml(e.numeroSerie || '-')}</div></div>
+                        <div class="info-item"><div class="info-label">Type médical</div><div class="info-value">${getTypeMedicalIcon(e.typeMedical)} ${escapeHtml(e.typeMedical)}</div></div>
+                        <div class="info-item"><div class="info-label">Criticité</div><div class="info-value">${getCriticiteBadge(e.criticite)}</div></div>
+                        <div class="info-item"><div class="info-label">Service</div><div class="info-value">${escapeHtml(e.service)}</div></div>
+                        <div class="info-item"><div class="info-label">Localisation</div><div class="info-value">${getLocalisationText(e)}</div></div>
+                        <div class="info-item"><div class="info-label">Date mise en service</div><div class="info-value">${dateMiseService}</div></div>
+                        <div class="info-item"><div class="info-label">Fin de garantie</div><div class="info-value">${garantieFin}</div></div>
+                    </div>
+                    <div class="qr-container">${e.qrcode ? `<img src="${e.qrcode}" alt="QR Code"><br><small>📱 Scanner QR</small>` : '<small>QR Code non généré</small>'}</div>
+                    <div style="margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="modifierEquipement(${e.id})">✏️ Modifier</button>
+                        <button class="btn btn-warning" onclick="signalerPanne(${e.id})">⚠️ Panne</button>
+                        <button class="btn btn-secondary" onclick="imprimerQR()">🖨️ Imprimer QR</button>
+                    </div>
+                </div>
+                <div class="card"><div class="title">🔧 Historique</div><div id="historique">Chargement...</div></div>
+                <div class="card"><div class="title">📅 Préventives</div><div id="preventif">Chargement...</div></div>
+            `;
+
+            await loadHistorique(e.id);
+            await loadPreventives(e.id);
+        } catch (error) {
+            document.getElementById('content').innerHTML = `<div class="card"><div class="title">❌ Erreur</div><p>Impossible de charger</p><a href="inventaire.html" class="btn btn-primary">Retour</a></div>`;
+        }
+    }
+
+    async function loadHistorique(equipementId) {
+        try {
+            const res = await fetch(`${API_URL}/maintenances/historique/${equipementId}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const historique = await res.json();
+            if (historique.length === 0) { document.getElementById('historique').innerHTML = '<div class="empty-state">📭 Aucune intervention</div>'; return; }
+            document.getElementById('historique').innerHTML = `<div style="overflow-x:auto;"><table><thead><tr><th>Date</th><th>Type</th><th>Technicien</th><th>Statut</th></tr></thead><tbody>${historique.map(i => `<tr onclick="voirIntervention(${i.id})" style="cursor:pointer"><td>${new Date(i.dateDebut).toLocaleDateString()}</td><td>${getTypeInterventionIcon(i.type)} ${i.type}</td><td>${i.technicien?.nom || '-'}</td><td>${getStatutInterventionBadge(i.statut)}</td></tr>`).join('')}</tbody></table></div>`;
+        } catch (error) { document.getElementById('historique').innerHTML = '<div class="empty-state">❌ Erreur</div>'; }
+    }
+
+    async function loadPreventives(equipementId) {
+        try {
+            const res = await fetch(`${API_URL}/preventif?equipementId=${equipementId}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const preventives = await res.json();
+            if (preventives.length === 0) { document.getElementById('preventif').innerHTML = '<div class="empty-state">📅 Aucune préventive</div>'; return; }
+            document.getElementById('preventif').innerHTML = `<div style="overflow-x:auto;"><table><thead><tr><th>Type</th><th>Périodicité</th><th>Prochaine date</th><th>Statut</th><th>Action</th></tr></thead><tbody>${preventives.map(p => `<tr><td>${getTypePreventifIcon(p.type)} ${p.type}</td><td>Tous les ${p.periodicite} j</td><td><strong>${new Date(p.prochaineRealisation).toLocaleDateString()}</strong></td><td>${getStatutPreventifBadge(p.statut)}</td><td>${p.statut === 'PREVU' ? `<button class="btn btn-primary" onclick="realiserPreventive(${p.id})">✅ Réaliser</button>` : '-'}</td></tr>`).join('')}</tbody></table></div>`;
+        } catch (error) { document.getElementById('preventif').innerHTML = '<div class="empty-state">❌ Erreur</div>'; }
+    }
+
+    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+    function getStatusText(s) { const map = { 'FONCTIONNEL': '✅ Fonctionnel', 'EN_PANNE': '❌ Panne', 'EN_MAINTENANCE': '🔧 Maintenance' }; return map[s] || s; }
+    function getCriticiteBadge(c) { const map = { 'CRITIQUE': '🔴 Critique', 'HAUTE': '🟠 Haute', 'MOYENNE': '🟡 Moyenne', 'BASSE': '🟢 Basse' }; return map[c] || c; }
+    function getTypeMedicalIcon(t) { const map = { 'IMAGERIE': '🖥️', 'MONITORING': '📊', 'RESPIRATION': '💨', 'LABORATOIRE': '🔬', 'CHIRURGICAL': '🔪', 'STERILISATION': '🧼' }; return map[t] || '📦'; }
+    function getTypeInterventionIcon(t) { const map = { 'CORRECTIF': '🛠️', 'PREVENTIF': '📅', 'URGEANT': '🚨' }; return map[t] || '🔧'; }
+    function getTypePreventifIcon(t) { const map = { 'JOURNALIERE': '📆', 'HEBDOMADAIRE': '📅', 'MENSUELLE': '📆', 'TRIMESTRIELLE': '📅', 'SEMESTRIELLE': '📆', 'ANNUELLE': '📅' }; return map[t] || '📆'; }
+    function getStatutInterventionBadge(s) { const map = { 'EN_ATTENTE': '<span style="background:#fef3c7; padding:2px 8px; border-radius:12px;">⏳ Attente</span>', 'EN_COURS': '<span style="background:#dbeafe; padding:2px 8px; border-radius:12px;">🔧 Cours</span>', 'TERMINE': '<span style="background:#dcfce7; padding:2px 8px; border-radius:12px;">✅ Terminé</span>' }; return map[s] || s; }
+    function getStatutPreventifBadge(s) { const map = { 'PREVU': '<span style="background:#dbeafe; padding:2px 8px; border-radius:12px;">📅 Prévu</span>', 'REALISE': '<span style="background:#dcfce7; padding:2px 8px; border-radius:12px;">✅ Réalisé</span>', 'RETARD': '<span style="background:#fee2e2; padding:2px 8px; border-radius:12px;">⚠️ Retard</span>' }; return map[s] || s; }
+    function getLocalisationText(e) { let parts = []; if (e.batiment) parts.push(`Bâtiment ${e.batiment}`); if (e.etage) parts.push(`Étage ${e.etage}`); if (e.salle) parts.push(`Salle ${e.salle}`); return parts.length ? parts.join(' - ') : 'Non spécifiée'; }
+
+    function modifierEquipement(id) { window.location.href = `equipement-form.html?id=${id}`; }
+    function signalerPanne(id) { window.location.href = `../soignant/signaler-panne.html?equipementId=${id}`; }
+    function realiserPreventive(id) { window.location.href = `preventive.html?id=${id}`; }
+    function voirIntervention(id) { window.location.href = `intervention-form.html?id=${id}`; }
+    function imprimerQR() { const img = document.querySelector('.qr-container img'); if (img && img.src) { const win = window.open(); win.document.write(`<html><head><title>QR Code</title></head><body style="text-align:center;"><img src="${img.src}" style="max-width:300px;"><h3>QR Code</h3><button onclick="window.print()">🖨️ Imprimer</button></body></html>`); win.document.close(); win.print(); } else alert('QR non disponible'); }
+
+    loadSidebar();
+    load();
+</script>
+</body>
+</html>

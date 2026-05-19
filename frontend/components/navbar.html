@@ -1,0 +1,132 @@
+<!-- Barre de navigation responsive -->
+<nav class="gmao-navbar">
+    <div class="nav-container">
+        <div class="nav-brand">
+            <a href="/index.html">
+                <span class="logo-icon">🏥</span>
+                <span class="logo-text">GMAO <span class="logo-highlight">Sakété</span></span>
+            </a>
+        </div>
+        <div class="nav-menu" id="navMenu">
+            <a href="/technicien/dashboard.html" class="nav-link">📊 Dashboard</a>
+            <a href="/technicien/inventaire.html" class="nav-link">📦 Inventaire</a>
+            <a href="/technicien/maintenances.html" class="nav-link">🔧 Maintenances</a>
+            <a href="/technicien/stock.html" class="nav-link">⚙️ Stock</a>
+            <a href="/technicien/gestion-techniciens.html" class="nav-link">👥 Techniciens</a>
+            <a href="/technicien/codir-rapports.html" class="nav-link">📈 CoDIR</a>
+        </div>
+        <div class="nav-user">
+            <span class="user-name" id="navUserName">Chargement...</span>
+            <button class="logout-btn-small" onclick="logout()">🚪</button>
+            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .gmao-navbar {
+        background: #1a2a4f;
+        color: white;
+        padding: 0 20px;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .nav-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        height: 60px;
+    }
+    .nav-brand a {
+        color: white;
+        text-decoration: none;
+        font-size: 20px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .logo-highlight { color: #00d4ff; }
+    .nav-menu {
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+    .nav-link {
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        padding: 8px 16px;
+        border-radius: 30px;
+        transition: 0.3s;
+        font-size: 14px;
+    }
+    .nav-link:hover, .nav-link.active {
+        background: rgba(255,255,255,0.1);
+        color: white;
+    }
+    .nav-user {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    .user-name {
+        font-size: 13px;
+        background: rgba(255,255,255,0.1);
+        padding: 5px 12px;
+        border-radius: 20px;
+    }
+    .logout-btn-small {
+        background: #ef4444;
+        border: none;
+        color: white;
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 16px;
+    }
+    .mobile-menu-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: white;
+        font-size: 24px;
+        cursor: pointer;
+    }
+    @media (max-width: 768px) {
+        .nav-menu {
+            position: fixed;
+            top: 60px;
+            left: -100%;
+            width: 100%;
+            height: calc(100vh - 60px);
+            background: #1a2a4f;
+            flex-direction: column;
+            padding: 20px;
+            transition: 0.3s;
+            z-index: 999;
+        }
+        .nav-menu.open { left: 0; }
+        .nav-link { width: 100%; text-align: center; padding: 12px; }
+        .mobile-menu-toggle { display: block; }
+        .user-name { display: none; }
+    }
+</style>
+
+<script>
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+    function toggleMobileMenu() {
+        document.getElementById('navMenu').classList.toggle('open');
+    }
+    document.getElementById('navUserName').innerText = localStorage.getItem('userName') || 'Utilisateur';
+    const currentPath = window.location.pathname;
+    document.querySelectorAll('.nav-link').forEach(link => {
+        if (currentPath.includes(link.getAttribute('href'))) {
+            link.classList.add('active');
+        }
+    });
+</script>

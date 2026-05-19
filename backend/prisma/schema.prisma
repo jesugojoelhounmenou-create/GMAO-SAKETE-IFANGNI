@@ -1,0 +1,393 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 Int                     @id @default(autoincrement())
+  matricule          String                  @unique
+  nom                String
+  prenom             String?
+  email              String                  @unique
+  password           String
+  telephone          String?
+  service            String?
+  role               String                  @default("SOIGNANT")
+  photo              String?
+  specialite         String?
+  statut             String                  @default("EN_ATTENTE")
+  valideParId        Int?
+  dateValidation     DateTime?
+  derniereLatitude   Float?
+  derniereLongitude  Float?
+  dernierePositionAt DateTime?
+  pushToken          String?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  dernierConnexion   DateTime?
+  resolutions        Alerte[]
+  conversations      Conversation[]
+  documents          Document[]
+  interventions      Intervention[]
+  logs               Log[]
+  maintenances       MaintenancePreventive[]
+  mouvements         MouvementStock[]
+  planningGardes     PlanningGarde[]
+  rapportsValide     RapportCoDIR[]          @relation("RapportValidator")
+  rapportsGenere     RapportCoDIR[]
+  signalements       Signalement[]
+  departs            TechnicienDepart[]
+  validePar          User?                   @relation("UserValidation", fields: [valideParId], references: [id])
+  validations        User[]                  @relation("UserValidation")
+}
+
+model Equipement {
+  id                      Int                     @id @default(autoincrement())
+  codeInventaire          String                  @unique
+  codeBarres              String?                 @unique
+  nom                     String
+  marque                  String
+  modele                  String
+  numeroSerie             String?                 @unique
+  fabricant               String?
+  paysFabrication         String?
+  anneeFabrication        Int?
+  typeMedical             String
+  criticite               String
+  classeRisque            String?
+  famille                 String?
+  service                 String
+  batiment                String?
+  salle                   String?
+  etage                   Int?
+  emplacementPrecis       String?
+  latitude                Float?
+  longitude               Float?
+  tension                 String?
+  puissance               String?
+  frequence               String?
+  consommation            String?
+  dimensions              String?
+  poids                   Float?
+  specifications          String?
+  manuelUtilisateur       String?
+  manuelTechnique         String?
+  schemaElectrique        String?
+  certificatConformite    String?
+  photoPrincipale         String?
+  fournisseurId           Int?
+  dateAcquisition         DateTime?
+  dateMiseService         DateTime?
+  garantieFin             DateTime?
+  contratMaintenanceId    Int?
+  statut                  String                  @default("FONCTIONNEL")
+  disponibilite           Float?
+  dateDernierePanne       DateTime?
+  dateProchainePreventive DateTime?
+  mtbf                    Float?
+  mttr                    Float?
+  nombrePannes            Int                     @default(0)
+  coutMaintenanceTotal    Float                   @default(0)
+  qrcode                  String?
+  qrcodeUrl               String?
+  createdAt               DateTime                @default(now())
+  updatedAt               DateTime                @updatedAt
+  alertes                 Alerte[]
+  conversations           Conversation[]
+  documents               Document[]
+  contratMaintenance      ContratMaintenance?     @relation(fields: [contratMaintenanceId], references: [id])
+  fournisseur             Fournisseur?            @relation(fields: [fournisseurId], references: [id])
+  maintenances            Intervention[]
+  maintenancesPreventives MaintenancePreventive[]
+  historiquePieces        PieceUtilisee[]
+  signalements            Signalement[]
+}
+
+model Signalement {
+  id              Int           @id @default(autoincrement())
+  equipementId    Int
+  signaleParId    Int
+  description     String
+  priorite        String        @default("MOYENNE")
+  photo           String?
+  dateSignalement DateTime      @default(now())
+  traite          Boolean       @default(false)
+  dateTraitement  DateTime?
+  conversationId  Int?
+  intervention    Intervention?
+  conversation    Conversation? @relation(fields: [conversationId], references: [id])
+  signalePar      User          @relation(fields: [signaleParId], references: [id])
+  equipement      Equipement    @relation(fields: [equipementId], references: [id])
+}
+
+model Intervention {
+  id                   Int             @id @default(autoincrement())
+  signalementId        Int?            @unique
+  equipementId         Int
+  technicienId         Int
+  type                 String          @default("CORRECTIF")
+  diagnostic           String?
+  actionsRealisees     String?
+  rapportFinal         String?
+  dateDebut            DateTime        @default(now())
+  dateFin              DateTime?
+  dureeMinutes         Int?
+  tempsReponseMinutes  Int?
+  piecesUtilisees      String?
+  coutPieces           Float?
+  coutMainOeuvre       Float?
+  photosAvant          String?
+  photosApres          String?
+  statut               String          @default("EN_ATTENTE")
+  satisfaction         Int?
+  commentaireSoignant  String?
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+  signalement          Signalement?    @relation(fields: [signalementId], references: [id])
+  technicien           User            @relation(fields: [technicienId], references: [id])
+  equipement           Equipement      @relation(fields: [equipementId], references: [id])
+  piecesUtiliseesPiece PieceUtilisee[]
+}
+
+model MaintenancePreventive {
+  id                   Int        @id @default(autoincrement())
+  equipementId         Int
+  type                 String     @default("MENSUELLE")
+  periodicite          Int
+  derniereRealisation  DateTime?
+  prochaineRealisation DateTime
+  checklist            String?
+  instructions         String?
+  dureePrevue          Int?
+  responsableId        Int?
+  statut               String     @default("PREVU")
+  dateRealisation      DateTime?
+  rapport              String?
+  createdAt            DateTime   @default(now())
+  responsable          User?      @relation(fields: [responsableId], references: [id])
+  equipement           Equipement @relation(fields: [equipementId], references: [id])
+}
+
+model Piece {
+  id                    Int              @id @default(autoincrement())
+  code                  String           @unique
+  designation           String
+  categorie             String
+  description           String?
+  fournisseurId         Int?
+  prixUnitaire          Float            @default(0)
+  quantiteStock         Int              @default(0)
+  seuilAlerte           Int              @default(5)
+  emplacement           String?
+  delaiLivraison        Int?
+  compatibleAvec        String?
+  derniereEntree        DateTime?
+  derniereSortie        DateTime?
+  quantiteUtiliseeTotal Int              @default(0)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  mouvements            MouvementStock[]
+  fournisseur           Fournisseur?     @relation(fields: [fournisseurId], references: [id])
+  utilisations          PieceUtilisee[]
+}
+
+model PieceUtilisee {
+  id              Int          @id @default(autoincrement())
+  pieceId         Int
+  equipementId    Int
+  interventionId  Int
+  quantite        Int
+  prixUnitaire    Float
+  dateUtilisation DateTime     @default(now())
+  intervention    Intervention @relation(fields: [interventionId], references: [id])
+  equipement      Equipement   @relation(fields: [equipementId], references: [id])
+  piece           Piece        @relation(fields: [pieceId], references: [id])
+}
+
+model MouvementStock {
+  id             Int      @id @default(autoincrement())
+  pieceId        Int
+  type           String
+  quantite       Int
+  prixUnitaire   Float?
+  interventionId Int?
+  commandeId     Int?
+  date           DateTime @default(now())
+  motif          String
+  utilisateurId  Int
+  utilisateur    User     @relation(fields: [utilisateurId], references: [id])
+  piece          Piece    @relation(fields: [pieceId], references: [id])
+}
+
+model Fournisseur {
+  id          Int                  @id @default(autoincrement())
+  nom         String
+  contact     String?
+  telephone   String?
+  email       String?
+  adresse     String?
+  siteWeb     String?
+  type        String               @default("EQUIPEMENT")
+  note        Float?
+  delaiMoyen  Int?
+  actif       Boolean              @default(true)
+  contrats    ContratMaintenance[]
+  equipements Equipement[]
+  pieces      Piece[]
+}
+
+model ContratMaintenance {
+  id            Int          @id @default(autoincrement())
+  fournisseurId Int
+  type          String
+  numeroContrat String       @unique
+  dateDebut     DateTime
+  dateFin       DateTime
+  montant       Float
+  couverture    String?
+  conditions    String?
+  createdAt     DateTime     @default(now())
+  fournisseur   Fournisseur  @relation(fields: [fournisseurId], references: [id])
+  equipements   Equipement[]
+}
+
+model PlanningGarde {
+  id           Int      @id @default(autoincrement())
+  technicienId Int
+  date         DateTime
+  typeGarde    String
+  heureDebut   String?
+  heureFin     String?
+  observateur  String?
+  valide       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  technicien   User     @relation(fields: [technicienId], references: [id])
+}
+
+model Alerte {
+  id             Int         @id @default(autoincrement())
+  type           String
+  niveau         String
+  message        String
+  equipementId   Int?
+  interventionId Int?
+  pieceId        Int?
+  dateCreation   DateTime    @default(now())
+  dateResolution DateTime?
+  resolueParId   Int?
+  commentaire    String?
+  resolue        Boolean     @default(false)
+  resoluePar     User?       @relation(fields: [resolueParId], references: [id])
+  equipement     Equipement? @relation(fields: [equipementId], references: [id])
+}
+
+model Conversation {
+  id            Int           @id @default(autoincrement())
+  utilisateurId Int
+  equipementId  Int?
+  type          String        @default("SIMPLE")
+  dateDebut     DateTime      @default(now())
+  dateFin       DateTime?
+  equipement    Equipement?   @relation(fields: [equipementId], references: [id])
+  utilisateur   User          @relation(fields: [utilisateurId], references: [id])
+  messages      Message[]
+  signalements  Signalement[]
+}
+
+model Message {
+  id             Int          @id @default(autoincrement())
+  conversationId Int
+  auteur         String
+  contenu        String
+  typeMessage    String?
+  donnees        String?
+  dateEnvoi      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+}
+
+model RapportCoDIR {
+  id             Int       @id @default(autoincrement())
+  mois           DateTime
+  dateGeneration DateTime  @default(now())
+  genereParId    Int
+  indicateurs    String
+  resume         String?
+  graphiquePdf   String?
+  excelUrl       String?
+  statut         String    @default("PROVISOIRE")
+  valideParId    Int?
+  dateValidation DateTime?
+  validePar      User?     @relation("RapportValidator", fields: [valideParId], references: [id])
+  generePar      User      @relation(fields: [genereParId], references: [id])
+}
+
+model Document {
+  id             Int         @id @default(autoincrement())
+  titre          String
+  type           String
+  url            String
+  auteurId       Int
+  equipementId   Int?
+  interventionId Int?
+  taille         Int?
+  tags           String?
+  version        Int         @default(1)
+  dateUpload     DateTime    @default(now())
+  equipement     Equipement? @relation(fields: [equipementId], references: [id])
+  auteur         User        @relation(fields: [auteurId], references: [id])
+}
+
+model Log {
+  id            Int      @id @default(autoincrement())
+  utilisateurId Int
+  action        String
+  entite        String?
+  entiteId      Int?
+  details       String?
+  adresseIp     String?
+  userAgent     String?
+  dateAction    DateTime @default(now())
+  utilisateur   User     @relation(fields: [utilisateurId], references: [id])
+}
+
+model StatistiqueJournaliere {
+  id                      Int      @id @default(autoincrement())
+  date                    DateTime @unique
+  totalEquipements        Int
+  equipementsFonctionnels Int
+  equipementsPanne        Int
+  equipementsMaintenance  Int
+  nvxSignalements         Int
+  interventionsRealisees  Int
+  interventionsEnCours    Int
+  tempsMoyenIntervention  Int
+  tauxDisponibilite       Float
+  piecesUtilisees         Int
+  coutMaintenanceJour     Float
+  createdAt               DateTime @default(now())
+}
+
+model Configuration {
+  id          Int      @id @default(autoincrement())
+  cle         String   @unique
+  valeur      String
+  type        String   @default("STRING")
+  description String?
+  updatedAt   DateTime @updatedAt
+}
+
+model TechnicienDepart {
+  id                   Int      @id @default(autoincrement())
+  technicienId         Int
+  dateDepart           DateTime @default(now())
+  nouveauHopital       String
+  motif                String
+  archiveInterventions Boolean  @default(true)
+  rapport              String?
+  createdAt            DateTime @default(now())
+  technicien           User     @relation(fields: [technicienId], references: [id])
+}

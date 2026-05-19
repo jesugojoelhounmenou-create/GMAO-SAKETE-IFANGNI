@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planifier maintenance préventive - GMAO Sakété</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            padding: 20px;
+        }
+        .main-content { max-width: 600px; margin: 0 auto; }
+        .card { background: white; border-radius: 20px; padding: 24px; }
+        .title { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: #1b5e20; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: 500; margin-bottom: 5px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 12px; }
+        .btn { background: #1b5e20; color: white; border: none; padding: 12px; border-radius: 40px; cursor: pointer; width: 100%; }
+        .back-link { display: block; margin-bottom: 20px; color: #3b82f6; }
+    </style>
+</head>
+<body>
+<div id="sidebar-container"></div>
+<div class="main-content">
+    <a href="maintenances.html" class="back-link">← Retour</a>
+    <div class="card">
+        <div class="title">📅 Planifier une maintenance préventive</div>
+        <div class="form-group"><label>Équipement *</label><select id="equipementId"></select></div>
+        <div class="form-group"><label>Type *</label><select id="type"><option value="MENSUELLE">Mensuelle</option><option value="TRIMESTRIELLE">Trimestrielle</option><option value="SEMESTRIELLE">Semestrielle</option><option value="ANNUELLE">Annuelle</option></select></div>
+        <div class="form-group"><label>Périodicité (jours)</label><input type="number" id="periodicite" value="30"></div>
+        <div class="form-group"><label>Date de début *</label><input type="date" id="dateDebut"></div>
+        <div class="form-group"><label>Instructions</label><textarea id="instructions" rows="3"></textarea></div>
+        <button class="btn" onclick="planifier()">✅ Planifier</button>
+    </div>
+</div>
+<script>
+    const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    function getToken() { return localStorage.getItem('token'); }
+    async function loadEquipements() {
+        const res = await fetch(`${API_URL}/equipements`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+        const data = await res.json();
+        const select = document.getElementById('equipementId');
+        select.innerHTML = '<option value="">Sélectionner</option>' + data.map(e => `<option value="${e.id}">${e.nom} (${e.codeInventaire})</option>`).join('');
+    }
+    async function planifier() {
+        const data = {
+            equipementId: document.getElementById('equipementId').value,
+            type: document.getElementById('type').value,
+            periodicite: parseInt(document.getElementById('periodicite').value),
+            prochaineRealisation: document.getElementById('dateDebut').value,
+            instructions: document.getElementById('instructions').value
+        };
+        const res = await fetch(`${API_URL}/preventif/add`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify(data) });
+        if (res.ok) { alert('✅ Maintenance planifiée'); window.location.href = 'maintenances.html'; }
+        else alert('❌ Erreur');
+    }
+    function loadSidebar() { fetch('/components/sidebar.html').then(r=>r.text()).then(d=>document.getElementById('sidebar-container').innerHTML=d); }
+    loadSidebar(); loadEquipements();
+</script>
+</body>
+</html>

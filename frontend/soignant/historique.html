@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Historique - GMAO Sakété</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f1f5f9; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        h1 { color: #1a2a4f; font-size: 22px; }
+        .logout-btn { background: #ef4444; color: white; border: none; padding: 8px 16px; border-radius: 30px; cursor: pointer; }
+        .filter-bar { display: flex; gap: 10px; margin-bottom: 20px; }
+        .filter-bar select { flex: 1; padding: 10px; border: 1px solid #e2e8f0; border-radius: 12px; background: white; }
+        .card { background: white; border-radius: 16px; padding: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+        .status-resolved { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 20px; font-size: 11px; display: inline-block; }
+        .status-pending { background: #fef3c7; color: #d97706; padding: 4px 10px; border-radius: 20px; font-size: 11px; display: inline-block; }
+        .date { font-size: 11px; color: #94a3b8; margin-top: 5px; }
+        .back-link { display: inline-block; margin-bottom: 15px; color: #3b82f6; text-decoration: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <a href="index.html" class="back-link">← Retour</a>
+    <div class="header">
+        <h1>📋 Historique des signalements</h1>
+        <button class="logout-btn" onclick="logout()">Déconnexion</button>
+    </div>
+
+    <div class="filter-bar">
+        <select id="statusFilter" onchange="loadHistorique()">
+            <option value="">Tous</option>
+            <option value="false">En cours</option>
+            <option value="true">Résolus</option>
+        </select>
+    </div>
+
+    <div id="historiqueList">Chargement...</div>
+</div>
+
+<script>
+    function getToken() { return localStorage.getItem('token'); }
+    function logout() { localStorage.clear(); window.location.href = '/login.html'; }
+
+    async function loadHistorique() {
+        const statut = document.getElementById('statusFilter').value;
+        const url = statut !== '' ? `https://gmao-sakete-ifangni-1.onrender.com/api/soignant/mes-signalements?traite=${statut}` : 'https://gmao-sakete-ifangni-1.onrender.com/api/soignant/mes-signalements';
+        const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+        const reports = await res.json();
+        
+        document.getElementById('historiqueList').innerHTML = reports.map(r => `
+            <div class="card">
+                <div>${r.traite ? '✅' : '⚠️'}</div>
+                <div style="flex:1">
+                    <div><strong>${r.equipement?.nom}</strong> (${r.equipement?.codeInventaire})</div>
+                    <div class="date">${new Date(r.dateSignalement).toLocaleString()}</div>
+                    <div style="font-size:13px; margin-top:5px;">${r.description?.substring(0, 100)}${r.description?.length > 100 ? '...' : ''}</div>
+                </div>
+                <div>
+                    <span class="${r.traite ? 'status-resolved' : 'status-pending'}">${r.traite ? '✅ Résolu' : '🔄 En cours'}</span>
+                </div>
+            </div>
+        `).join('') || '<div style="text-align:center; padding:40px;">Aucun signalement</div>';
+    }
+
+    if(!getToken()) window.location.href = '/login.html';
+    loadHistorique();
+</script>
+</body>
+</html>

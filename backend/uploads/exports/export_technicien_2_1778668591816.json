@@ -1,0 +1,67 @@
+{
+  "technicien": "ADJOVI",
+  "dateExport": "2026-05-13T10:36:31.672Z",
+  "totalInterventions": 5,
+  "interventions": [
+    {
+      "id": 5,
+      "equipement": "ECHOGRAPHE",
+      "codeInventaire": "ECHOOO34",
+      "service": "RADIOLOGIE",
+      "type": "PREVENTIF",
+      "diagnostic": "Maintenance préventive SEMESTRIELLE réalisée",
+      "dateDebut": "2026-05-13T10:30:53.163Z",
+      "dateFin": "2026-05-13T10:30:53.163Z",
+      "dureeMinutes": 56,
+      "statut": "TERMINE"
+    },
+    {
+      "id": 4,
+      "equipement": "RESPIRATEUR",
+      "codeInventaire": "RES00134",
+      "service": "URGENCES",
+      "type": "PREVENTIF",
+      "diagnostic": "Maintenance préventive TRIMESTRIELLE réalisée",
+      "dateDebut": "2026-05-13T08:31:29.640Z",
+      "dateFin": "2026-05-13T08:31:29.640Z",
+      "dureeMinutes": 25,
+      "statut": "TERMINE"
+    },
+    {
+      "id": 3,
+      "equipement": "ECHOGRAPHE",
+      "codeInventaire": "ECHOOO34",
+      "service": "RADIOLOGIE",
+      "type": "CORRECTIF",
+      "diagnostic": "DTHDGFY",
+      "dateDebut": "2026-05-13T08:13:20.080Z",
+      "dateFin": null,
+      "dureeMinutes": null,
+      "statut": "EN_COURS"
+    },
+    {
+      "id": 2,
+      "equipement": "RESPIRATEUR",
+      "codeInventaire": "RES00134",
+      "service": "URGENCES",
+      "type": "CORRECTIF",
+      "diagnostic": "DFFEZEDEZF",
+      "dateDebut": "2026-05-12T13:25:45.590Z",
+      "dateFin": null,
+      "dureeMinutes": null,
+      "statut": "EN_COURS"
+    },
+    {
+      "id": 1,
+      "equipement": "RESPIRATEUR",
+      "codeInventaire": "RES00134",
+      "service": "URGENCES",
+      "type": "CORRECTIF",
+      "diagnostic": "DFFEZEDEZF",
+      "dateDebut": "2026-05-12T13:25:45.272Z",
+      "dateFin": null,
+      "dureeMinutes": null,
+      "statut": "EN_COURS"
+    }
+  ]
+}

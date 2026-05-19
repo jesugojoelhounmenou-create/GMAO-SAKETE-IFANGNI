@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Paramètres - GMAO Sakété</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #e8f5e9;
+            margin-left: 280px;
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #1b5e20;
+            border-left: 4px solid #1b5e20;
+            padding-left: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 5px;
+            color: #334155;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 14px;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #1b5e20;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 40px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-right: 10px;
+        }
+
+        .btn-primary {
+            background: #1b5e20;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2e7d32;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #22c55e;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #16a34a;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-warning {
+            background: #f97316;
+            color: white;
+        }
+
+        .btn-warning:hover {
+            background: #ea580c;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+
+        .success-message {
+            background: #dcfce7;
+            color: #166534;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .warning-box {
+            background: #fef3c7;
+            border-left: 4px solid #f97316;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .warning-box p {
+            color: #92400e;
+            font-size: 13px;
+        }
+
+        hr {
+            margin: 20px 0;
+            border: none;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 24px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider { background-color: #22c55e; }
+        input:checked + .toggle-slider:before { transform: translateX(26px); }
+        .toggle-label {
+            margin-left: 60px;
+            line-height: 24px;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        @media (max-width: 768px) {
+            body { margin-left: 0; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .btn { width: 100%; margin-bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="sidebar-container"></div>
+
+<div class="main-content">
+    <div id="successMsg" class="success-message"></div>
+    <div id="errorMsg" class="error-message"></div>
+
+    <div class="card">
+        <div class="title">🔧 Paramètres généraux</div>
+        <div class="form-group"><label>Nom de l'établissement</label><input type="text" id="siteName" value="Hôpital Zone Sakété-Ifangni"><div class="info-text">Nom affiché sur l'application</div></div>
+        <div class="form-row"><div class="form-group"><label>Email notification</label><input type="email" id="alertEmail" value="tech.biomedical@hopital.bj"></div><div class="form-group"><label>SLA maintenance (h)</label><input type="number" id="slaHours" value="48"></div></div>
+        <div class="form-group"><label>Langue</label><select id="language"><option value="fr">Français</option><option value="en">English</option></select></div>
+        <div class="form-group">
+            <label>Notifications</label>
+            <div style="display: flex; align-items: center; margin-top: 8px;"><label class="toggle-switch"><input type="checkbox" id="notificationsEnabled" checked><span class="toggle-slider"></span></label><span class="toggle-label">Email</span></div>
+            <div style="display: flex; align-items: center; margin-top: 12px;"><label class="toggle-switch"><input type="checkbox" id="smsEnabled"><span class="toggle-slider"></span></label><span class="toggle-label">SMS</span></div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Sauvegarder</button>
+    </div>
+
+    <div class="card">
+        <div class="title">⚙️ Configuration avancée</div>
+        <div class="form-row"><div class="form-group"><label>Fuseau horaire</label><select id="timezone"><option value="Africa/Porto-Novo">Africa/Porto-Novo</option><option value="UTC">UTC</option></select></div><div class="form-group"><label>Format date</label><select id="dateFormat"><option value="DD/MM/YYYY">DD/MM/YYYY</option><option value="YYYY-MM-DD">YYYY-MM-DD</option></select></div></div>
+        <div class="form-group"><label>Seuil alerte stock</label><input type="number" id="stockThreshold" value="5"></div>
+        <hr>
+        <div class="form-group"><label>URL API</label><input type="text" id="apiUrl" value="http://localhost:5000https://gmao-sakete-ifangni-1.onrender.com/api" readonly style="background:#f1f5f9;"></div>
+    </div>
+
+    <div class="card">
+        <div class="title">🗄️ Base de données</div>
+        <div class="warning-box"><p>⚠️ La réinitialisation supprimera toutes les données.</p></div>
+        <div class="form-row"><button class="btn btn-success" onclick="backupDB()">📀 Sauvegarder</button><button class="btn btn-warning" onclick="exportData()">📊 Exporter</button><button class="btn btn-danger" onclick="resetDB()">⚠️ Réinitialiser</button></div>
+    </div>
+
+    <div class="card">
+        <div class="title">🛠️ Maintenance</div>
+        <div class="form-row"><button class="btn btn-primary" onclick="clearCache()">🗑️ Vider cache</button><button class="btn btn-primary" onclick="viewLogs()">📋 Logs</button><button class="btn btn-primary" onclick="systemInfo()">ℹ️ Info système</button></div>
+    </div>
+
+    <div class="card">
+        <div class="title">📱 Application mobile</div>
+        <div class="form-row"><button class="btn btn-primary" onclick="downloadAPK()">📲 APK</button><button class="btn btn-primary" onclick="generateQRInstall()">📱 QR code</button><button class="btn btn-primary" onclick="installPWA()">📲 Installer PWA</button></div>
+    </div>
+
+    <div class="card">
+        <div class="title">ℹ️ À propos</div>
+        <div class="form-group"><label>Version</label><input type="text" value="GMAO Sakété v2.0.0" readonly style="background:#f1f5f9;"></div>
+        <div class="form-group"><label>Support</label><input type="text" value="tech.biomedical@hopital.bj" readonly style="background:#f1f5f9;"></div>
+        <div class="info-text" style="text-align:center;">© 2026 Hôpital Sakété-Ifangni</div>
+    </div>
+</div>
+
+<script>
+    function getToken() { return localStorage.getItem('token'); }
+    if (!getToken()) window.location.href = '/login.html';
+
+    function loadSidebar() {
+        fetch('/components/sidebar.html')
+            .then(response => response.text())
+            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    function showSuccess(msg) { const d = document.getElementById('successMsg'); d.innerHTML = msg; d.style.display = 'block'; setTimeout(() => d.style.display = 'none', 3000); }
+    function showError(msg) { const d = document.getElementById('errorMsg'); d.innerHTML = msg; d.style.display = 'block'; setTimeout(() => d.style.display = 'none', 3000); }
+
+    function saveSettings() {
+        const settings = {
+            siteName: document.getElementById('siteName').value,
+            alertEmail: document.getElementById('alertEmail').value,
+            slaHours: parseInt(document.getElementById('slaHours').value),
+            language: document.getElementById('language').value,
+            notificationsEnabled: document.getElementById('notificationsEnabled').checked,
+            smsEnabled: document.getElementById('smsEnabled').checked,
+            timezone: document.getElementById('timezone').value,
+            dateFormat: document.getElementById('dateFormat').value,
+            stockThreshold: parseInt(document.getElementById('stockThreshold').value)
+        };
+        localStorage.setItem('appSettings', JSON.stringify(settings));
+        showSuccess('✅ Paramètres sauvegardés');
+    }
+
+    function backupDB() { showSuccess('📀 Sauvegarde'); setTimeout(() => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['Backup'])); a.download = 'backup.txt'; a.click(); }, 500); }
+    function exportData() { showSuccess('📊 Export'); }
+    function resetDB() { if (prompt('Tapez RESET pour confirmer') === 'RESET') showSuccess('⚠️ Réinitialisé'); else showError('Annulé'); }
+    function clearCache() { if (confirm('Vider le cache ?')) { localStorage.clear(); showSuccess('Cache vidé'); setTimeout(() => location.reload(), 1500); } }
+    function viewLogs() { alert('Logs système (démo)'); }
+    function systemInfo() { alert(`Navigateur: ${navigator.userAgent.split(' ').slice(0,3).join(' ')}`); }
+    function downloadAPK() { showSuccess('📲 APK (simulé)'); }
+    function generateQRInstall() { alert('QR code: https://gmao-sakete.app'); }
+    function installPWA() { showSuccess('📲 PWA (simulée)'); }
+
+    function loadSettings() {
+        const saved = localStorage.getItem('appSettings');
+        if (saved) {
+            const s = JSON.parse(saved);
+            if (s.siteName) document.getElementById('siteName').value = s.siteName;
+            if (s.alertEmail) document.getElementById('alertEmail').value = s.alertEmail;
+            if (s.slaHours) document.getElementById('slaHours').value = s.slaHours;
+            if (s.language) document.getElementById('language').value = s.language;
+            if (s.notificationsEnabled !== undefined) document.getElementById('notificationsEnabled').checked = s.notificationsEnabled;
+            if (s.smsEnabled !== undefined) document.getElementById('smsEnabled').checked = s.smsEnabled;
+            if (s.timezone) document.getElementById('timezone').value = s.timezone;
+            if (s.dateFormat) document.getElementById('dateFormat').value = s.dateFormat;
+            if (s.stockThreshold) document.getElementById('stockThreshold').value = s.stockThreshold;
+        }
+    }
+
+    loadSidebar();
+    loadSettings();
+</script>
+</body>
+</html>
