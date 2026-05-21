@@ -2,64 +2,400 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#0066FF">
     <title>Mon Profil - GMAO Mobile</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f7fa; padding-bottom: 70px; }
-        .header { background: linear-gradient(135deg, #1a2a4f, #1e3a5f); color: white; padding: 30px 20px; text-align: center; }
-        .avatar { width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 40px; }
-        .card { background: white; margin: 15px; padding: 20px; border-radius: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .info-item { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
-        .label { color: #64748b; }
-        .value { font-weight: 500; }
-        .logout-btn { background: #ef4444; color: white; border: none; padding: 15px; border-radius: 50px; width: calc(100% - 30px); margin: 15px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #e8f5e9; 
+            padding-bottom: 70px; 
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, #0066FF, #0052CC); 
+            color: white; 
+            padding: 30px 20px; 
+            text-align: center; 
+        }
+        
+        .avatar { 
+            width: 85px; 
+            height: 85px; 
+            background: rgba(255,255,255,0.2); 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            margin: 0 auto 15px; 
+            font-size: 42px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h2 { 
+            font-size: 22px; 
+            margin-bottom: 5px; 
+        }
+        
+        .header p { 
+            font-size: 13px; 
+            opacity: 0.9; 
+        }
+        
+        .card { 
+            background: white; 
+            margin: 15px; 
+            padding: 20px; 
+            border-radius: 24px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+        
+        .card-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0066FF;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffd600;
+            padding-left: 10px;
+        }
+        
+        .info-item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #e2e8f0; 
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .label { 
+            color: #64748b; 
+            font-size: 13px;
+        }
+        
+        .value { 
+            font-weight: 500; 
+            font-size: 14px;
+            color: #1e293b;
+            text-align: right;
+        }
+        
+        .stats-grid {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #0066FF;
+        }
+        
+        .stat-label {
+            font-size: 10px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+        
+        .logout-btn { 
+            background: #ef4444; 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 50px; 
+            width: calc(100% - 30px); 
+            margin: 15px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: all 0.2s;
+        }
         .logout-btn:active { transform: scale(0.98); }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 20px; border-top: 1px solid #eee; }
-        .nav-item { text-align: center; text-decoration: none; color: #94a3b8; font-size: 12px; }
-        .nav-item.active { color: #1a2a4f; font-weight: 600; }
-        .nav-icon { font-size: 24px; display: block; margin-bottom: 4px; }
-        .skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: loading 1.5s infinite; border-radius: 20px; height: 300px; margin: 15px; }
-        @keyframes loading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+        .logout-btn:hover { background: #dc2626; }
+        
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: white; 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 10px 15px 20px; 
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nav-item { 
+            text-align: center; 
+            text-decoration: none; 
+            color: #94a3b8; 
+            font-size: 11px;
+            transition: 0.2s;
+        }
+        .nav-item.active { color: #0066FF; font-weight: 600; }
+        .nav-icon { font-size: 22px; display: block; margin-bottom: 3px; }
+        
+        .skeleton { 
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); 
+            background-size: 200% 100%; 
+            animation: loading 1.5s infinite; 
+            border-radius: 20px; 
+            height: 300px; 
+            margin: 15px; 
+        }
+        
+        @keyframes loading { 
+            0% { background-position: 200% 0; } 
+            100% { background-position: -200% 0; } 
+        }
+        
+        .badge-active {
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        @media (max-width: 450px) {
+            .info-item { flex-direction: column; gap: 4px; }
+            .value { text-align: left; }
+            .stats-grid { flex-direction: column; gap: 8px; }
+        }
     </style>
 </head>
 <body>
-    <div class="header"><div class="avatar">👤</div><h2 id="userName">Chargement...</h2><p id="userRole"></p></div>
-    <div id="content"><div class="skeleton"></div></div>
-    <button class="logout-btn" onclick="logout()">🚪 Se déconnecter</button>
-    <div class="bottom-nav">
-        <a href="dashboard-mobile.html" class="nav-item"><span class="nav-icon">🏠</span>Accueil</a>
-        <a href="interventions-mobile.html" class="nav-item"><span class="nav-icon">🔧</span>Travaux</a>
-        <a href="scanner-mobile.html" class="nav-item"><span class="nav-icon">📷</span>Scan</a>
-        <a href="profil-mobile.html" class="nav-item active"><span class="nav-icon">👤</span>Profil</a>
-    </div>
-    <script>
-        async function loadProfile() {
-            try {
-                const res = await fetch(`${API_URL}/mobile/profil`, {
-                    headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
-                });
-                const data = await res.json();
-                const user = data.technicien;
-                document.getElementById('userName').innerText = `${user.nom} ${user.prenom || ''}`;
-                document.getElementById('userRole').innerHTML = user.role === 'TECHNICIEN' ? '🔧 Technicien Biomédical' : '👨‍⚕️ Personnel Soignant';
-                document.getElementById('content').innerHTML = `
-                    <div class="card"><div class="info-item"><span class="label">📧 Email</span><span class="value">${user.email}</span></div>
-                    <div class="info-item"><span class="label">🆔 Matricule</span><span class="value">${user.matricule}</span></div>
-                    <div class="info-item"><span class="label">🏥 Service</span><span class="value">${user.service || 'Non défini'}</span></div>
-                    <div class="info-item"><span class="label">📞 Téléphone</span><span class="value">${user.telephone || 'Non renseigné'}</span></div>
-                    <div class="info-item"><span class="label">📅 Inscrit le</span><span class="value">${new Date(user.createdAt).toLocaleDateString()}</span></div></div>
-                    <div class="card"><div class="info-item"><span class="label">📊 Interventions</span><span class="value">${data.stats?.totalInterventions || 0}</span></div>
-                    <div class="info-item"><span class="label">✅ Terminées</span><span class="value">${data.stats?.interventionsTerminees || 0}</span></div>
-                    <div class="info-item"><span class="label">📈 Taux succès</span><span class="value">${data.stats?.tauxSucces || 0}%</span></div>
-                    <div class="info-item"><span class="label">⭐ Satisfaction</span><span class="value">${data.stats?.satisfactionMoyenne || 0}/5</span></div></div>
+
+<div class="header">
+    <div class="avatar">👤</div>
+    <h2 id="userName">Chargement...</h2>
+    <p id="userRole"></p>
+</div>
+
+<div id="content">
+    <div class="skeleton"></div>
+</div>
+
+<button class="logout-btn" onclick="logout()">🚪 Se déconnecter</button>
+
+<div class="bottom-nav">
+    <a href="dashboard-mobile.html" class="nav-item">
+        <span class="nav-icon">🏠</span>Accueil
+    </a>
+    <a href="interventions-mobile.html" class="nav-item">
+        <span class="nav-icon">🔧</span>Travaux
+    </a>
+    <a href="/soignant/scanner.html" class="nav-item">
+        <span class="nav-icon">📷</span>Scan
+    </a>
+    <a href="diagnostic-mobile.html" class="nav-item">
+        <span class="nav-icon">🤖</span>Diagnostic
+    </a>
+    <a href="profil-mobile.html" class="nav-item active">
+        <span class="nav-icon">👤</span>Profil
+    </a>
+</div>
+
+<script>
+    const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    const token = localStorage.getItem('token');
+    
+    // Auth check
+    if (!token) window.location.href = '/login.html';
+    
+    const userRole = localStorage.getItem('userRole');
+    const userName = localStorage.getItem('userName');
+    
+    function getRoleLabel(role) {
+        if (role === 'TECHNICIEN') return '🔧 Technicien Biomédical';
+        if (role === 'SOIGNANT') return '👨‍⚕️ Personnel Soignant';
+        return role || 'Utilisateur';
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    async function loadProfile() {
+        try {
+            // Récupérer les informations de l'utilisateur
+            const res = await fetch(`${API_URL}/users/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            
+            if (!res.ok) throw new Error('Erreur chargement profil');
+            
+            const user = await res.json();
+            
+            document.getElementById('userName').innerHTML = `${escapeHtml(user.nom)} ${escapeHtml(user.prenom || '')}`;
+            document.getElementById('userRole').innerHTML = getRoleLabel(user.role);
+            
+            // Récupérer les statistiques selon le rôle
+            let statsHtml = '';
+            let interventionsTotal = 0;
+            let interventionsTerminees = 0;
+            let tauxSucces = 0;
+            let satisfaction = 0;
+            
+            if (user.role === 'TECHNICIEN') {
+                try {
+                    const statsRes = await fetch(`${API_URL}/maintenances/my/stats`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (statsRes.ok) {
+                        const stats = await statsRes.json();
+                        interventionsTotal = stats.total || 0;
+                        interventionsTerminees = stats.terminees || 0;
+                        tauxSucces = stats.tauxSucces || 0;
+                        satisfaction = stats.satisfactionMoyenne || 0;
+                    }
+                } catch(e) { console.error('Erreur stats technicien:', e); }
+                
+                statsHtml = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">${interventionsTotal}</div>
+                            <div class="stat-label">Interventions</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${interventionsTerminees}</div>
+                            <div class="stat-label">Terminées</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${tauxSucces}%</div>
+                            <div class="stat-label">Taux succès</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${satisfaction}/5</div>
+                            <div class="stat-label">Satisfaction</div>
+                        </div>
+                    </div>
                 `;
-            } catch(e) { console.error(e); document.getElementById('content').innerHTML = '<div class="card" style="text-align:center;color:red;">❌ Erreur de chargement</div>'; }
+            } else {
+                try {
+                    const statsRes = await fetch(`${API_URL}/signalements/mes-signalements`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (statsRes.ok) {
+                        const signalements = await statsRes.json();
+                        const list = Array.isArray(signalements) ? signalements : (signalements.data || []);
+                        interventionsTotal = list.length;
+                        interventionsTerminees = list.filter(s => s.statut === 'TERMINE' || s.statut === 'RESOLU').length;
+                        tauxSucces = interventionsTotal > 0 ? Math.round((interventionsTerminees / interventionsTotal) * 100) : 0;
+                    }
+                } catch(e) { console.error('Erreur stats soignant:', e); }
+                
+                statsHtml = `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-number">${interventionsTotal}</div>
+                            <div class="stat-label">Signalements</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${interventionsTerminees}</div>
+                            <div class="stat-label">Résolus</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">${tauxSucces}%</div>
+                            <div class="stat-label">Taux résolution</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            const statusBadge = user.statut === 'ACTIF' 
+                ? '<span class="badge-active">✅ Actif</span>' 
+                : '<span class="badge-active" style="background:#fef3c7; color:#d97706;">⏳ En attente</span>';
+            
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="card-title">👤 Informations personnelles</div>
+                    <div class="info-item">
+                        <span class="label">📧 Email</span>
+                        <span class="value">${escapeHtml(user.email)}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">🆔 Matricule</span>
+                        <span class="value">${escapeHtml(user.matricule || '-')}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">🏥 Service</span>
+                        <span class="value">${escapeHtml(user.service || 'Non défini')}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">📞 Téléphone</span>
+                        <span class="value">${escapeHtml(user.telephone || 'Non renseigné')}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">📅 Inscrit le</span>
+                        <span class="value">${formatDate(user.createdAt)}</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="label">🔒 Statut</span>
+                        <span class="value">${statusBadge}</span>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-title">📊 Statistiques</div>
+                    ${statsHtml}
+                </div>
+            `;
+        } catch(error) {
+            console.error('Erreur:', error);
+            document.getElementById('content').innerHTML = `
+                <div class="card" style="text-align:center;">
+                    <div style="font-size:48px; margin-bottom:10px;">❌</div>
+                    <div style="color:#64748b;">Erreur de chargement du profil</div>
+                    <button class="btn-secondary" style="margin-top:15px; padding:10px 20px; background:#e2e8f0; border:none; border-radius:30px;" onclick="location.reload()">🔄 Réessayer</button>
+                </div>
+            `;
         }
-        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
-        if(!localStorage.getItem('token')) window.location.href = '/login.html';
-        const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
-        loadProfile();
-    </script>
+    }
+    
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '-';
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        } catch { return '-'; }
+    }
+    
+    function logout() { 
+        if (confirm('🚪 Voulez-vous vraiment vous déconnecter ?')) {
+            localStorage.clear(); 
+            window.location.href = '/login.html'; 
+        }
+    }
+    
+    loadProfile();
+</script>
 </body>
 </html>
