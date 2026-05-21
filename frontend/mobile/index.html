@@ -3,53 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <meta name="theme-color" content="#1a2a4f">
+    <meta name="theme-color" content="#0066FF">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>GMAO Mobile - Accueil</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
-            background: linear-gradient(135deg, #1a2a4f, #1e3a5f);
+            background: linear-gradient(135deg, #0066FF, #0052CC);
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
         }
-        .container { text-align: center; color: white; animation: fadeIn 0.5s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .logo { font-size: 64px; margin-bottom: 20px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        h1 { font-size: 28px; margin-bottom: 10px; }
-        p { margin-bottom: 30px; opacity: 0.9; font-size: 14px; }
-        .btn { display: block; background: white; color: #1a2a4f; text-decoration: none; padding: 15px; border-radius: 50px; margin: 10px 0; font-weight: 600; }
+        
+        .container { 
+            text-align: center; 
+            color: white; 
+            animation: fadeIn 0.5s ease; 
+            max-width: 350px;
+            width: 100%;
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(20px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+        
+        .logo { 
+            font-size: 80px; 
+            margin-bottom: 20px; 
+            animation: pulse 2s infinite; 
+            background: rgba(255,255,255,0.2);
+            width: 120px;
+            height: 120px;
+            border-radius: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-left: auto;
+            margin-right: auto;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+        
+        @keyframes pulse { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.05); } 
+        }
+        
+        h1 { 
+            font-size: 28px; 
+            margin-bottom: 10px; 
+            font-weight: 700;
+        }
+        
+        .subtitle { 
+            margin-bottom: 30px; 
+            opacity: 0.9; 
+            font-size: 14px; 
+            line-height: 1.5;
+        }
+        
+        .btn { 
+            display: block; 
+            background: white; 
+            color: #0066FF; 
+            text-decoration: none; 
+            padding: 15px; 
+            border-radius: 50px; 
+            margin: 12px 0; 
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
         .btn:active { transform: scale(0.98); }
-        .btn-outline { background: rgba(255,255,255,0.2); color: white; border: 1px solid rgba(255,255,255,0.3); }
-        .version { margin-top: 40px; font-size: 11px; opacity: 0.5; }
+        .btn:hover { background: #f0f0f0; }
+        
+        .btn-outline { 
+            background: rgba(255,255,255,0.2); 
+            color: white; 
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        .btn-outline:hover { background: rgba(255,255,255,0.3); }
+        
+        .info-text {
+            font-size: 12px;
+            margin-top: 20px;
+            opacity: 0.7;
+        }
+        
+        .version { 
+            margin-top: 40px; 
+            font-size: 11px; 
+            opacity: 0.5; 
+        }
+        
+        .hospital-name {
+            font-size: 13px;
+            margin-bottom: 25px;
+            opacity: 0.85;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo">🏥</div>
         <h1>GMAO Sakété</h1>
-        <p>Version Mobile<br>Hôpital de Zone Sakété-Ifangni</p>
+        <p class="subtitle">Gestion de Maintenance<br>Assistée par Ordinateur</p>
+        <p class="hospital-name">🏥 Hôpital de Zone Sakété-Ifangni</p>
         
         <a href="/login.html?mobile=true" class="btn">🔐 Se connecter</a>
         <a href="/register.html?mobile=true" class="btn btn-outline">📝 Créer un compte</a>
         
-        <div class="version">v2.0 - GMAO Sakété</div>
+        <p class="info-text">📱 Application mobile optimisée pour tous les appareils</p>
+        <div class="version">v2.1.0 - GMAO Sakété</div>
     </div>
 
     <script>
-        // Si déjà connecté, rediriger vers la bonne page
+        // Vérification de session
         const token = localStorage.getItem('token');
         const userRole = localStorage.getItem('userRole');
+        
         if (token && userRole) {
             if (userRole === 'TECHNICIEN') {
                 window.location.href = '/mobile/dashboard-mobile.html';
             } else if (userRole === 'SOIGNANT') {
                 window.location.href = '/soignant/index.html';
             }
+        }
+        
+        // Détection de l'installation PWA
+        if ('standalone' in window.navigator && window.navigator.standalone) {
+            console.log('Application installée (iOS)');
+        } else if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('Application installée (Android)');
         }
     </script>
 </body>
