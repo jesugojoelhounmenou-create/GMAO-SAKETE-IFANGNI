@@ -3,113 +3,183 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#0066FF">
     <title>Mes Statistiques - GMAO Sakété</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f1f5f9;
+            background: #e8f5e9;
             padding: 20px;
             padding-bottom: 80px;
         }
-        .container { max-width: 500px; margin: 0 auto; }
+        
+        .container { max-width: 550px; margin: 0 auto; }
+        
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 15px;
+            color: #0066FF;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .back-link:hover { text-decoration: underline; }
+        
         .header {
-            background: linear-gradient(135deg, #1a2a4f, #1e3a5f);
+            background: linear-gradient(135deg, #0066FF, #0052CC);
             color: white;
-            padding: 20px;
-            border-radius: 20px;
+            padding: 25px 20px;
+            border-radius: 24px;
             margin-bottom: 20px;
             text-align: center;
         }
-        .back-link {
-            display: inline-block;
-            margin-bottom: 15px;
-            color: #3b82f6;
-            text-decoration: none;
-            font-size: 14px;
-        }
+        .header h2 { font-size: 22px; margin-bottom: 5px; }
+        .header p { font-size: 13px; opacity: 0.9; }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
             margin-bottom: 20px;
         }
+        
         .stat-card {
             background: white;
             border-radius: 20px;
-            padding: 15px;
+            padding: 18px;
             text-align: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
         }
+        .stat-card:hover { transform: translateY(-3px); }
+        
         .stat-value {
             font-size: 32px;
             font-weight: bold;
-            color: #1a2a4f;
+            color: #0066FF;
         }
         .stat-label {
             font-size: 12px;
-            color: #666;
+            color: #64748b;
             margin-top: 5px;
         }
         .stat-icon {
             font-size: 28px;
             margin-bottom: 8px;
         }
+        
         .card {
             background: white;
-            border-radius: 20px;
+            border-radius: 24px;
             padding: 20px;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
+        
         .card-title {
             font-weight: bold;
             margin-bottom: 15px;
             font-size: 16px;
-            color: #1a2a4f;
-            border-left: 4px solid #00d4ff;
-            padding-left: 10px;
+            color: #0066FF;
+            border-left: 4px solid #ffd600;
+            padding-left: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+        
         canvas { max-height: 200px; width: 100%; }
-        .status-resolved { color: #22c55e; }
-        .status-pending { color: #f97316; }
-        .status-progress { color: #3b82f6; }
+        
+        .status-resolved { color: #16a34a; font-weight: 500; }
+        .status-pending { color: #d97706; font-weight: 500; }
+        .status-progress { color: #2563eb; font-weight: 500; }
+        
         .demande-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
             padding: 12px 0;
             border-bottom: 1px solid #e2e8f0;
+            cursor: pointer;
+            transition: background 0.2s;
         }
+        .demande-item:hover { background: #f8fafc; padding-left: 8px; margin-left: -8px; border-radius: 8px; }
         .demande-item:last-child { border-bottom: none; }
+        
+        .refresh-btn {
+            background: #f0fdf4;
+            color: #0066FF;
+            border: 1px solid #0066FF;
+            padding: 6px 14px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+        }
+        .refresh-btn:hover { background: #0066FF; color: white; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 30px;
+            color: #94a3b8;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #0066FF;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
         .footer {
             text-align: center;
             margin-top: 20px;
             color: #94a3b8;
             font-size: 11px;
         }
-        .refresh-btn {
-            background: #1a2a4f;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 12px;
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: white;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 20px 20px;
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
         }
-        .logout-btn {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 30px;
-            cursor: pointer;
+        .nav-item {
+            text-align: center;
+            text-decoration: none;
+            color: #94a3b8;
             font-size: 12px;
+            transition: 0.2s;
+        }
+        .nav-item.active { color: #0066FF; font-weight: 600; }
+        .nav-icon { font-size: 22px; display: block; margin-bottom: 4px; }
+        
+        @media (max-width: 450px) {
+            .stats-grid { gap: 10px; }
+            .stat-card { padding: 12px; }
+            .stat-value { font-size: 24px; }
+            .stat-icon { font-size: 22px; }
         }
     </style>
 </head>
 <body>
+
 <div class="container">
     <a href="index.html" class="back-link">← Retour à l'accueil</a>
     
@@ -138,24 +208,26 @@
         <div class="stat-card">
             <div class="stat-icon">⏱️</div>
             <div class="stat-value" id="tempsMoyen">0<span style="font-size:14px;">j</span></div>
-            <div class="stat-label">Temps moyen</div>
+            <div class="stat-label">Temps moyen de résolution</div>
         </div>
     </div>
 
-    <!-- Graphique -->
+    <!-- Graphique évolution -->
     <div class="card">
-        <div class="card-title">📈 Évolution de mes signalements</div>
+        <div class="card-title">
+            <span>📈 Évolution de mes signalements</span>
+            <button class="refresh-btn" onclick="refreshData()">🔄 Rafraîchir</button>
+        </div>
         <canvas id="demandesChart"></canvas>
     </div>
 
     <!-- Dernières demandes -->
     <div class="card">
-        <div class="card-title" style="display: flex; justify-content: space-between;">
-            <span>📋 Mes dernières demandes</span>
-            <button class="refresh-btn" onclick="chargerStatistiques()">🔄 Rafraîchir</button>
-        </div>
+        <div class="card-title">📋 Mes dernières demandes</div>
         <div id="dernieresDemandes">
-            <div style="text-align:center; padding:20px;">Chargement...</div>
+            <div class="empty-state">
+                <div class="loader"></div> Chargement...
+            </div>
         </div>
     </div>
 
@@ -163,11 +235,34 @@
     <div class="card">
         <div class="card-title">🏥 Signalements par service</div>
         <canvas id="serviceChart" style="max-height: 180px;"></canvas>
+        <div id="serviceLegend" style="margin-top: 12px; font-size: 11px; text-align: center;"></div>
     </div>
 
     <div class="footer">
         GMAO - Hôpital de Zone Sakété-Ifangni • Données mises à jour en temps réel
     </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav">
+    <a href="index.html" class="nav-item">
+        <span class="nav-icon">🏠</span>Accueil
+    </a>
+    <a href="signaler-panne.html" class="nav-item">
+        <span class="nav-icon">⚠️</span>Panne
+    </a>
+    <a href="scanner.html" class="nav-item">
+        <span class="nav-icon">📷</span>Scan
+    </a>
+    <a href="historique.html" class="nav-item">
+        <span class="nav-icon">📋</span>Historique
+    </a>
+    <a href="statistiques.html" class="nav-item active">
+        <span class="nav-icon">📊</span>Stats
+    </a>
+    <a href="profil.html" class="nav-item">
+        <span class="nav-icon">👤</span>Profil
+    </a>
 </div>
 
 <script>
@@ -176,77 +271,113 @@
     let serviceChart = null;
 
     function getToken() { return localStorage.getItem('token'); }
-
-    // Vérification du rôle
-    const userRole = localStorage.getItem('userRole');
+    
+    // Auth check
     if (!getToken()) window.location.href = '/login.html';
-    if (userRole === 'TECHNICIEN') window.location.href = '/technicien/dashboard.html';
+    
+    // Rediriger les techniciens
+    const userRole = localStorage.getItem('userRole');
+    if (userRole === 'TECHNICIEN') {
+        window.location.href = '/technicien/dashboard.html';
+    }
+
+    function getStatusText(statut) {
+        const map = {
+            'TERMINE': '✅ Résolu',
+            'RESOLU': '✅ Résolu',
+            'EN_COURS': '🔄 En cours',
+            'EN_ATTENTE': '⏳ En attente'
+        };
+        return map[statut] || statut || '📋 En attente';
+    }
+
+    function getStatusClass(statut) {
+        if (statut === 'TERMINE' || statut === 'RESOLU') return 'status-resolved';
+        if (statut === 'EN_COURS') return 'status-progress';
+        return 'status-pending';
+    }
 
     async function chargerStatistiques() {
         try {
-            // Récupérer les signalements du soignant
-            const res = await fetch(`${API_URL}/maintenances/soignant`, {
+            const res = await fetch(`${API_URL}/signalements/mes-signalements`, {
                 headers: { 'Authorization': `Bearer ${getToken()}` }
             });
-            const signalements = await res.json();
-
+            
+            if (!res.ok) throw new Error('Erreur chargement');
+            
+            const data = await res.json();
+            let signalements = Array.isArray(data) ? data : (data.signalements || data.data || []);
+            
             // Statistiques
             const total = signalements.length;
-            const resolues = signalements.filter(s => s.statut === 'TERMINE').length;
-            const encours = signalements.filter(s => s.statut !== 'TERMINE').length;
-
+            const resolues = signalements.filter(s => s.statut === 'TERMINE' || s.statut === 'RESOLU').length;
+            const encours = signalements.filter(s => s.statut !== 'TERMINE' && s.statut !== 'RESOLU').length;
+            
             // Temps moyen de résolution (en jours)
             let tempsTotal = 0;
             let tempsCount = 0;
             signalements.forEach(s => {
-                if (s.statut === 'TERMINE' && s.dateDebut && s.dateFin) {
+                if ((s.statut === 'TERMINE' || s.statut === 'RESOLU') && s.dateDebut && s.dateFin) {
                     const debut = new Date(s.dateDebut);
                     const fin = new Date(s.dateFin);
-                    const jours = Math.ceil((fin - debut) / (1000 * 60 * 60 * 24));
-                    if (jours > 0) {
-                        tempsTotal += jours;
-                        tempsCount++;
+                    if (!isNaN(debut) && !isNaN(fin)) {
+                        const jours = Math.ceil((fin - debut) / (1000 * 60 * 60 * 24));
+                        if (jours >= 0) {
+                            tempsTotal += jours;
+                            tempsCount++;
+                        }
                     }
                 }
             });
             const tempsMoyen = tempsCount > 0 ? (tempsTotal / tempsCount).toFixed(1) : 0;
-
+            
             // Mise à jour des cartes
             document.getElementById('totalDemandes').innerText = total;
             document.getElementById('resolues').innerText = resolues;
             document.getElementById('encours').innerText = encours;
             document.getElementById('tempsMoyen').innerHTML = tempsMoyen + '<span style="font-size:14px;">j</span>';
-
+            
             // Dernières demandes (5 dernières)
-            const dernieres = [...signalements].sort((a,b) => new Date(b.dateDebut) - new Date(a.dateDebut)).slice(0,5);
-            const demandesHtml = dernieres.map(s => `
-                <div class="demande-item">
-                    <div>
-                        <strong>${s.equipement?.nom || 'Équipement'}</strong><br>
-                        <small>${new Date(s.dateDebut).toLocaleDateString()}</small>
-                    </div>
-                    <div class="${s.statut === 'TERMINE' ? 'status-resolved' : (s.statut === 'EN_COURS' ? 'status-progress' : 'status-pending')}">
-                        ${s.statut === 'TERMINE' ? '✅ Résolu' : (s.statut === 'EN_COURS' ? '🔄 En cours' : '⏳ En attente')}
-                    </div>
-                </div>
-            `).join('');
-
-            document.getElementById('dernieresDemandes').innerHTML = demandesHtml || '<div style="text-align:center; padding:20px;">Aucune demande</div>';
-
+            const dernieres = [...signalements]
+                .sort((a, b) => new Date(b.dateDebut || b.createdAt) - new Date(a.dateDebut || a.createdAt))
+                .slice(0, 5);
+            
+            if (dernieres.length === 0) {
+                document.getElementById('dernieresDemandes').innerHTML = '<div class="empty-state">📭 Aucun signalement pour le moment</div>';
+            } else {
+                document.getElementById('dernieresDemandes').innerHTML = dernieres.map(s => {
+                    const equipement = s.equipement || {};
+                    const date = new Date(s.dateDebut || s.createdAt);
+                    return `
+                        <div class="demande-item" onclick="voirDetail(${s.id})">
+                            <div>
+                                <strong>${escapeHtml(equipement.nom || 'Équipement inconnu')}</strong><br>
+                                <small>${date.toLocaleDateString('fr-FR')}</small>
+                            </div>
+                            <div class="${getStatusClass(s.statut)}">
+                                ${getStatusText(s.statut)}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+            
             // Graphique évolution (par mois)
             const mois = {};
             signalements.forEach(s => {
-                const date = new Date(s.dateDebut);
-                const key = `${date.getFullYear()}-${date.getMonth()+1}`;
-                if (!mois[key]) mois[key] = { total: 0, resolues: 0 };
-                mois[key].total++;
-                if (s.statut === 'TERMINE') mois[key].resolues++;
+                const date = new Date(s.dateDebut || s.createdAt);
+                if (!isNaN(date)) {
+                    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+                    if (!mois[key]) mois[key] = { total: 0, resolues: 0 };
+                    mois[key].total++;
+                    if (s.statut === 'TERMINE' || s.statut === 'RESOLU') mois[key].resolues++;
+                }
             });
-
+            
             const labels = Object.keys(mois).sort();
             const totalData = labels.map(l => mois[l].total);
             const resoluesData = labels.map(l => mois[l].resolues);
-
+            
             if (demandesChart) demandesChart.destroy();
             const ctx = document.getElementById('demandesChart').getContext('2d');
             demandesChart = new Chart(ctx, {
@@ -254,55 +385,102 @@
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Total signalements', data: totalData, borderColor: '#1a2a4f', backgroundColor: 'rgba(26,42,79,0.1)', fill: true, tension: 0.3 },
-                        { label: 'Résolus', data: resoluesData, borderColor: '#22c55e', backgroundColor: 'rgba(34,197,94,0.1)', fill: true, tension: 0.3 }
+                        { 
+                            label: 'Total signalements', 
+                            data: totalData, 
+                            borderColor: '#0066FF', 
+                            backgroundColor: 'rgba(0,102,255,0.05)', 
+                            fill: true, 
+                            tension: 0.3,
+                            pointBackgroundColor: '#0066FF',
+                            pointBorderColor: 'white',
+                            pointBorderWidth: 2
+                        },
+                        { 
+                            label: 'Résolus', 
+                            data: resoluesData, 
+                            borderColor: '#16a34a', 
+                            backgroundColor: 'rgba(34,197,94,0.05)', 
+                            fill: true, 
+                            tension: 0.3,
+                            pointBackgroundColor: '#16a34a',
+                            pointBorderColor: 'white',
+                            pointBorderWidth: 2
+                        }
                     ]
                 },
-                options: { responsive: true, maintainAspectRatio: true }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { position: 'top' }
+                    }
+                }
             });
-
+            
             // Répartition par service
             const services = {};
             signalements.forEach(s => {
-                const service = s.equipement?.service || 'Autre';
+                const service = s.equipement?.service || 'Non spécifié';
                 services[service] = (services[service] || 0) + 1;
             });
-
+            
             const serviceLabels = Object.keys(services);
             const serviceData = Object.values(services);
-
+            const serviceColors = ['#0066FF', '#3b82f6', '#22c55e', '#f97316', '#a855f7', '#ef4444', '#8b5cf6', '#06b6d4'];
+            
             if (serviceChart) serviceChart.destroy();
             const ctx2 = document.getElementById('serviceChart').getContext('2d');
             serviceChart = new Chart(ctx2, {
                 type: 'doughnut',
                 data: {
                     labels: serviceLabels,
-                    datasets: [{ data: serviceData, backgroundColor: ['#1a2a4f', '#3b82f6', '#22c55e', '#f97316', '#a855f7', '#ef4444'] }]
+                    datasets: [{ 
+                        data: serviceData, 
+                        backgroundColor: serviceColors.slice(0, serviceLabels.length),
+                        borderWidth: 0
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: true }
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { 
+                            position: 'bottom',
+                            labels: { font: { size: 10 } }
+                        }
+                    }
+                }
             });
-
-        } catch(e) {
-            console.error(e);
-            document.getElementById('dernieresDemandes').innerHTML = '<div style="text-align:center; padding:20px;">Erreur de chargement</div>';
+            
+        } catch(error) {
+            console.error('Erreur:', error);
+            document.getElementById('dernieresDemandes').innerHTML = '<div class="empty-state">❌ Erreur de chargement des données</div>';
         }
     }
-
-    // Rafraîchir les données
-    function refresh() {
+    
+    function voirDetail(id) {
+        window.location.href = `signalement-detail.html?id=${id}`;
+    }
+    
+    function refreshData() {
         chargerStatistiques();
     }
-
-    // Déconnexion
-    function logout() {
-        localStorage.clear();
-        window.location.href = '/login.html';
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
     }
-
+    
     // Chargement initial
     chargerStatistiques();
-    // Rafraîchissement automatique toutes les 30 secondes
-    setInterval(chargerStatistiques, 30000);
+    // Rafraîchissement automatique toutes les 60 secondes
+    setInterval(chargerStatistiques, 60000);
 </script>
 </body>
 </html>
