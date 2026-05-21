@@ -3,7 +3,9 @@
     <div class="spinner-overlay">
         <div class="spinner-container">
             <div class="spinner"></div>
-            <p class="spinner-text">Chargement en cours...</p>
+            <div class="spinner-icon">⏳</div>
+            <p class="spinner-text" id="spinnerText">Chargement en cours...</p>
+            <p class="spinner-subtext" id="spinnerSubtext"></p>
         </div>
     </div>
 </div>
@@ -16,49 +18,289 @@
         right: 0;
         bottom: 0;
         z-index: 9999;
+        backdrop-filter: blur(4px);
     }
+    
     .spinner-overlay {
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.6);
         display: flex;
         align-items: center;
         justify-content: center;
+        animation: fadeIn 0.2s ease;
     }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
     .spinner-container {
         background: white;
-        padding: 30px;
-        border-radius: 20px;
+        padding: 30px 40px;
+        border-radius: 24px;
         text-align: center;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        animation: scaleIn 0.3s ease;
+        min-width: 250px;
     }
+    
+    @keyframes scaleIn {
+        from { 
+            opacity: 0;
+            transform: scale(0.9); 
+        }
+        to { 
+            opacity: 1;
+            transform: scale(1); 
+        }
+    }
+    
     .spinner {
         width: 50px;
         height: 50px;
         border: 4px solid #e2e8f0;
-        border-top-color: #3b82f6;
+        border-top-color: #0066FF;
+        border-right-color: #0066FF;
         border-radius: 50%;
         animation: spin 0.8s linear infinite;
         margin: 0 auto 15px;
     }
-    .spinner-text {
-        color: #64748b;
-        font-size: 14px;
+    
+    .spinner-icon {
+        font-size: 40px;
+        margin-bottom: 15px;
+        animation: bounce 0.6s ease infinite;
+        display: none;
     }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+    
+    .spinner-text {
+        color: #1e293b;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .spinner-subtext {
+        color: #94a3b8;
+        font-size: 12px;
+        margin-top: 5px;
+    }
+    
     @keyframes spin {
         to { transform: rotate(360deg); }
+    }
+    
+    /* Variante pour mobile */
+    @media (max-width: 480px) {
+        .spinner-container {
+            padding: 25px 30px;
+            min-width: 200px;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+        }
+        
+        .spinner-text {
+            font-size: 13px;
+        }
     }
 </style>
 
 <script>
-    function showSpinner(text = 'Chargement en cours...') {
-        document.querySelector('.spinner-text').innerText = text;
-        document.getElementById('loadingSpinner').style.display = 'block';
+    // Configuration du spinner
+    const Spinner = {
+        // Éléments DOM
+        element: null,
+        textEl: null,
+        subtextEl: null,
+        spinnerEl: null,
+        iconEl: null,
+        
+        // Compteur de requêtes en cours
+        requestCount: 0,
+        
+        // Initialisation
+        init: function() {
+            this.element = document.getElementById('loadingSpinner');
+            this.textEl = document.getElementById('spinnerText');
+            this.subtextEl = document.getElementById('spinnerSubtext');
+            this.spinnerEl = document.querySelector('.spinner');
+            this.iconEl = document.querySelector('.spinner-icon');
+            
+            // Écouter les événements de chargement AJAX
+            if (typeof window.$ !== 'undefined') {
+                $(document).ajaxStart(() => this.show());
+                $(document).ajaxStop(() => this.hide());
+            }
+        },
+        
+        // Afficher le spinner
+        show: function(text = 'Chargement en cours...', subtext = '', type = 'spinner') {
+            this.requestCount++;
+            
+            if (this.element && this.element.style.display === 'block') {
+                // Mettre à jour le texte si déjà visible
+                if (text) this.updateText(text, subtext);
+                return;
+            }
+            
+            if (this.element) {
+                this.updateText(text, subtext);
+                this.setType(type);
+                this.element.style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+        },
+        
+        // Masquer le spinner
+        hide: function() {
+            this.requestCount--;
+            
+            if (this.requestCount <= 0) {
+                this.requestCount = 0;
+                if (this.element) {
+                    this.element.style.display = 'none';
+                    document.body.style.overflow = '';
+                }
+            }
+        },
+        
+        // Forcer le masquage (réinitialiser le compteur)
+        forceHide: function() {
+            this.requestCount = 0;
+            if (this.element) {
+                this.element.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        },
+        
+        // Mettre à jour le texte
+        updateText: function(text, subtext = '') {
+            if (this.textEl) this.textEl.innerText = text;
+            if (this.subtextEl) {
+                this.subtextEl.innerText = subtext;
+                this.subtextEl.style.display = subtext ? 'block' : 'none';
+            }
+        },
+        
+        // Changer le type d'animation
+        setType: function(type) {
+            if (type === 'icon' && this.iconEl && this.spinnerEl) {
+                this.spinnerEl.style.display = 'none';
+                this.iconEl.style.display = 'block';
+            } else if (this.iconEl && this.spinnerEl) {
+                this.spinnerEl.style.display = 'block';
+                this.iconEl.style.display = 'none';
+            }
+        },
+        
+        // Afficher un spinner de succès temporaire
+        success: function(message, duration = 1500) {
+            this.updateText(message, '');
+            this.setType('icon');
+            this.iconEl.innerHTML = '✅';
+            
+            setTimeout(() => {
+                this.hide();
+                this.setType('spinner');
+            }, duration);
+        },
+        
+        // Afficher un spinner d'erreur temporaire
+        error: function(message, duration = 2000) {
+            this.updateText(message, 'Veuillez réessayer');
+            this.setType('icon');
+            this.iconEl.innerHTML = '❌';
+            
+            setTimeout(() => {
+                this.hide();
+                this.setType('spinner');
+            }, duration);
+        }
+    };
+    
+    // Fonctions globales pour compatibilité
+    function showSpinner(text = 'Chargement en cours...', subtext = '') {
+        Spinner.show(text, subtext);
     }
+    
     function hideSpinner() {
-        document.getElementById('loadingSpinner').style.display = 'none';
+        Spinner.hide();
+    }
+    
+    // Auto-hide après 30 secondes (sécurité)
+    function initSpinnerAutoHide() {
+        setInterval(() => {
+            if (Spinner.element && Spinner.element.style.display === 'block') {
+                const visibleTime = Date.now() - (Spinner._visibleSince || Date.now());
+                if (visibleTime > 30000) {
+                    console.warn('Spinner auto-hidden after 30 seconds');
+                    Spinner.forceHide();
+                }
+            }
+        }, 5000);
+    }
+    
+    // Intercepter les promesses non gérées
+    window.addEventListener('unhandledrejection', (event) => {
+        console.error('Promise non gérée:', event.reason);
+        Spinner.error('Une erreur est survenue', 3000);
+    });
+    
+    // Initialiser au chargement
+    document.addEventListener('DOMContentLoaded', () => {
+        Spinner.init();
+        initSpinnerAutoHide();
+    });
+    
+    // Exporter pour utilisation globale
+    window.Spinner = Spinner;
+    window.showSpinner = showSpinner;
+    window.hideSpinner = hideSpinner;
+</script>
+
+<!-- Exemple d'utilisation avec fetch -->
+<script>
+    // Fonction utilitaire pour les appels API avec spinner automatique
+    async function fetchWithSpinner(url, options = {}, spinnerText = 'Chargement...') {
+        showSpinner(spinnerText);
+        
+        try {
+            const response = await fetch(url, options);
+            const data = await response.json();
+            hideSpinner();
+            return { success: true, data };
+        } catch (error) {
+            hideSpinner();
+            console.error('Erreur:', error);
+            return { success: false, error: error.message };
+        }
+    }
+    
+    // Fonction pour les requêtes avec timeout
+    async function fetchWithTimeout(url, options = {}, timeout = 10000) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        try {
+            const response = await fetch(url, { ...options, signal: controller.signal });
+            clearTimeout(timeoutId);
+            return response;
+        } catch (error) {
+            clearTimeout(timeoutId);
+            throw error;
+        }
     }
 </script>
