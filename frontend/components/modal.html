@@ -8,7 +8,7 @@
         <div class="generic-modal-body" id="modalBody">
             Contenu du modal
         </div>
-        <div class="generic-modal-footer">
+        <div class="generic-modal-footer" id="modalFooter">
             <button class="modal-btn modal-btn-secondary" onclick="closeGenericModal()">Fermer</button>
             <button class="modal-btn modal-btn-primary" id="modalConfirmBtn" onclick="confirmModalAction()">Confirmer</button>
         </div>
@@ -22,74 +22,395 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0,0,0,0.5);
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
         z-index: 2000;
         display: flex;
         align-items: center;
         justify-content: center;
+        animation: fadeIn 0.2s ease;
     }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
     .generic-modal-content {
         background: white;
-        border-radius: 24px;
-        max-width: 500px;
+        border-radius: 28px;
+        max-width: 550px;
         width: 90%;
         max-height: 85vh;
         overflow-y: auto;
-        animation: modalFadeIn 0.3s ease;
+        animation: modalSlideIn 0.3s ease;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
     }
-    @keyframes modalFadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
-        to { opacity: 1; transform: translateY(0); }
+    
+    @keyframes modalSlideIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(-30px) scale(0.95); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0) scale(1); 
+        }
     }
+    
     .generic-modal-header {
         padding: 20px 24px;
         border-bottom: 1px solid #e2e8f0;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background: linear-gradient(135deg, #f8fafc, #ffffff);
+        border-radius: 28px 28px 0 0;
     }
-    .generic-modal-header h3 { color: #1a2a4f; margin: 0; }
+    
+    .generic-modal-header h3 { 
+        color: #0066FF; 
+        margin: 0; 
+        font-size: 20px;
+        font-weight: 600;
+    }
+    
     .generic-modal-close {
-        font-size: 28px;
+        font-size: 32px;
         cursor: pointer;
         color: #94a3b8;
+        transition: all 0.2s;
+        line-height: 1;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
     }
-    .generic-modal-close:hover { color: #ef4444; }
-    .generic-modal-body { padding: 24px; }
+    
+    .generic-modal-close:hover { 
+        color: #ef4444; 
+        background: #fee2e2;
+    }
+    
+    .generic-modal-body { 
+        padding: 24px; 
+        color: #334155;
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    
     .generic-modal-footer {
         padding: 16px 24px;
         border-top: 1px solid #e2e8f0;
         display: flex;
         justify-content: flex-end;
         gap: 12px;
+        background: #f8fafc;
+        border-radius: 0 0 28px 28px;
     }
+    
     .modal-btn {
-        padding: 10px 20px;
+        padding: 10px 24px;
         border: none;
-        border-radius: 30px;
+        border-radius: 40px;
         cursor: pointer;
         font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s;
     }
-    .modal-btn-primary { background: #3b82f6; color: white; }
-    .modal-btn-secondary { background: #e2e8f0; color: #475569; }
-    .modal-btn-danger { background: #ef4444; color: white; }
+    
+    .modal-btn-primary { 
+        background: linear-gradient(135deg, #0066FF, #0052CC); 
+        color: white; 
+    }
+    
+    .modal-btn-primary:hover { 
+        background: linear-gradient(135deg, #0052CC, #004099); 
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(0,102,255,0.3);
+    }
+    
+    .modal-btn-secondary { 
+        background: #e2e8f0; 
+        color: #475569; 
+    }
+    
+    .modal-btn-secondary:hover { 
+        background: #cbd5e1; 
+        transform: translateY(-1px);
+    }
+    
+    .modal-btn-danger { 
+        background: #ef4444; 
+        color: white; 
+    }
+    
+    .modal-btn-danger:hover { 
+        background: #dc2626; 
+        transform: translateY(-1px);
+    }
+    
+    .modal-btn-success { 
+        background: #22c55e; 
+        color: white; 
+    }
+    
+    .modal-btn-success:hover { 
+        background: #16a34a; 
+        transform: translateY(-1px);
+    }
+    
+    /* Types de modal */
+    .generic-modal-warning .generic-modal-header h3 { color: #f59e0b; }
+    .generic-modal-warning .modal-btn-primary { background: linear-gradient(135deg, #f59e0b, #d97706); }
+    
+    .generic-modal-danger .generic-modal-header h3 { color: #ef4444; }
+    .generic-modal-danger .modal-btn-primary { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    
+    .generic-modal-success .generic-modal-header h3 { color: #22c55e; }
+    .generic-modal-success .modal-btn-primary { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    
+    /* Responsive */
+    @media (max-width: 480px) {
+        .generic-modal-content { width: 95%; }
+        .generic-modal-header { padding: 16px 20px; }
+        .generic-modal-header h3 { font-size: 18px; }
+        .generic-modal-body { padding: 20px; font-size: 13px; }
+        .generic-modal-footer { padding: 12px 20px; }
+        .modal-btn { padding: 8px 18px; font-size: 13px; }
+    }
 </style>
 
 <script>
-    let modalCallback = null;
-    function openGenericModal(title, body, confirmText = 'Confirmer', callback = null) {
-        document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalBody').innerHTML = body;
-        document.getElementById('modalConfirmBtn').innerText = confirmText;
-        modalCallback = callback;
-        document.getElementById('genericModal').style.display = 'flex';
+    // Configuration du modal
+    const Modal = {
+        element: null,
+        callback: null,
+        onCloseCallback: null,
+        
+        init: function() {
+            this.element = document.getElementById('genericModal');
+            // Fermer avec Echap
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.element && this.element.style.display === 'flex') {
+                    this.close();
+                }
+            });
+            // Fermer en cliquant en dehors
+            this.element.addEventListener('click', (e) => {
+                if (e.target === this.element) {
+                    this.close();
+                }
+            });
+        },
+        
+        open: function(title, body, options = {}) {
+            const {
+                confirmText = 'Confirmer',
+                cancelText = 'Fermer',
+                type = 'default', // default, warning, danger, success
+                showConfirm = true,
+                showCancel = true,
+                onConfirm = null,
+                onCancel = null,
+                confirmButtonClass = '',
+                cancelButtonClass = ''
+            } = options;
+            
+            // Mettre à jour le contenu
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalBody').innerHTML = typeof body === 'string' ? body : '';
+            
+            // Mettre à jour le type de modal
+            this.element.classList.remove('generic-modal-warning', 'generic-modal-danger', 'generic-modal-success');
+            if (type !== 'default') {
+                this.element.classList.add(`generic-modal-${type}`);
+            }
+            
+            // Configurer les boutons
+            const footer = document.getElementById('modalFooter');
+            const confirmBtn = document.getElementById('modalConfirmBtn');
+            let cancelBtn = footer.querySelector('.modal-btn-secondary');
+            
+            // Supprimer l'ancien bouton annuler si présent
+            if (cancelBtn && !cancelBtn.classList.contains('keep')) {
+                cancelBtn.remove();
+            }
+            
+            // Mettre à jour le texte du bouton confirmer
+            confirmBtn.innerText = confirmText;
+            confirmBtn.style.display = showConfirm ? 'block' : 'none';
+            
+            // Appliquer la classe personnalisée au bouton confirmer
+            confirmBtn.className = `modal-btn modal-btn-primary ${confirmButtonClass}`;
+            
+            // Ajouter le bouton annuler si nécessaire
+            if (showCancel) {
+                const newCancelBtn = document.createElement('button');
+                newCancelBtn.className = `modal-btn modal-btn-secondary ${cancelButtonClass}`;
+                newCancelBtn.innerText = cancelText;
+                newCancelBtn.onclick = () => {
+                    if (onCancel) onCancel();
+                    this.close();
+                };
+                // Insérer avant le bouton confirmer
+                footer.insertBefore(newCancelBtn, confirmBtn);
+            }
+            
+            // Stocker les callbacks
+            this.callback = onConfirm;
+            this.onCloseCallback = options.onClose || null;
+            
+            // Afficher le modal
+            this.element.style.display = 'flex';
+        },
+        
+        close: function() {
+            this.element.style.display = 'none';
+            this.callback = null;
+            if (this.onCloseCallback) {
+                this.onCloseCallback();
+                this.onCloseCallback = null;
+            }
+            // Réinitialiser le type
+            this.element.classList.remove('generic-modal-warning', 'generic-modal-danger', 'generic-modal-success');
+        },
+        
+        confirm: function() {
+            if (this.callback) {
+                this.callback();
+            }
+            this.close();
+        },
+        
+        alert: function(title, message, onClose = null) {
+            this.open(title, message, {
+                confirmText: 'OK',
+                showCancel: false,
+                onConfirm: onClose,
+                onClose: onClose
+            });
+        },
+        
+        confirmAction: function(title, message, onConfirm, onCancel = null) {
+            this.open(title, message, {
+                confirmText: 'Confirmer',
+                cancelText: 'Annuler',
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            });
+        },
+        
+        warning: function(title, message, onConfirm, onCancel = null) {
+            this.open(title, message, {
+                confirmText: 'Continuer',
+                cancelText: 'Annuler',
+                type: 'warning',
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            });
+        },
+        
+        danger: function(title, message, onConfirm, onCancel = null) {
+            this.open(title, message, {
+                confirmText: 'Supprimer',
+                cancelText: 'Annuler',
+                type: 'danger',
+                onConfirm: onConfirm,
+                onCancel: onCancel
+            });
+        },
+        
+        success: function(title, message, onConfirm = null) {
+            this.open(title, message, {
+                confirmText: 'OK',
+                showCancel: false,
+                type: 'success',
+                onConfirm: onConfirm
+            });
+        }
+    };
+    
+    // Fonctions globales pour compatibilité
+    function openGenericModal(title, body, confirmText = 'Confirmer', callback = null, cancelCallback = null) {
+        Modal.open(title, body, {
+            confirmText: confirmText,
+            onConfirm: callback,
+            onCancel: cancelCallback
+        });
     }
+    
     function closeGenericModal() {
-        document.getElementById('genericModal').style.display = 'none';
-        modalCallback = null;
+        Modal.close();
     }
+    
     function confirmModalAction() {
-        if (modalCallback) modalCallback();
-        closeGenericModal();
+        Modal.confirm();
+    }
+    
+    // Initialisation
+    document.addEventListener('DOMContentLoaded', () => {
+        Modal.init();
+    });
+    
+    // Exporter pour utilisation globale
+    window.Modal = Modal;
+    window.openGenericModal = openGenericModal;
+    window.closeGenericModal = closeGenericModal;
+    window.confirmModalAction = confirmModalAction;
+</script>
+
+<!-- Exemples d'utilisation -->
+<script>
+    // Exemple: Modal simple
+    function showSimpleModal() {
+        Modal.alert('Information', 'Ceci est une simple notification.');
+    }
+    
+    // Exemple: Modal de confirmation
+    function showConfirmModal() {
+        Modal.confirmAction('Confirmation', 'Êtes-vous sûr de vouloir effectuer cette action ?', 
+            () => console.log('Action confirmée'),
+            () => console.log('Action annulée')
+        );
+    }
+    
+    // Exemple: Modal d'avertissement
+    function showWarningModal() {
+        Modal.warning('Attention', 'Cette action est irréversible. Voulez-vous continuer ?',
+            () => console.log('Action dangereuse confirmée')
+        );
+    }
+    
+    // Exemple: Modal avec contenu HTML
+    function showHtmlModal() {
+        const htmlContent = `
+            <div style="text-align:center;">
+                <div style="font-size:48px; margin-bottom:10px;">📱</div>
+                <p><strong>Version 2.1.0</strong></p>
+                <p>Dernière mise à jour : 21 mai 2026</p>
+                <hr style="margin:15px 0;">
+                <ul style="text-align:left;">
+                    <li>✅ Nouvelles fonctionnalités</li>
+                    <li>🐛 Corrections de bugs</li>
+                    <li>⚡ Performances améliorées</li>
+                </ul>
+            </div>
+        `;
+        Modal.open('À propos', htmlContent, { confirmText: 'Fermer', showCancel: false });
+    }
+    
+    // Exemple: Modal de succès
+    function showSuccessModal() {
+        Modal.success('Succès', 'L\'opération a été effectuée avec succès !');
+    }
+    
+    // Exemple: Modal de suppression
+    function showDeleteModal() {
+        Modal.danger('Suppression', 'Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.',
+            () => console.log('Élément supprimé')
+        );
     }
 </script>
