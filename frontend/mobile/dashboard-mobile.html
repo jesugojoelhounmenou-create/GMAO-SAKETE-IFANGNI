@@ -3,123 +3,417 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#0066FF">
     <title>GMAO Mobile - Dashboard Technicien</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #e8f5e9; padding-bottom: 80px; }
-        .header { background: linear-gradient(135deg, #1a2a4f, #1e3a5f); color: white; padding: 20px; text-align: center; }
-        .header h2 { font-size: 20px; margin-bottom: 5px; }
-        .user-name { font-size: 14px; opacity: 0.9; }
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
-        .stat-card { background: white; border-radius: 20px; padding: 15px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .stat-value { font-size: 28px; font-weight: bold; color: #1a2a4f; }
-        .stat-label { font-size: 11px; color: #666; margin-top: 5px; }
-        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; padding: 15px; }
-        .menu-item { background: white; border-radius: 16px; padding: 14px 8px; text-align: center; text-decoration: none; color: #1e293b; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #e8f5e9; 
+            padding-bottom: 80px; 
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, #0066FF, #0052CC); 
+            color: white; 
+            padding: 25px 20px; 
+            text-align: center; 
+        }
+        .header h2 { font-size: 22px; margin-bottom: 5px; }
+        .user-name { font-size: 14px; opacity: 0.9; margin-top: 5px; }
+        
+        .stats-grid { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            padding: 15px; 
+        }
+        
+        .stat-card { 
+            background: white; 
+            border-radius: 20px; 
+            padding: 15px; 
+            text-align: center; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .stat-card:active { transform: scale(0.96); }
+        
+        .stat-value { 
+            font-size: 28px; 
+            font-weight: bold; 
+            color: #0066FF; 
+        }
+        .stat-label { 
+            font-size: 11px; 
+            color: #64748b; 
+            margin-top: 5px; 
+        }
+        
+        .menu-grid { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); 
+            gap: 12px; 
+            padding: 15px; 
+        }
+        
+        .menu-item { 
+            background: white; 
+            border-radius: 16px; 
+            padding: 14px 8px; 
+            text-align: center; 
+            text-decoration: none; 
+            color: #1e293b; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        }
         .menu-item:active { transform: scale(0.96); background: #f0fdf4; }
         .menu-icon { font-size: 28px; margin-bottom: 6px; }
         .menu-title { font-size: 11px; font-weight: 500; }
-        .section { background: white; border-radius: 20px; margin: 15px; padding: 15px; }
-        .section-title { font-weight: bold; margin-bottom: 12px; color: #1a2a4f; display: flex; justify-content: space-between; align-items: center; }
-        .alert-item { display: flex; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; gap: 12px; cursor: pointer; }
+        
+        .section { 
+            background: white; 
+            border-radius: 20px; 
+            margin: 15px; 
+            padding: 15px; 
+        }
+        .section-title { 
+            font-weight: bold; 
+            margin-bottom: 12px; 
+            color: #0066FF; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-left: 4px solid #ffd600;
+            padding-left: 10px;
+        }
+        
+        .alert-item { 
+            display: flex; 
+            align-items: center; 
+            padding: 10px 0; 
+            border-bottom: 1px solid #e2e8f0; 
+            gap: 12px; 
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .alert-item:hover { background: #f8fafc; padding-left: 8px; margin-left: -8px; border-radius: 8px; }
+        .alert-item:last-child { border-bottom: none; }
+        
         .priority-critical { width: 10px; height: 10px; background: #dc2626; border-radius: 50%; }
-        .btn-sm { background: #1b5e20; color: white; border: none; padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; }
-        .logout-btn { background: #ef4444; color: white; border: none; padding: 12px; border-radius: 30px; width: calc(100% - 30px); margin: 10px 15px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 10px 15px; border-top: 1px solid #e2e8f0; }
-        .nav-item { text-align: center; text-decoration: none; color: #94a3b8; font-size: 11px; }
-        .nav-item.active { color: #1a2a4f; font-weight: 600; }
+        .priority-high { width: 10px; height: 10px; background: #f97316; border-radius: 50%; }
+        .priority-medium { width: 10px; height: 10px; background: #f59e0b; border-radius: 50%; }
+        
+        .btn-sm { 
+            background: #0066FF; 
+            color: white; 
+            border: none; 
+            padding: 5px 12px; 
+            border-radius: 20px; 
+            font-size: 11px; 
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-sm:hover { background: #0052CC; }
+        
+        .logout-btn { 
+            background: #ef4444; 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 30px; 
+            width: calc(100% - 30px); 
+            margin: 10px 15px; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .logout-btn:hover { background: #dc2626; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 25px;
+            color: #94a3b8;
+        }
+        
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #e2e8f0;
+            border-top-color: #0066FF;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: white; 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 10px 15px 20px; 
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        .nav-item { 
+            text-align: center; 
+            text-decoration: none; 
+            color: #94a3b8; 
+            font-size: 11px;
+            transition: 0.2s;
+        }
+        .nav-item.active { color: #0066FF; font-weight: 600; }
         .nav-icon { font-size: 22px; display: block; margin-bottom: 3px; }
+        
+        @media (max-width: 450px) {
+            .menu-grid { gap: 8px; }
+            .menu-item { padding: 10px 5px; }
+            .menu-icon { font-size: 24px; }
+            .menu-title { font-size: 10px; }
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h2>🏥 GMAO Mobile</h2>
-        <div class="user-name" id="userName">Chargement...</div>
-    </div>
 
-    <div class="stats-grid">
-        <div class="stat-card"><div class="stat-value" id="equipCount">-</div><div class="stat-label">Équipements</div></div>
-        <div class="stat-card"><div class="stat-value" id="interCount">-</div><div class="stat-label">Interventions</div></div>
-        <div class="stat-card"><div class="stat-value" id="alertCount">-</div><div class="stat-label">Alertes</div></div>
-        <div class="stat-card"><div class="stat-value" id="stockCount">-</div><div class="stat-label">Pièces</div></div>
-    </div>
+<div class="header">
+    <h2>🏥 GMAO Mobile</h2>
+    <div class="user-name" id="userName">Chargement...</div>
+</div>
 
-    <div class="menu-grid">
-        <a href="dashboard-mobile.html" class="menu-item"><div class="menu-icon">📊</div><div class="menu-title">Dashboard</div></a>
-        <a href="/technicien/inventaire.html" class="menu-item"><div class="menu-icon">📦</div><div class="menu-title">Inventaire</div></a>
-        <a href="/technicien/maintenances.html" class="menu-item"><div class="menu-icon">🔧</div><div class="menu-title">Maintenances</div></a>
-        <a href="/technicien/stock.html" class="menu-item"><div class="menu-icon">⚙️</div><div class="menu-title">Stock</div></a>
-        <a href="/technicien/gestion-techniciens.html" class="menu-item"><div class="menu-icon">👥</div><div class="menu-title">Techniciens</div></a>
-        <a href="/technicien/planning-garde.html" class="menu-item"><div class="menu-icon">📅</div><div class="menu-title">Planning</div></a>
-        <a href="/technicien/codir-rapports.html" class="menu-item"><div class="menu-icon">📈</div><div class="menu-title">CoDIR</div></a>
-        <a href="/technicien/fournisseurs.html" class="menu-item"><div class="menu-icon">🏭</div><div class="menu-title">Fournisseurs</div></a>
-        <a href="/technicien/utilisateurs.html" class="menu-item"><div class="menu-icon">👥</div><div class="menu-title">Utilisateurs</div></a>
-        <a href="/technicien/alertes.html" class="menu-item"><div class="menu-icon">⚠️</div><div class="menu-title">Alertes</div></a>
-        <a href="/technicien/documents.html" class="menu-item"><div class="menu-icon">📚</div><div class="menu-title">Documents</div></a>
-        <a href="/technicien/profil.html" class="menu-item"><div class="menu-icon">👤</div><div class="menu-title">Profil</div></a>
-        <a href="scanner-mobile.html" class="menu-item"><div class="menu-icon">📷</div><div class="menu-title">Scanner</div></a>
-        <a href="diagnostic-mobile.html" class="menu-item"><div class="menu-icon">🤖</div><div class="menu-title">Diagnostic</div></a>
-        <a href="interventions-mobile.html" class="menu-item"><div class="menu-icon">🔧</div><div class="menu-title">Mes travaux</div></a>
+<div class="stats-grid">
+    <div class="stat-card" onclick="location.href='/technicien/inventaire.html'">
+        <div class="stat-value" id="equipCount">-</div>
+        <div class="stat-label">📦 Équipements</div>
     </div>
+    <div class="stat-card" onclick="location.href='/technicien/maintenances.html'">
+        <div class="stat-value" id="interCount">-</div>
+        <div class="stat-label">🔧 Interventions</div>
+    </div>
+    <div class="stat-card" onclick="location.href='/technicien/alertes.html'">
+        <div class="stat-value" id="alertCount">-</div>
+        <div class="stat-label">⚠️ Alertes</div>
+    </div>
+    <div class="stat-card" onclick="location.href='/technicien/stock.html'">
+        <div class="stat-value" id="stockCount">-</div>
+        <div class="stat-label">⚙️ Pièces</div>
+    </div>
+</div>
 
-    <div class="section">
-        <div class="section-title">
-            <span>🚨 Alertes récentes</span>
-            <button class="btn-sm" onclick="location.href='/technicien/alertes.html'">Voir tout</button>
+<div class="menu-grid">
+    <a href="dashboard-mobile.html" class="menu-item">
+        <div class="menu-icon">📊</div>
+        <div class="menu-title">Dashboard</div>
+    </a>
+    <a href="/technicien/inventaire.html" class="menu-item">
+        <div class="menu-icon">📦</div>
+        <div class="menu-title">Inventaire</div>
+    </a>
+    <a href="/technicien/maintenances.html" class="menu-item">
+        <div class="menu-icon">🔧</div>
+        <div class="menu-title">Maintenances</div>
+    </a>
+    <a href="/technicien/stock.html" class="menu-item">
+        <div class="menu-icon">⚙️</div>
+        <div class="menu-title">Stock</div>
+    </a>
+    <a href="/technicien/gestion-techniciens.html" class="menu-item">
+        <div class="menu-icon">👥</div>
+        <div class="menu-title">Techniciens</div>
+    </a>
+    <a href="/technicien/planning-garde.html" class="menu-item">
+        <div class="menu-icon">📅</div>
+        <div class="menu-title">Planning</div>
+    </a>
+    <a href="/technicien/codir-rapports.html" class="menu-item">
+        <div class="menu-icon">📈</div>
+        <div class="menu-title">CoDIR</div>
+    </a>
+    <a href="/technicien/fournisseurs.html" class="menu-item">
+        <div class="menu-icon">🏭</div>
+        <div class="menu-title">Fournisseurs</div>
+    </a>
+    <a href="/technicien/alertes.html" class="menu-item">
+        <div class="menu-icon">⚠️</div>
+        <div class="menu-title">Alertes</div>
+    </a>
+    <a href="/technicien/documents.html" class="menu-item">
+        <div class="menu-icon">📚</div>
+        <div class="menu-title">Documents</div>
+    </a>
+    <a href="/technicien/profil.html" class="menu-item">
+        <div class="menu-icon">👤</div>
+        <div class="menu-title">Profil</div>
+    </a>
+    <a href="/soignant/scanner.html" class="menu-item">
+        <div class="menu-icon">📷</div>
+        <div class="menu-title">Scanner QR</div>
+    </a>
+</div>
+
+<div class="section">
+    <div class="section-title">
+        <span>🚨 Alertes récentes</span>
+        <button class="btn-sm" onclick="location.href='/technicien/alertes.html'">Voir tout</button>
+    </div>
+    <div id="alertesList">
+        <div class="empty-state">
+            <div class="loader"></div> Chargement...
         </div>
-        <div id="alertesList">Chargement...</div>
     </div>
+</div>
 
-    <button class="logout-btn" onclick="logout()">🚪 Se déconnecter</button>
+<button class="logout-btn" onclick="logout()">🚪 Se déconnecter</button>
 
+<div class="bottom-nav">
+    <a href="dashboard-mobile.html" class="nav-item active">
+        <span class="nav-icon">🏠</span>Accueil
+    </a>
+    <a href="/technicien/maintenances.html" class="nav-item">
+        <span class="nav-icon">🔧</span>Travaux
+    </a>
+    <a href="/technicien/inventaire.html" class="nav-item">
+        <span class="nav-icon">📦</span>Équip.
+    </a>
+    <a href="/soignant/scanner.html" class="nav-item">
+        <span class="nav-icon">📷</span>Scan
+    </a>
+    <a href="/technicien/profil.html" class="nav-item">
+        <span class="nav-icon">👤</span>Profil
+    </a>
+</div>
+
+<script>
+    const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
     
-    <script>
-        const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
-        function getToken() { return localStorage.getItem('token'); }
-        
-        if (!getToken()) window.location.href = '/login.html';
-        if (localStorage.getItem('userRole') !== 'TECHNICIEN') window.location.href = '/soignant/index.html';
-        
-        async function chargerStats() {
-            try {
-                const [equipRes, interRes, alerteRes] = await Promise.all([
-                    fetch(`${API_URL}/equipements`, { headers: { 'Authorization': `Bearer ${getToken()}` } }),
-                    fetch(`${API_URL}/maintenances`, { headers: { 'Authorization': `Bearer ${getToken()}` } }),
-                    fetch(`${API_URL}/alertes`, { headers: { 'Authorization': `Bearer ${getToken()}` } })
-                ]);
-                const equipements = await equipRes.json();
-                const interventions = await interRes.json();
-                const alertes = await alerteRes.json();
-                document.getElementById('equipCount').innerText = equipements.length || 0;
-                document.getElementById('interCount').innerText = interventions.length || 0;
-                document.getElementById('alertCount').innerText = alertes.length || 0;
-                document.getElementById('stockCount').innerText = '0';
-                document.getElementById('userName').innerText = localStorage.getItem('userName') || 'Technicien';
-            } catch(e) { console.error(e); }
+    function getToken() { return localStorage.getItem('token'); }
+    
+    // Auth check
+    if (!getToken()) window.location.href = '/login.html';
+    
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== 'TECHNICIEN') window.location.href = '/soignant/index.html';
+    
+    function formatNumber(n) {
+        return n !== undefined ? n : 0;
+    }
+    
+    async function chargerStats() {
+        try {
+            const [equipRes, interRes, alerteRes, stockRes] = await Promise.all([
+                fetch(`${API_URL}/equipements?limit=1`, { headers: { 'Authorization': `Bearer ${getToken()}` } }),
+                fetch(`${API_URL}/maintenances?limit=1`, { headers: { 'Authorization': `Bearer ${getToken()}` } }),
+                fetch(`${API_URL}/alertes?limit=1&resolue=false`, { headers: { 'Authorization': `Bearer ${getToken()}` } }),
+                fetch(`${API_URL}/stock?limit=1`, { headers: { 'Authorization': `Bearer ${getToken()}` } })
+            ]);
+            
+            const equipData = await equipRes.json();
+            const interData = await interRes.json();
+            const alerteData = await alerteRes.json();
+            const stockData = await stockRes.json();
+            
+            const equipCount = Array.isArray(equipData) ? equipData.length : (equipData.total || 0);
+            const interCount = Array.isArray(interData) ? interData.length : (interData.total || 0);
+            const alerteCount = Array.isArray(alerteData) ? alerteData.length : (alerteData.total || 0);
+            const stockCount = Array.isArray(stockData) ? stockData.length : (stockData.total || 0);
+            
+            document.getElementById('equipCount').innerText = formatNumber(equipCount);
+            document.getElementById('interCount').innerText = formatNumber(interCount);
+            document.getElementById('alertCount').innerText = formatNumber(alerteCount);
+            document.getElementById('stockCount').innerText = formatNumber(stockCount);
+            document.getElementById('userName').innerText = localStorage.getItem('userName') || 'Technicien';
+            
+        } catch(e) { 
+            console.error('Erreur chargement stats:', e);
+            document.getElementById('userName').innerText = localStorage.getItem('userName') || 'Technicien';
         }
-        
-        async function chargerAlertes() {
-            try {
-                const res = await fetch(`${API_URL}/alertes`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
-                const alertes = await res.json();
-                const container = document.getElementById('alertesList');
-                if (alertes.length > 0) {
-                    container.innerHTML = alertes.slice(0, 3).map(a => `
-                        <div class="alert-item" onclick="location.href='/technicien/alertes.html'">
-                            <div class="priority-critical"></div>
-                            <div><strong>${a.message || 'Alerte'}</strong><br><small>${new Date(a.dateCreation).toLocaleString()}</small></div>
+    }
+    
+    async function chargerAlertes() {
+        try {
+            const res = await fetch(`${API_URL}/alertes?limit=3&resolue=false`, { 
+                headers: { 'Authorization': `Bearer ${getToken()}` } 
+            });
+            
+            if (!res.ok) throw new Error('Erreur');
+            
+            const data = await res.json();
+            let alertes = Array.isArray(data) ? data : (data.alertes || []);
+            
+            const container = document.getElementById('alertesList');
+            
+            if (alertes.length === 0) {
+                container.innerHTML = '<div class="empty-state">✅ Aucune alerte active</div>';
+                return;
+            }
+            
+            container.innerHTML = alertes.slice(0, 3).map(a => {
+                let priorityClass = 'priority-medium';
+                if (a.niveau === 'CRITIQUE') priorityClass = 'priority-critical';
+                else if (a.niveau === 'HAUTE') priorityClass = 'priority-high';
+                
+                return `
+                    <div class="alert-item" onclick="location.href='/technicien/alertes.html'">
+                        <div class="${priorityClass}"></div>
+                        <div>
+                            <strong>${escapeHtml(a.message || a.type || 'Alerte')}</strong><br>
+                            <small>${formatDate(a.dateCreation || a.createdAt)}</small>
                         </div>
-                    `).join('');
-                } else {
-                    container.innerHTML = '<div style="text-align:center; padding:20px;">Aucune alerte</div>';
-                }
-            } catch(e) { console.error(e); }
+                    </div>
+                `;
+            }).join('');
+            
+        } catch(e) { 
+            console.error('Erreur alertes:', e);
+            document.getElementById('alertesList').innerHTML = '<div class="empty-state">❌ Erreur de chargement</div>';
         }
-        
-        function logout() { localStorage.clear(); window.location.href = '/login.html'; }
-        
-        chargerStats();
+    }
+    
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '-';
+            return date.toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch { return '-'; }
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    function logout() { 
+        if (confirm('🚪 Voulez-vous vraiment vous déconnecter ?')) {
+            localStorage.clear(); 
+            window.location.href = '/login.html'; 
+        }
+    }
+    
+    // Rafraîchissement automatique toutes les 30 secondes
+    chargerStats();
+    chargerAlertes();
+    setInterval(() => {
         chargerAlertes();
-    </script>
+    }, 30000);
+</script>
 </body>
 </html>
