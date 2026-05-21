@@ -2,61 +2,412 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#0066FF">
     <title>Scanner QR - GMAO Mobile</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000; min-height: 100vh; }
-        .header { background: #1a2a4f; color: white; padding: 20px; text-align: center; }
-        .video-container { position: relative; width: 100%; max-width: 500px; margin: 0 auto; overflow: hidden; border-radius: 20px; }
-        video { width: 100%; border-radius: 20px; }
-        .scan-overlay { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 80%; height: 80%; border: 2px solid #22c55e; border-radius: 20px; box-shadow: 0 0 0 4000px rgba(0,0,0,0.5); pointer-events: none; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0%, 100% { border-color: #22c55e; } 50% { border-color: #3b82f6; } }
-        .result { background: white; margin: 20px; padding: 20px; border-radius: 20px; }
-        .btn-scan { background: #22c55e; color: white; border: none; padding: 15px; border-radius: 50px; width: calc(100% - 40px); margin: 10px auto; display: block; font-size: 18px; font-weight: 600; cursor: pointer; }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; padding: 10px 20px; border-top: 1px solid #eee; }
-        .nav-item { text-align: center; text-decoration: none; color: #94a3b8; font-size: 12px; }
-        .nav-item.active { color: #1a2a4f; font-weight: 600; }
-        .nav-icon { font-size: 24px; display: block; margin-bottom: 4px; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: #000; 
+            min-height: 100vh;
+            padding-bottom: 70px;
+        }
+        
+        .header { 
+            background: linear-gradient(135deg, #0066FF, #0052CC); 
+            color: white; 
+            padding: 20px; 
+            text-align: center; 
+        }
+        .header h2 { font-size: 20px; margin-bottom: 5px; }
+        .header p { font-size: 13px; opacity: 0.9; }
+        
+        .video-container { 
+            position: relative; 
+            width: 100%; 
+            max-width: 500px; 
+            margin: 20px auto; 
+            overflow: hidden; 
+            border-radius: 24px;
+            background: #000;
+        }
+        
+        video { 
+            width: 100%; 
+            border-radius: 24px; 
+            transform: scaleX(-1);
+        }
+        
+        .scan-overlay { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 70%; 
+            height: 70%; 
+            border: 2px solid #22c55e; 
+            border-radius: 20px; 
+            box-shadow: 0 0 0 4000px rgba(0,0,0,0.6); 
+            pointer-events: none; 
+            animation: pulse 1.5s infinite; 
+        }
+        
+        .scan-line {
+            position: absolute;
+            top: 15%;
+            left: 15%;
+            width: 70%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #22c55e, transparent);
+            animation: scanMove 2s linear infinite;
+            pointer-events: none;
+        }
+        
+        @keyframes scanMove {
+            0% { top: 15%; }
+            50% { top: 83%; }
+            100% { top: 15%; }
+        }
+        
+        @keyframes pulse { 
+            0%, 100% { border-color: #22c55e; } 
+            50% { border-color: #0066FF; } 
+        }
+        
+        .result { 
+            background: white; 
+            margin: 20px; 
+            padding: 20px; 
+            border-radius: 24px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .result h3 {
+            color: #0066FF;
+            margin-bottom: 12px;
+        }
+        
+        .equipment-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 16px;
+            margin-top: 10px;
+            text-align: left;
+        }
+        
+        .equipment-info {
+            margin-bottom: 8px;
+        }
+        
+        .equipment-label {
+            font-size: 12px;
+            color: #64748b;
+        }
+        
+        .equipment-value {
+            font-weight: 600;
+            font-size: 14px;
+            color: #1e293b;
+        }
+        
+        .btn-scan { 
+            background: #0066FF; 
+            color: white; 
+            border: none; 
+            padding: 15px; 
+            border-radius: 50px; 
+            width: calc(100% - 40px); 
+            margin: 10px auto; 
+            display: block; 
+            font-size: 16px; 
+            font-weight: 600; 
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .btn-scan:active { transform: scale(0.98); }
+        .btn-scan:hover { background: #0052CC; }
+        
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-FONCTIONNEL { background: #dcfce7; color: #166534; }
+        .status-EN_PANNE { background: #fee2e2; color: #dc2626; }
+        .status-EN_MAINTENANCE { background: #fef3c7; color: #d97706; }
+        
+        .bottom-nav { 
+            position: fixed; 
+            bottom: 0; 
+            left: 0; 
+            right: 0; 
+            background: white; 
+            display: flex; 
+            justify-content: space-around; 
+            padding: 10px 15px 20px; 
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .nav-item { 
+            text-align: center; 
+            text-decoration: none; 
+            color: #94a3b8; 
+            font-size: 11px;
+            transition: 0.2s;
+        }
+        .nav-item.active { color: #0066FF; font-weight: 600; }
+        .nav-icon { font-size: 22px; display: block; margin-bottom: 3px; }
+        
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        @media (max-width: 450px) {
+            .scan-overlay { width: 80%; height: 80%; }
+            .result { margin: 15px; padding: 15px; }
+        }
     </style>
 </head>
 <body>
-    <div class="header"><h2>📷 Scanner QR Code</h2><p>Scannez l'équipement</p></div>
-    <div class="video-container"><video id="preview" playsinline autoplay style="width:100%"></video><div class="scan-overlay"></div></div>
-    <button class="btn-scan" onclick="startScan()">🔍 Démarrer le scan</button>
-    <div id="result" class="result"><h3>Résultat :</h3><p id="scanResult">En attente de scan...</p></div>
-    <div class="bottom-nav">
-        <a href="dashboard-mobile.html" class="nav-item"><span class="nav-icon">🏠</span>Accueil</a>
-        <a href="interventions-mobile.html" class="nav-item"><span class="nav-icon">🔧</span>Travaux</a>
-        <a href="scanner-mobile.html" class="nav-item active"><span class="nav-icon">📷</span>Scan</a>
-        <a href="profil-mobile.html" class="nav-item"><span class="nav-icon">👤</span>Profil</a>
-    </div>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
-    <script>
-        let html5QrCode;
-        async function startScan() {
-            if(html5QrCode) { html5QrCode.stop(); }
-            html5QrCode = new Html5Qrcode("preview");
-            try {
-                await html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: { width: 250, height: 250 } }, onScanSuccess, onScanError);
-            } catch(e) { alert("Erreur caméra: " + e); }
+
+<div class="header">
+    <h2>📷 Scanner QR Code</h2>
+    <p>Scannez le QR code de l'équipement</p>
+</div>
+
+<div class="video-container">
+    <video id="preview" playsinline autoplay style="width:100%"></video>
+    <div class="scan-overlay"></div>
+    <div class="scan-line"></div>
+</div>
+
+<button class="btn-scan" onclick="startScan()">🔍 Démarrer le scan</button>
+
+<div id="result" class="result">
+    <h3>📱 Résultat</h3>
+    <p id="scanResult">En attente de scan...</p>
+</div>
+
+<div class="bottom-nav">
+    <a href="dashboard-mobile.html" class="nav-item">
+        <span class="nav-icon">🏠</span>Accueil
+    </a>
+    <a href="interventions-mobile.html" class="nav-item">
+        <span class="nav-icon">🔧</span>Travaux
+    </a>
+    <a href="scanner-mobile.html" class="nav-item active">
+        <span class="nav-icon">📷</span>Scan
+    </a>
+    <a href="diagnostic-mobile.html" class="nav-item">
+        <span class="nav-icon">🤖</span>Diagnostic
+    </a>
+    <a href="profil-mobile.html" class="nav-item">
+        <span class="nav-icon">👤</span>Profil
+    </a>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+<script>
+    const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    let html5QrCode = null;
+    let isScanning = false;
+    const token = localStorage.getItem('token');
+    
+    // Auth check
+    if (!token) window.location.href = '/login.html';
+    
+    const userRole = localStorage.getItem('userRole');
+    const isTechnicien = userRole === 'TECHNICIEN';
+    
+    function getStatusText(statut) {
+        const map = {
+            'FONCTIONNEL': '✅ Fonctionnel',
+            'EN_PANNE': '❌ En panne',
+            'EN_MAINTENANCE': '🔧 En maintenance'
+        };
+        return map[statut] || statut;
+    }
+    
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
+    }
+    
+    async function startScan() {
+        if (isScanning) {
+            await stopScan();
         }
-        async function onScanSuccess(decodedText) {
-            await html5QrCode.stop();
-            document.getElementById('scanResult').innerHTML = `✅ Équipement trouvé !<br>Code: ${decodedText}<br><br><a href="/technicien/equipement-detail.html?id=${decodedText}" style="background:#1a2a4f; color:white; padding:12px; display:inline-block; border-radius:50px; text-decoration:none;">🔍 Voir l'équipement</a>`;
-            try {
-                const res = await fetch(`${API_URL}/mobile/scan-qr`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${localStorage.getItem('token')}` },
-                    body: JSON.stringify({ qrData: decodedText })
-                });
-                const equip = await res.json();
-                if(equip.id) document.getElementById('scanResult').innerHTML = `✅ ${equip.nom}<br>📦 ${equip.codeInventaire}<br><br><a href="/technicien/equipement-detail.html?id=${equip.id}" style="background:#1a2a4f; color:white; padding:12px; display:inline-block; border-radius:50px; text-decoration:none;">🔍 Voir détails</a>`;
-            } catch(e) { console.log(e); }
+        
+        const resultDiv = document.getElementById('scanResult');
+        resultDiv.innerHTML = '📷 Demarrage de la caméra...';
+        
+        html5QrCode = new Html5Qrcode("preview");
+        isScanning = true;
+        
+        try {
+            await html5QrCode.start(
+                { facingMode: "environment" }, 
+                { 
+                    fps: 10, 
+                    qrbox: { width: 250, height: 250 },
+                    aspectRatio: 1.0
+                }, 
+                onScanSuccess, 
+                onScanError
+            );
+            resultDiv.innerHTML = '🔍 Scannez le QR code...';
+        } catch(e) { 
+            console.error("Erreur caméra:", e);
+            resultDiv.innerHTML = '❌ Impossible d\'accéder à la caméra. Vérifiez les permissions.';
+            isScanning = false;
         }
-        function onScanError(err) { console.log(err); }
-        if(!localStorage.getItem('token')) window.location.href = '/login.html';
-        const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
-    </script>
+    }
+    
+    async function stopScan() {
+        if (html5QrCode && isScanning) {
+            try {
+                await html5QrCode.stop();
+            } catch(e) { console.log("Erreur arrêt scan:", e); }
+            html5QrCode = null;
+            isScanning = false;
+        }
+    }
+    
+    async function onScanSuccess(decodedText) {
+        await stopScan();
+        
+        const resultDiv = document.getElementById('scanResult');
+        resultDiv.innerHTML = '<span class="loader"></span> Chargement des informations...';
+        
+        try {
+            const res = await fetch(`${API_URL}/equipements/scan-qr`, {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({ qrData: decodedText })
+            });
+            
+            if (!res.ok) throw new Error('QR code non reconnu');
+            
+            const equip = await res.json();
+            
+            let actionsHtml = '';
+            if (isTechnicien) {
+                actionsHtml = `
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <a href="/technicien/equipement-detail.html?id=${equip.id}" style="flex:1; background:#0066FF; color:white; padding:12px; border-radius:50px; text-decoration:none; text-align:center; font-weight:600;">🔍 Voir détails</a>
+                        <button onclick="signalerPanne(${equip.id})" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:50px; font-weight:600; cursor:pointer;">⚠️ Panne</button>
+                    </div>
+                `;
+            } else {
+                actionsHtml = `
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button onclick="signalerPanne(${equip.id})" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:50px; font-weight:600; cursor:pointer;">⚠️ Signaler une panne</button>
+                    </div>
+                `;
+            }
+            
+            resultDiv.innerHTML = `
+                <div class="equipment-card">
+                    <div style="text-align:center; font-size:48px; margin-bottom:10px;">📱</div>
+                    <div class="equipment-info">
+                        <div class="equipment-label">🏷️ Équipement</div>
+                        <div class="equipment-value"><strong>${escapeHtml(equip.nom)}</strong></div>
+                    </div>
+                    <div class="equipment-info">
+                        <div class="equipment-label">📦 Code inventaire</div>
+                        <div class="equipment-value">${escapeHtml(equip.codeInventaire)}</div>
+                    </div>
+                    <div class="equipment-info">
+                        <div class="equipment-label">📍 Service</div>
+                        <div class="equipment-value">${escapeHtml(equip.service || '-')}</div>
+                    </div>
+                    <div class="equipment-info">
+                        <div class="equipment-label">🔧 Statut</div>
+                        <div class="equipment-value"><span class="status-badge status-${equip.statut}">${getStatusText(equip.statut)}</span></div>
+                    </div>
+                    ${equip.marque ? `
+                    <div class="equipment-info">
+                        <div class="equipment-label">🏭 Marque</div>
+                        <div class="equipment-value">${escapeHtml(equip.marque)} ${escapeHtml(equip.modele || '')}</div>
+                    </div>
+                    ` : ''}
+                    ${actionsHtml}
+                    <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">📷 Scanner à nouveau</button>
+                </div>
+            `;
+        } catch(error) {
+            console.error('Erreur:', error);
+            resultDiv.innerHTML = `
+                <div style="color:#dc2626;">❌ QR code non reconnu ou équipement non trouvé</div>
+                <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">📷 Réessayer</button>
+            `;
+        }
+    }
+    
+    function resetScanner() {
+        const resultDiv = document.getElementById('scanResult');
+        resultDiv.innerHTML = 'En attente de scan...';
+        startScan();
+    }
+    
+    function signalerPanne(id) {
+        if (isTechnicien) {
+            window.location.href = `/technicien/maintenances.html?equipementId=${id}`;
+        } else {
+            window.location.href = `/soignant/signaler-panne.html?equipementId=${id}`;
+        }
+    }
+    
+    function onScanError(err) { 
+        console.log("Erreur scan:", err); 
+    }
+    
+    // Démarrer automatiquement au chargement
+    startScan();
+    
+    // Nettoyer à la fermeture
+    window.addEventListener('beforeunload', () => {
+        if (html5QrCode && isScanning) {
+            html5QrCode.stop().catch(console.log);
+        }
+    });
+</script>
 </body>
 </html>
