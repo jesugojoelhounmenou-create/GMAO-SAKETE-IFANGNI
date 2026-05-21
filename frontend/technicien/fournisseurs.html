@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#1b5e20">
     <title>Fournisseurs - GMAO Sakété</title>
     <style>
         * {
@@ -42,6 +43,11 @@
             font-size: 24px;
         }
 
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+
         .btn-add {
             background: #1b5e20;
             color: white;
@@ -56,6 +62,49 @@
         .btn-add:hover {
             background: #2e7d32;
             transform: translateY(-2px);
+        }
+
+        .btn-refresh {
+            background: #f0fdf4;
+            border: 1px solid #1b5e20;
+            color: #1b5e20;
+            padding: 10px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .btn-refresh:hover {
+            background: #1b5e20;
+            color: white;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 12px 20px;
+            flex: 1;
+            min-width: 100px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1b5e20;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #64748b;
         }
 
         .filter-bar {
@@ -76,13 +125,20 @@
             border-radius: 40px;
             font-size: 14px;
             background: white;
+            min-width: 180px;
+        }
+
+        .filter-bar input:focus,
+        .filter-bar select:focus {
+            outline: none;
+            border-color: #1b5e20;
         }
 
         .table-container {
             background: white;
             border-radius: 20px;
             overflow-x: auto;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
         table {
@@ -91,7 +147,7 @@
         }
 
         th, td {
-            padding: 12px 15px;
+            padding: 14px 16px;
             text-align: left;
             border-bottom: 1px solid #e2e8f0;
         }
@@ -100,6 +156,11 @@
             background: #f8fafc;
             font-weight: 600;
             color: #1e293b;
+            font-size: 13px;
+        }
+
+        tr {
+            transition: background 0.2s;
         }
 
         tr:hover {
@@ -115,10 +176,12 @@
             cursor: pointer;
             margin-right: 5px;
             font-size: 12px;
+            transition: 0.2s;
         }
 
         .btn-edit:hover {
             background: #2563eb;
+            transform: translateY(-1px);
         }
 
         .btn-delete {
@@ -129,14 +192,17 @@
             border-radius: 20px;
             cursor: pointer;
             font-size: 12px;
+            transition: 0.2s;
         }
 
         .btn-delete:hover {
             background: #dc2626;
+            transform: translateY(-1px);
         }
 
         .rating {
             color: #f59e0b;
+            font-weight: 500;
         }
 
         .modal {
@@ -155,8 +221,8 @@
         .modal-content {
             background: white;
             border-radius: 24px;
-            padding: 24px;
-            max-width: 500px;
+            padding: 28px;
+            max-width: 550px;
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
@@ -175,46 +241,104 @@
 
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
+            margin-bottom: 6px;
+            font-weight: 600;
             font-size: 13px;
             color: #334155;
+        }
+
+        .form-group label .required {
+            color: #ef4444;
         }
 
         .form-group input,
         .form-group select {
             width: 100%;
-            padding: 10px;
+            padding: 10px 12px;
             border: 1px solid #e2e8f0;
             border-radius: 12px;
             font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #1b5e20;
+            box-shadow: 0 0 0 3px rgba(27, 94, 32, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
         }
 
         .btn-primary {
             background: #1b5e20;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 30px;
             cursor: pointer;
             width: 100%;
             font-weight: 600;
+            transition: 0.2s;
         }
 
-        .btn-primary:hover {
+        .btn-primary:hover:not(:disabled) {
             background: #2e7d32;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #475569;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px;
+            padding: 50px;
             color: #94a3b8;
         }
 
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
         @media (max-width: 768px) {
-            body { margin-left: 0; }
-            th, td { padding: 8px 10px; font-size: 12px; }
-            .btn-edit, .btn-delete { padding: 4px 10px; font-size: 10px; }
+            body { margin-left: 0; padding: 70px 15px 15px 15px; }
+            th, td { padding: 10px 8px; font-size: 12px; }
+            .btn-edit, .btn-delete { padding: 4px 10px; font-size: 11px; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+            .btn-group { flex-direction: column; width: 100%; }
+            .btn-group button { width: 100%; }
         }
     </style>
 </head>
@@ -225,11 +349,21 @@
 <div class="main-content">
     <div class="header">
         <h1>🏭 GESTION DES FOURNISSEURS</h1>
-        <button class="btn-add" onclick="openAddModal()">➕ Ajouter un fournisseur</button>
+        <div class="btn-group">
+            <button class="btn-refresh" onclick="refreshAllData()">🔄 Rafraîchir</button>
+            <button class="btn-add" onclick="openAddModal()">➕ Ajouter un fournisseur</button>
+        </div>
+    </div>
+
+    <div class="stats-row" id="statsRow">
+        <div class="stat-card"><div class="stat-number" id="statTotal">-</div><div class="stat-label">Total fournisseurs</div></div>
+        <div class="stat-card"><div class="stat-number" id="statEquipement">-</div><div class="stat-label">🖥️ Équipements</div></div>
+        <div class="stat-card"><div class="stat-number" id="statPieces">-</div><div class="stat-label">🔧 Pièces</div></div>
+        <div class="stat-card"><div class="stat-number" id="statMaintenance">-</div><div class="stat-label">🛠️ Maintenance</div></div>
     </div>
 
     <div class="filter-bar">
-        <input type="text" id="search" placeholder="🔍 Rechercher par nom, contact..." onkeyup="loadFournisseurs()">
+        <input type="text" id="searchInput" placeholder="🔍 Rechercher par nom, contact, email..." onkeyup="debouncedSearch()">
         <select id="typeFilter" onchange="loadFournisseurs()">
             <option value="">📋 Tous types</option>
             <option value="EQUIPEMENT">🖥️ Équipements</option>
@@ -242,105 +376,255 @@
     <div class="table-container">
         <table>
             <thead>
-                <tr><th>Nom</th><th>Contact</th><th>Téléphone</th><th>Email</th><th>Type</th><th>Note</th><th>Délai</th><th>Actions</th></tr>
+                <tr>
+                    <th>Nom</th>
+                    <th>Contact</th>
+                    <th>Téléphone</th>
+                    <th>Email</th>
+                    <th>Type</th>
+                    <th>Note</th>
+                    <th>Délai</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
-            <tbody id="tableBody"><tr><td colspan="8" class="empty-state">Chargement...</td</tr></tbody>
+            <tbody id="tableBody">
+                <tr><td colspan="8" class="empty-state">⏳ Chargement......</td</tr>
+            </tbody>
         </table>
     </div>
 </div>
 
-<div id="modal" class="modal">
+<div id="modal" class="modal" onclick="if(event.target===this) closeModal()">
     <div class="modal-content">
-        <h3 id="modalTitle">Ajouter un fournisseur</h3>
-        <div class="form-group"><label>Nom *</label><input type="text" id="nom"></div>
-        <div class="form-group"><label>Contact</label><input type="text" id="contact"></div>
-        <div class="form-group"><label>Téléphone</label><input type="tel" id="telephone"></div>
-        <div class="form-group"><label>Email</label><input type="email" id="email"></div>
-        <div class="form-group"><label>Adresse</label><input type="text" id="adresse"></div>
-        <div class="form-group"><label>Site web</label><input type="text" id="siteWeb"></div>
-        <div class="form-group"><label>Type</label><select id="type"><option value="EQUIPEMENT">Équipements</option><option value="PIECES">Pièces</option><option value="MAINTENANCE">Maintenance</option></select></div>
-        <div class="form-group"><label>Note (0-5)</label><input type="number" id="note" step="0.1" max="5"></div>
-        <div class="form-group"><label>Délai moyen (jours)</label><input type="number" id="delaiMoyen"></div>
-        <button class="btn-primary" onclick="saveFournisseur()">💾 Enregistrer</button>
-        <button onclick="closeModal()" style="margin-top:10px; background:#e2e8f0; border:none; padding:10px; border-radius:30px;">Annuler</button>
+        <h3 id="modalTitle">➕ Ajouter un fournisseur</h3>
+        <div class="form-group">
+            <label>Nom <span class="required">*</span></label>
+            <input type="text" id="nom" placeholder="Ex: Siemens Healthineers">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Contact</label>
+                <input type="text" id="contact" placeholder="Nom du contact">
+            </div>
+            <div class="form-group">
+                <label>Téléphone</label>
+                <input type="tel" id="telephone" placeholder="+229 XX XX XX XX">
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="contact@fournisseur.com">
+            </div>
+            <div class="form-group">
+                <label>Site web</label>
+                <input type="text" id="siteWeb" placeholder="www.fournisseur.com">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Adresse</label>
+            <input type="text" id="adresse" placeholder="Adresse complète">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Type</label>
+                <select id="type">
+                    <option value="EQUIPEMENT">🖥️ Équipements</option>
+                    <option value="PIECES">🔧 Pièces détachées</option>
+                    <option value="MAINTENANCE">🛠️ Maintenance</option>
+                    <option value="SERVICES">📞 Services</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Note (0-5)</label>
+                <input type="number" id="note" step="0.1" min="0" max="5" placeholder="Ex: 4.5">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>Délai moyen (jours)</label>
+            <input type="number" id="delaiMoyen" placeholder="Ex: 5">
+        </div>
+        <button class="btn-primary" id="saveBtn" onclick="saveFournisseur()">💾 Enregistrer</button>
+        <button class="btn-secondary" onclick="closeModal()">Annuler</button>
     </div>
 </div>
 
 <script>
-   const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
+    const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
     let currentEditId = null;
+    let searchTimeout = null;
 
     function getToken() { return localStorage.getItem('token'); }
+    
+    // Auth check
     if (!getToken()) window.location.href = '/login.html';
+    
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== 'TECHNICIEN') window.location.href = '/soignant/index.html';
 
     function loadSidebar() {
         fetch('/components/sidebar.html')
             .then(response => response.text())
-            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+                const links = document.querySelectorAll('.sidebar-item');
+                links.forEach(link => {
+                    if (link.getAttribute('href') === 'fournisseurs.html') {
+                        link.classList.add('active');
+                    }
+                });
+            })
             .catch(error => console.error('Erreur sidebar:', error));
     }
 
+    function updateStats(fournisseurs) {
+        if (!fournisseurs || !Array.isArray(fournisseurs)) return;
+        
+        const total = fournisseurs.length;
+        const equipement = fournisseurs.filter(f => f.type === 'EQUIPEMENT').length;
+        const pieces = fournisseurs.filter(f => f.type === 'PIECES').length;
+        const maintenance = fournisseurs.filter(f => f.type === 'MAINTENANCE').length;
+        
+        document.getElementById('statTotal').innerText = total;
+        document.getElementById('statEquipement').innerText = equipement;
+        document.getElementById('statPieces').innerText = pieces;
+        document.getElementById('statMaintenance').innerText = maintenance;
+    }
+
     async function loadFournisseurs() {
-        const search = document.getElementById('search').value;
+        const search = document.getElementById('searchInput').value;
         const type = document.getElementById('typeFilter').value;
+        
         let url = `${API_URL}/fournisseurs?search=${encodeURIComponent(search)}`;
         if (type) url += `&type=${type}`;
         
         try {
-            const res = await fetch(url, { headers: { 'Authorization': `Bearer ${getToken()}` } });
+            const res = await fetch(url, { 
+                headers: { 'Authorization': `Bearer ${getToken()}` } 
+            });
+            
+            if (!res.ok) throw new Error('Erreur chargement');
+            
             const data = await res.json();
-            if (data.length === 0) {
-                document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="empty-state">📭 Aucun fournisseur</td</tr>';
+            let fournisseurs = Array.isArray(data) ? data : (data.fournisseurs || []);
+            
+            updateStats(fournisseurs);
+            
+            if (fournisseurs.length === 0) {
+                document.getElementById('tableBody').innerHTML = 
+                    '<tr><td colspan="8" class="empty-state">📭 Aucun fournisseur trouvé</td></tr>';
                 return;
             }
-            document.getElementById('tableBody').innerHTML = data.map(f => `
+            
+            document.getElementById('tableBody').innerHTML = fournisseurs.map(f => `
                 <tr>
                     <td><strong>${escapeHtml(f.nom)}</strong></td>
                     <td>${escapeHtml(f.contact || '-')}</td>
                     <td>${escapeHtml(f.telephone || '-')}</td>
                     <td>${escapeHtml(f.email || '-')}</td>
-                    <td>${getTypeIcon(f.type)} ${f.type || '-'}</td>
-                    <td class="rating">${f.note ? '⭐'.repeat(Math.floor(f.note)) + ' ' + f.note : '-'}</td
-                    <td>${f.delaiMoyen ? f.delaiMoyen + ' j' : '-'}</td
-                    <td><button class="btn-edit" onclick="editFournisseur(${f.id})">✏️ Modifier</button><button class="btn-delete" onclick="deleteFournisseur(${f.id})">🗑️ Supprimer</button></td
+                    <td>${getTypeIcon(f.type)} ${escapeHtml(f.type || '-')}</td>
+                    <td class="rating">${formatNote(f.note)}</td>
+                    <td>${f.delaiMoyen ? f.delaiMoyen + ' j' : '-'}</td>
+                    <td>
+                        <button class="btn-edit" onclick="editFournisseur(${f.id})">✏️ Modifier</button>
+                        <button class="btn-delete" onclick="deleteFournisseur(${f.id})">🗑️ Supprimer</button>
+                    </td>
                 </tr>
             `).join('');
-        } catch (error) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="empty-state">❌ Erreur</td</tr>'; }
+        } catch (error) { 
+            console.error('Erreur:', error);
+            document.getElementById('tableBody').innerHTML = 
+                '<tr><td colspan="8" class="empty-state">❌ Erreur de chargement</td></tr>';
+        }
     }
 
     function getTypeIcon(type) {
-        const icons = { 'EQUIPEMENT': '🖥️', 'PIECES': '🔧', 'MAINTENANCE': '🛠️', 'SERVICES': '📞' };
+        const icons = { 
+            'EQUIPEMENT': '🖥️', 
+            'PIECES': '🔧', 
+            'MAINTENANCE': '🛠️', 
+            'SERVICES': '📞' 
+        };
         return icons[type] || '📦';
+    }
+
+    function formatNote(note) {
+        if (!note) return '-';
+        const stars = '⭐'.repeat(Math.floor(note));
+        const decimal = note % 1;
+        const halfStar = decimal >= 0.5 ? '½' : '';
+        return `${stars}${halfStar} ${note.toFixed(1)}`;
     }
 
     function escapeHtml(str) {
         if (!str) return '';
-        return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
     }
 
-    function openAddModal() { currentEditId = null; document.getElementById('modalTitle').innerText = '➕ Ajouter un fournisseur'; document.getElementById('modal').style.display = 'flex'; }
-    function closeModal() { document.getElementById('modal').style.display = 'none'; }
+    function debouncedSearch() {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => loadFournisseurs(), 500);
+    }
+
+    function openAddModal() { 
+        currentEditId = null; 
+        document.getElementById('modalTitle').innerText = '➕ Ajouter un fournisseur';
+        document.getElementById('nom').value = '';
+        document.getElementById('contact').value = '';
+        document.getElementById('telephone').value = '';
+        document.getElementById('email').value = '';
+        document.getElementById('adresse').value = '';
+        document.getElementById('siteWeb').value = '';
+        document.getElementById('type').value = 'EQUIPEMENT';
+        document.getElementById('note').value = '';
+        document.getElementById('delaiMoyen').value = '';
+        document.getElementById('modal').style.display = 'flex'; 
+    }
+    
+    function closeModal() { 
+        document.getElementById('modal').style.display = 'none'; 
+    }
 
     async function editFournisseur(id) {
-        const res = await fetch(`${API_URL}/fournisseurs/${id}`, { headers: { 'Authorization': `Bearer ${getToken()}` } });
-        const f = await res.json();
-        currentEditId = id;
-        document.getElementById('modalTitle').innerText = '✏️ Modifier fournisseur';
-        document.getElementById('nom').value = f.nom;
-        document.getElementById('contact').value = f.contact || '';
-        document.getElementById('telephone').value = f.telephone || '';
-        document.getElementById('email').value = f.email || '';
-        document.getElementById('adresse').value = f.adresse || '';
-        document.getElementById('siteWeb').value = f.siteWeb || '';
-        document.getElementById('type').value = f.type;
-        document.getElementById('note').value = f.note || '';
-        document.getElementById('delaiMoyen').value = f.delaiMoyen || '';
-        document.getElementById('modal').style.display = 'flex';
+        try {
+            const res = await fetch(`${API_URL}/fournisseurs/${id}`, { 
+                headers: { 'Authorization': `Bearer ${getToken()}` } 
+            });
+            if (!res.ok) throw new Error('Erreur');
+            
+            const f = await res.json();
+            currentEditId = id;
+            document.getElementById('modalTitle').innerText = '✏️ Modifier fournisseur';
+            document.getElementById('nom').value = f.nom || '';
+            document.getElementById('contact').value = f.contact || '';
+            document.getElementById('telephone').value = f.telephone || '';
+            document.getElementById('email').value = f.email || '';
+            document.getElementById('adresse').value = f.adresse || '';
+            document.getElementById('siteWeb').value = f.siteWeb || '';
+            document.getElementById('type').value = f.type || 'EQUIPEMENT';
+            document.getElementById('note').value = f.note || '';
+            document.getElementById('delaiMoyen').value = f.delaiMoyen || '';
+            document.getElementById('modal').style.display = 'flex';
+        } catch (error) {
+            alert('Erreur lors du chargement du fournisseur');
+        }
     }
 
     async function saveFournisseur() {
+        const nom = document.getElementById('nom').value.trim();
+        if (!nom) {
+            alert('Veuillez saisir le nom du fournisseur');
+            document.getElementById('nom').focus();
+            return;
+        }
+        
         const data = {
-            nom: document.getElementById('nom').value,
+            nom: nom,
             contact: document.getElementById('contact').value,
             telephone: document.getElementById('telephone').value,
             email: document.getElementById('email').value,
@@ -350,18 +634,63 @@
             note: parseFloat(document.getElementById('note').value) || null,
             delaiMoyen: parseInt(document.getElementById('delaiMoyen').value) || null
         };
+        
         const url = currentEditId ? `${API_URL}/fournisseurs/${currentEditId}` : `${API_URL}/fournisseurs`;
         const method = currentEditId ? 'PUT' : 'POST';
-        const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` }, body: JSON.stringify(data) });
-        if (res.ok) { alert(currentEditId ? '✅ Fournisseur modifié' : '✅ Fournisseur ajouté'); closeModal(); loadFournisseurs(); }
-        else alert('❌ Erreur');
+        
+        const saveBtn = document.getElementById('saveBtn');
+        const originalText = saveBtn.innerHTML;
+        saveBtn.innerHTML = '<span class="loader"></span> Enregistrement...';
+        saveBtn.disabled = true;
+        
+        try {
+            const res = await fetch(url, { 
+                method, 
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${getToken()}` 
+                }, 
+                body: JSON.stringify(data) 
+            });
+            
+            if (res.ok) { 
+                alert(currentEditId ? '✅ Fournisseur modifié avec succès' : '✅ Fournisseur ajouté avec succès'); 
+                closeModal(); 
+                loadFournisseurs(); 
+            } else {
+                const error = await res.json();
+                alert('❌ Erreur: ' + (error.message || 'Une erreur est survenue'));
+            }
+        } catch (error) {
+            alert('❌ Erreur de connexion au serveur');
+        } finally {
+            saveBtn.innerHTML = originalText;
+            saveBtn.disabled = false;
+        }
     }
 
     async function deleteFournisseur(id) {
-        if (confirm('Supprimer ce fournisseur ?')) {
-            await fetch(`${API_URL}/fournisseurs/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${getToken()}` } });
-            loadFournisseurs();
+        if (confirm('⚠️ Supprimer définitivement ce fournisseur ? Cette action est irréversible.')) {
+            try {
+                const res = await fetch(`${API_URL}/fournisseurs/${id}`, { 
+                    method: 'DELETE', 
+                    headers: { 'Authorization': `Bearer ${getToken()}` } 
+                });
+                
+                if (res.ok) {
+                    alert('✅ Fournisseur supprimé');
+                    loadFournisseurs();
+                } else {
+                    alert('❌ Erreur lors de la suppression');
+                }
+            } catch (error) {
+                alert('❌ Erreur de connexion');
+            }
         }
+    }
+
+    function refreshAllData() {
+        loadFournisseurs();
     }
 
     loadSidebar();
