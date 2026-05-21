@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="theme-color" content="#1b5e20">
     <title>Maintenance préventive - GMAO Sakété</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -18,92 +19,217 @@
         .main-content { max-width: 800px; margin: 0 auto; }
 
         .back-link {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             margin-bottom: 20px;
-            color: #3b82f6;
+            color: #1b5e20;
             text-decoration: none;
             font-size: 14px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+
+        .back-link:hover {
+            transform: translateX(-3px);
+            color: #2e7d32;
         }
 
         .card {
             background: white;
-            border-radius: 20px;
-            padding: 24px;
+            border-radius: 24px;
+            padding: 28px;
             margin-bottom: 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
         }
 
         .title {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             color: #1b5e20;
-            border-left: 4px solid #1b5e20;
-            padding-left: 12px;
+            border-left: 4px solid #ffd600;
+            padding-left: 15px;
         }
 
         .info-row {
             display: flex;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
+            margin-bottom: 14px;
+            padding-bottom: 10px;
             border-bottom: 1px solid #e2e8f0;
             flex-wrap: wrap;
             gap: 8px;
         }
 
-        .label { width: 140px; color: #64748b; font-size: 13px; }
-        .value { flex: 1; font-weight: 500; font-size: 14px; }
+        .label { 
+            width: 150px; 
+            color: #64748b; 
+            font-size: 13px; 
+            font-weight: 500;
+        }
+        
+        .value { 
+            flex: 1; 
+            font-weight: 500; 
+            font-size: 14px; 
+            color: #1e293b;
+        }
 
-        .badge-warning { background: #fef3c7; color: #d97706; padding: 4px 12px; border-radius: 20px; display: inline-block; font-size: 12px; }
-        .badge-danger { background: #fee2e2; color: #dc2626; padding: 4px 12px; border-radius: 20px; display: inline-block; font-size: 12px; }
-        .badge-success { background: #dcfce7; color: #166534; padding: 4px 12px; border-radius: 20px; display: inline-block; font-size: 12px; }
+        .badge-warning { 
+            background: #fef3c7; 
+            color: #d97706; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            display: inline-block; 
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-danger { 
+            background: #fee2e2; 
+            color: #dc2626; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            display: inline-block; 
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .badge-success { 
+            background: #dcfce7; 
+            color: #166534; 
+            padding: 4px 12px; 
+            border-radius: 20px; 
+            display: inline-block; 
+            font-size: 12px;
+            font-weight: 500;
+        }
 
         .checklist-item {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 10px;
+            padding: 12px;
             background: #f8fafc;
-            border-radius: 12px;
+            border-radius: 14px;
             margin-bottom: 8px;
             cursor: pointer;
+            transition: background 0.2s;
         }
-        .checklist-item input { width: 20px; height: 20px; cursor: pointer; }
-        .checklist-item label { flex: 1; cursor: pointer; font-size: 14px; }
-        .checklist-item.completed { background: #dcfce7; text-decoration: line-through; color: #166534; }
+        
+        .checklist-item:hover {
+            background: #f1f5f9;
+        }
+        
+        .checklist-item input { 
+            width: 20px; 
+            height: 20px; 
+            cursor: pointer; 
+            accent-color: #1b5e20;
+        }
+        
+        .checklist-item label { 
+            flex: 1; 
+            cursor: pointer; 
+            font-size: 14px; 
+            font-weight: 500;
+        }
+        
+        .checklist-item.completed { 
+            background: #dcfce7; 
+            text-decoration: line-through; 
+            color: #166534; 
+        }
 
         .btn {
             padding: 12px 24px;
             border: none;
             border-radius: 40px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             transition: 0.2s;
         }
+        
         .btn-success { background: #1b5e20; color: white; }
         .btn-success:hover { background: #2e7d32; transform: translateY(-2px); }
+        .btn-success:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+        
         .btn-secondary { background: #e2e8f0; color: #475569; }
+        .btn-secondary:hover { background: #cbd5e1; transform: translateY(-2px); }
 
         textarea, input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            padding: 12px 14px;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
             font-size: 14px;
+            font-family: inherit;
+            transition: 0.2s;
         }
-        textarea:focus, input:focus { outline: none; border-color: #1b5e20; }
+        
+        textarea:focus, input:focus { 
+            outline: none; 
+            border-color: #1b5e20; 
+            box-shadow: 0 0 0 3px rgba(27,94,32,0.1);
+        }
 
-        .form-group { margin-bottom: 16px; }
-        .form-group label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 5px; color: #334155; }
-        .button-group { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
-        .warning-box { background: #fef3c7; border-left: 4px solid #f97316; padding: 12px; border-radius: 12px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { 
+            display: block; 
+            font-size: 13px; 
+            font-weight: 600; 
+            margin-bottom: 6px; 
+            color: #334155; 
+        }
+
+        .button-group { 
+            display: flex; 
+            gap: 12px; 
+            margin-top: 25px; 
+            flex-wrap: wrap; 
+        }
+
+        .warning-box { 
+            background: #fef3c7; 
+            border-left: 4px solid #f59e0b; 
+            padding: 15px; 
+            border-radius: 14px; 
+            margin-bottom: 20px;
+        }
+        
+        .warning-box p { 
+            margin-bottom: 5px; 
+            font-size: 13px; 
+            color: #92400e;
+        }
+
+        .loader {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid white;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.6s linear infinite;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 768px) {
-            body { margin-left: 0; }
+            body { margin-left: 0; padding: 70px 15px 15px 15px; }
+            .card { padding: 20px; }
             .label { width: 100%; margin-bottom: 5px; }
-            .info-row { flex-direction: column; }
+            .info-row { flex-direction: column; gap: 4px; }
             .btn { width: 100%; }
+            .button-group { flex-direction: column; }
         }
     </style>
 </head>
@@ -112,114 +238,300 @@
 <div id="sidebar-container"></div>
 
 <div class="main-content">
-    <a href="maintenances.html" class="back-link">← Retour aux maintenances</a>
+    <a href="maintenances.html" class="back-link">
+        ← Retour aux maintenances
+    </a>
     <div id="content">
-        <div class="card"><div class="title">Chargement...</div></div>
+        <div class="card">
+            <div class="title">⏳ Chargement...</div>
+        </div>
     </div>
 </div>
 
 <script>
     const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
-    const id = new URLSearchParams(location.search).get('id');
+    const preventiveId = new URLSearchParams(location.search).get('id');
 
     function getToken() { return localStorage.getItem('token'); }
+    
+    // Auth check
     if (!getToken()) window.location.href = '/login.html';
-    if (!id) window.location.href = 'maintenances.html';
+    
+    const userRole = localStorage.getItem('userRole');
+    if (userRole !== 'TECHNICIEN') window.location.href = '/soignant/index.html';
+    
+    if (!preventiveId) window.location.href = 'maintenances.html';
 
     function loadSidebar() {
         fetch('/components/sidebar.html')
             .then(response => response.text())
-            .then(data => document.getElementById('sidebar-container').innerHTML = data)
+            .then(data => {
+                document.getElementById('sidebar-container').innerHTML = data;
+                const links = document.querySelectorAll('.sidebar-item');
+                links.forEach(link => {
+                    if (link.getAttribute('href') === 'maintenances.html') {
+                        link.classList.add('active');
+                    }
+                });
+            })
             .catch(error => console.error('Erreur sidebar:', error));
+    }
+
+    function formatDate(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '-';
+            return date.toLocaleDateString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            });
+        } catch { return '-'; }
+    }
+
+    function formatDateTime(dateStr) {
+        if (!dateStr) return '-';
+        try {
+            const date = new Date(dateStr);
+            if (isNaN(date.getTime())) return '-';
+            return date.toLocaleString('fr-FR', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        } catch { return '-'; }
+    }
+
+    function escapeHtml(str) { 
+        if (!str) return ''; 
+        return String(str).replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }); 
+    }
+
+    function saveProgress() { 
+        const rapport = document.getElementById('rapport')?.value || ''; 
+        const duree = document.getElementById('duree')?.value || ''; 
+        const checkboxes = document.querySelectorAll('.checklist-item input'); 
+        const checklist = {}; 
+        checkboxes.forEach((cb, i) => checklist[`etape_${i+1}`] = cb.checked); 
+        localStorage.setItem(`preventive_${preventiveId}`, JSON.stringify({ rapport, duree, checklist })); 
+    }
+
+    function toggleChecklistItem(index) { 
+        const cb = document.getElementById(`check_${index}`); 
+        const item = document.getElementById(`checklist-item-${index}`); 
+        if (cb.checked) item.classList.add('completed'); 
+        else item.classList.remove('completed'); 
+        saveProgress(); 
     }
 
     async function load() {
         try {
-            const res = await fetch(`${API_URL}/preventif/${id}`, {
+            const res = await fetch(`${API_URL}/preventif/${preventiveId}`, {
                 headers: { 'Authorization': `Bearer ${getToken()}` }
             });
             if (!res.ok) throw new Error('Maintenance non trouvée');
+            
             const p = await res.json();
             const isRetard = new Date(p.prochaineRealisation) < new Date();
             const isRealise = p.statut === 'REALISE';
             
             let checklistHtml = '';
+            let checklistVerifications = [];
+            
             if (p.checklist) {
                 let checklist = typeof p.checklist === 'string' ? JSON.parse(p.checklist) : p.checklist;
-                const verifications = checklist.verifications || [];
-                if (verifications.length > 0) {
-                    checklistHtml = `<h4 style="margin:20px 0 15px 0;">📋 Liste des vérifications :</h4>`;
-                    verifications.forEach((item, i) => {
-                        checklistHtml += `<div class="checklist-item" id="checklist-item-${i}"><input type="checkbox" id="check_${i}" onchange="toggleChecklistItem(${i})"><label for="check_${i}">${escapeHtml(item)}</label></div>`;
+                checklistVerifications = checklist.verifications || [];
+                if (checklistVerifications.length > 0) {
+                    checklistHtml = `<h4 style="margin:20px 0 15px 0; color:#1b5e20;">📋 Liste des vérifications :</h4>`;
+                    checklistVerifications.forEach((item, i) => {
+                        checklistHtml += `
+                            <div class="checklist-item" id="checklist-item-${i}">
+                                <input type="checkbox" id="check_${i}" onchange="toggleChecklistItem(${i})">
+                                <label for="check_${i}">${escapeHtml(item)}</label>
+                            </div>
+                        `;
                     });
                 }
             }
             
             document.getElementById('content').innerHTML = `
                 <div class="card">
-                    <div class="title">📅 Maintenance ${p.type}</div>
-                    ${isRetard && !isRealise ? `<div class="warning-box"><p>⚠️ <strong>Attention :</strong> Cette maintenance est en retard !</p><p>Date prévue : ${new Date(p.prochaineRealisation).toLocaleDateString('fr-FR')}</p></div>` : ''}
-                    <div class="info-row"><div class="label">Équipement</div><div class="value"><strong>${escapeHtml(p.equipement?.nom)}</strong> (${escapeHtml(p.equipement?.codeInventaire)})</div></div>
-                    <div class="info-row"><div class="label">Service</div><div class="value">${escapeHtml(p.equipement?.service)}</div></div>
-                    <div class="info-row"><div class="label">Périodicité</div><div class="value">Tous les ${p.periodicite} jours</div></div>
-                    <div class="info-row"><div class="label">Dernière réalisation</div><div class="value">${p.derniereRealisation ? new Date(p.derniereRealisation).toLocaleDateString('fr-FR') : '<span class="badge-warning">Jamais</span>'}</div></div>
-                    <div class="info-row"><div class="label">Date prévue</div><div class="value"><strong class="${isRetard && !isRealise ? 'badge-danger' : ''}">${new Date(p.prochaineRealisation).toLocaleDateString('fr-FR')}</strong></div></div>
-                    ${p.instructions ? `<div class="info-row"><div class="label">Instructions</div><div class="value">${escapeHtml(p.instructions)}</div></div>` : ''}
+                    <div class="title">📅 Maintenance ${escapeHtml(p.type || 'Préventive')}</div>
+                    
+                    ${isRetard && !isRealise ? `
+                        <div class="warning-box">
+                            <p><strong>⚠️ Attention :</strong> Cette maintenance est en retard !</p>
+                            <p>Date prévue : ${formatDate(p.prochaineRealisation)}</p>
+                        </div>
+                    ` : ''}
+                    
+                    <div class="info-row">
+                        <div class="label">Équipement</div>
+                        <div class="value"><strong>${escapeHtml(p.equipement?.nom)}</strong> (${escapeHtml(p.equipement?.codeInventaire)})</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="label">Service</div>
+                        <div class="value">${escapeHtml(p.equipement?.service)}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="label">Périodicité</div>
+                        <div class="value">Tous les ${p.periodicite} jours</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="label">Dernière réalisation</div>
+                        <div class="value">${p.derniereRealisation ? formatDate(p.derniereRealisation) : '<span class="badge-warning">Jamais</span>'}</div>
+                    </div>
+                    <div class="info-row">
+                        <div class="label">Date prévue</div>
+                        <div class="value"><strong class="${isRetard && !isRealise ? 'badge-danger' : ''}">${formatDate(p.prochaineRealisation)}</strong></div>
+                    </div>
+                    ${p.instructions ? `
+                    <div class="info-row">
+                        <div class="label">Instructions</div>
+                        <div class="value">${escapeHtml(p.instructions)}</div>
+                    </div>
+                    ` : ''}
                     
                     ${!isRealise ? `
                         ${checklistHtml}
-                        <div class="form-group"><label>📝 Rapport d'intervention</label><textarea id="rapport" rows="4" placeholder="Décrivez les actions réalisées..."></textarea></div>
-                        <div class="form-group"><label>⏱️ Durée réelle (minutes)</label><input type="number" id="duree" placeholder="30"></div>
+                        
+                        <div class="form-group">
+                            <label>📝 Rapport d'intervention <span class="required">*</span></label>
+                            <textarea id="rapport" rows="4" placeholder="Décrivez les actions réalisées..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>⏱️ Durée réelle (minutes)</label>
+                            <input type="number" id="duree" placeholder="Ex: 30" min="1">
+                        </div>
+                        
                         <div class="button-group">
-                            <button class="btn btn-success" onclick="realiserMaintenance()">✅ Réaliser la maintenance</button>
+                            <button class="btn btn-success" id="realiserBtn" onclick="realiserMaintenance()">✅ Réaliser la maintenance</button>
                             <button class="btn btn-secondary" onclick="window.location.href='maintenances.html'">❌ Annuler</button>
                         </div>
                     ` : `
-                        <div class="info-row"><div class="label">Statut</div><div class="value"><span class="badge-success">✅ Réalisée</span></div></div>
-                        <div class="info-row"><div class="label">Date de réalisation</div><div class="value">${p.dateRealisation ? new Date(p.dateRealisation).toLocaleString('fr-FR') : '-'}</div></div>
-                        ${p.rapport ? `<div class="info-row"><div class="label">Rapport</div><div class="value">${escapeHtml(p.rapport)}</div></div>` : ''}
-                        <div class="button-group"><button class="btn btn-secondary" onclick="window.location.href='maintenances.html'">← Retour</button></div>
+                        <div class="info-row">
+                            <div class="label">Statut</div>
+                            <div class="value"><span class="badge-success">✅ Réalisée</span></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="label">Date de réalisation</div>
+                            <div class="value">${formatDateTime(p.dateRealisation)}</div>
+                        </div>
+                        ${p.rapport ? `
+                        <div class="info-row">
+                            <div class="label">Rapport</div>
+                            <div class="value">${escapeHtml(p.rapport)}</div>
+                        </div>
+                        ` : ''}
+                        ${p.dureeReelle ? `
+                        <div class="info-row">
+                            <div class="label">Durée réelle</div>
+                            <div class="value">${p.dureeReelle} minutes</div>
+                        </div>
+                        ` : ''}
+                        <div class="button-group">
+                            <button class="btn btn-secondary" onclick="window.location.href='maintenances.html'">← Retour</button>
+                        </div>
                     `}
                 </div>
             `;
             
+            // Restaurer les données sauvegardées
             if (!isRealise) {
-                const savedData = localStorage.getItem(`preventive_${id}`);
+                const savedData = localStorage.getItem(`preventive_${preventiveId}`);
                 if (savedData) {
                     const data = JSON.parse(savedData);
-                    if (data.rapport) document.getElementById('rapport').value = data.rapport;
-                    if (data.duree) document.getElementById('duree').value = data.duree;
+                    if (data.rapport && document.getElementById('rapport')) document.getElementById('rapport').value = data.rapport;
+                    if (data.duree && document.getElementById('duree')) document.getElementById('duree').value = data.duree;
+                    if (data.checklist && checklistVerifications.length > 0) {
+                        Object.keys(data.checklist).forEach((key, idx) => {
+                            const checkbox = document.getElementById(`check_${idx}`);
+                            if (checkbox && data.checklist[key]) {
+                                checkbox.checked = true;
+                                const item = document.getElementById(`checklist-item-${idx}`);
+                                if (item) item.classList.add('completed');
+                            }
+                        });
+                    }
                 }
+                
+                // Sauvegarde automatique
+                const rapportField = document.getElementById('rapport');
+                const dureeField = document.getElementById('duree');
+                if (rapportField) rapportField.addEventListener('input', saveProgress);
+                if (dureeField) dureeField.addEventListener('input', saveProgress);
             }
         } catch (error) {
-            document.getElementById('content').innerHTML = `<div class="card"><div class="title">❌ Erreur</div><p>Impossible de charger</p><a href="maintenances.html" class="btn btn-secondary">Retour</a></div>`;
+            console.error('Erreur:', error);
+            document.getElementById('content').innerHTML = `
+                <div class="card">
+                    <div class="title">❌ Erreur</div>
+                    <p style="color:#64748b; margin-bottom:20px;">Impossible de charger la maintenance préventive.</p>
+                    <button class="btn btn-secondary" onclick="window.location.href='maintenances.html'">← Retour</button>
+                </div>
+            `;
         }
     }
-
-    function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
-    function toggleChecklistItem(index) { const cb = document.getElementById(`check_${index}`); const item = document.getElementById(`checklist-item-${index}`); if (cb.checked) item.classList.add('completed'); else item.classList.remove('completed'); saveProgress(); }
-    function saveProgress() { const rapport = document.getElementById('rapport')?.value || ''; const duree = document.getElementById('duree')?.value || ''; const checkboxes = document.querySelectorAll('.checklist-item input'); const checklist = {}; checkboxes.forEach((cb, i) => checklist[`etape_${i+1}`] = cb.checked); localStorage.setItem(`preventive_${id}`, JSON.stringify({ rapport, duree, checklist })); }
 
     async function realiserMaintenance() {
         const rapport = document.getElementById('rapport').value.trim();
         const duree = document.getElementById('duree').value;
-        if (!rapport && !confirm('Aucun rapport. Continuer ?')) return;
+        
+        if (!rapport) {
+            alert('⚠️ Veuillez saisir un rapport d\'intervention');
+            document.getElementById('rapport').focus();
+            return;
+        }
         
         const checkboxes = document.querySelectorAll('.checklist-item input');
         const checklistEffectuee = {};
         checkboxes.forEach((cb, i) => checklistEffectuee[`etape_${i+1}`] = cb.checked);
         
-        const data = { rapport: rapport || 'Maintenance réalisée', dureeReelle: parseInt(duree) || 30, checklistEffectuee };
+        const data = { 
+            rapport: rapport, 
+            dureeReelle: duree ? parseInt(duree) : null, 
+            checklistEffectuee: checklistEffectuee 
+        };
+        
+        const btn = document.getElementById('realiserBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="loader"></span> Réalisation...';
+        btn.disabled = true;
         
         try {
-            const res = await fetch(`${API_URL}/preventif/${id}/realiser`, {
+            const res = await fetch(`${API_URL}/preventif/${preventiveId}/realiser`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${getToken()}` },
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'Authorization': `Bearer ${getToken()}` 
+                },
                 body: JSON.stringify(data)
             });
-            if (res.ok) { localStorage.removeItem(`preventive_${id}`); alert('✅ Maintenance réalisée'); window.location.href = 'maintenances.html'; }
-            else { const error = await res.json(); alert('❌ Erreur: ' + error.message); }
-        } catch (error) { alert('❌ Erreur de connexion'); }
+            
+            if (res.ok) { 
+                localStorage.removeItem(`preventive_${preventiveId}`); 
+                alert('✅ Maintenance réalisée avec succès'); 
+                window.location.href = 'maintenances.html'; 
+            } else {
+                const error = await res.json(); 
+                alert('❌ Erreur: ' + (error.message || 'Réalisation impossible')); 
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        } catch (error) { 
+            alert('❌ Erreur de connexion');
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
     }
 
     loadSidebar();
