@@ -18,7 +18,7 @@
 
         .main-content { display: flex; flex-direction: column; height: 100vh; }
 
-        /* HEADER */
+        /* ── HEADER ── */
         .header {
             background: #1b5e20;
             color: white;
@@ -30,7 +30,8 @@
             top: 0;
             z-index: 100;
         }
-        .header-title { flex: 1; font-size: 18px; font-weight: bold; }
+        .header-info { flex: 1; }
+        .header-title    { font-size: 18px; font-weight: bold; }
         .header-subtitle { font-size: 12px; opacity: 0.8; }
         .scan-btn {
             background: #ffd600;
@@ -40,14 +41,14 @@
             border-radius: 25px;
             cursor: pointer;
             font-size: 12px;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 5px;
-            font-weight: bold;
         }
         .scan-btn:hover { background: #ffeb3b; transform: translateY(-2px); }
 
-        /* CONTEXT ÉQUIPEMENT */
+        /* ── ÉQUIPEMENT ── */
         .equipment-context {
             background: white;
             padding: 12px 16px;
@@ -57,11 +58,12 @@
             align-items: center;
             gap: 12px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #1b5e20;
         }
-        .equipment-context-icon { font-size: 30px; }
+        .equipment-context-icon { font-size: 28px; }
         .equipment-context-info { flex: 1; }
-        .equipment-context-name { font-weight: bold; font-size: 16px; }
-        .equipment-context-service { font-size: 12px; color: #64748b; }
+        .equipment-context-name    { font-weight: bold; font-size: 15px; }
+        .equipment-context-service { font-size: 12px; color: #64748b; margin-top: 2px; }
         .clear-equipment {
             background: #e2e8f0;
             border: none;
@@ -72,29 +74,31 @@
         }
         .clear-equipment:hover { background: #cbd5e1; }
 
-        /* ACTIONS RAPIDES */
+        /* ── ACTIONS RAPIDES ── */
         .quick-actions {
             display: flex;
             gap: 8px;
-            padding: 12px 16px;
+            padding: 10px 12px;
             background: white;
             overflow-x: auto;
-            border-bottom: 1px solid #e2e8f0;
             margin: 0 12px;
             border-radius: 16px;
+            scrollbar-width: none;
         }
+        .quick-actions::-webkit-scrollbar { display: none; }
         .quick-btn {
             background: #f1f5f9;
-            border: none;
+            border: 1px solid #e2e8f0;
             padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
             white-space: nowrap;
             cursor: pointer;
+            color: #374151;
         }
-        .quick-btn:hover { background: #1b5e20; color: white; }
+        .quick-btn:hover { background: #1b5e20; color: white; border-color: #1b5e20; }
 
-        /* CHAT */
+        /* ── CHAT ── */
         .chat-container {
             flex: 1;
             overflow-y: auto;
@@ -106,11 +110,11 @@
 
         .message {
             display: flex;
-            max-width: 85%;
+            max-width: 88%;
             animation: fadeIn 0.3s ease;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to   { opacity: 1; transform: translateY(0); }
         }
         .message.user { align-self: flex-end; justify-content: flex-end; }
@@ -131,14 +135,65 @@
             background: white;
             color: #1e293b;
             border-bottom-left-radius: 4px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
         }
 
-        /* BOUTONS D'ACTION */
-        .action-buttons { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+        /* ── CARTE DIAGNOSTIC ── */
+        .diag-card {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-left: 4px solid #f59e0b;
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 10px;
+        }
+        .diag-section-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #92400e;
+            margin: 10px 0 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .diag-step {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 7px 10px;
+            font-size: 13px;
+            margin: 4px 0;
+            border-left: 3px solid #e2e8f0;
+        }
+        .piece-badge {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            margin: 3px 3px 0 0;
+        }
+        .piece-badge.disponible { background: #dcfce7; color: #166534; }
+        .piece-badge.indisponible { background: #fee2e2; color: #991b1b; }
+
+        .urgence-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+        .urgence-badge.CRITIQUE { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+        .urgence-badge.HAUTE    { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+        .urgence-badge.MOYENNE  { background: #fefce8; color: #ca8a04; border: 1px solid #fef08a; }
+        .urgence-badge.BASSE    { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+        /* ── BOUTONS ── */
+        .action-buttons { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
         .btn-primary {
             background: #1b5e20; color: white; border: none;
-            padding: 8px 16px; border-radius: 25px; cursor: pointer; font-size: 12px;
+            padding: 8px 16px; border-radius: 25px; cursor: pointer; font-size: 12px; font-weight: bold;
         }
         .btn-primary:hover { background: #2e7d32; }
         .btn-secondary {
@@ -152,29 +207,18 @@
         }
         .btn-danger:hover { background: #b91c1c; }
 
-        /* FORMULAIRE DE SIGNALEMENT INLINE */
-        .signalement-form {
-            background: #fff7ed;
-            border: 1px solid #fed7aa;
+        /* ── CARTE CONFIRMATION INTERVENTION ── */
+        .confirm-card {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
             border-radius: 12px;
             padding: 14px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
-        .signalement-form textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 13px;
-            resize: vertical;
-            min-height: 70px;
-            font-family: inherit;
-            outline: none;
-        }
-        .signalement-form textarea:focus { border-color: #1b5e20; }
-        .signalement-form-title { font-weight: bold; font-size: 13px; margin-bottom: 8px; color: #92400e; }
+        .confirm-card-title  { font-weight: bold; color: #166534; font-size: 14px; margin-bottom: 6px; }
+        .confirm-card-detail { font-size: 13px; color: #374151; margin: 3px 0; }
 
-        /* TYPING */
+        /* ── TYPING ── */
         .typing-dots span {
             display: inline-block;
             width: 7px; height: 7px;
@@ -187,10 +231,10 @@
         .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes bounce {
             0%, 80%, 100% { transform: translateY(0); }
-            40%           { transform: translateY(-6px); }
+            40%            { transform: translateY(-6px); }
         }
 
-        /* INPUT */
+        /* ── INPUT ── */
         .input-area {
             background: white;
             padding: 12px 16px;
@@ -202,7 +246,7 @@
         }
         .input-area input {
             flex: 1;
-            padding: 12px;
+            padding: 12px 16px;
             border: 1px solid #e2e8f0;
             border-radius: 30px;
             outline: none;
@@ -211,8 +255,8 @@
         .input-area input:focus { border-color: #1b5e20; }
         .input-area button {
             background: #1b5e20; color: white; border: none;
-            width: 45px; height: 45px; border-radius: 50%;
-            cursor: pointer; font-size: 18px;
+            width: 46px; height: 46px; border-radius: 50%;
+            cursor: pointer; font-size: 18px; flex-shrink: 0;
         }
         .input-area button:hover { background: #2e7d32; }
         .input-area button:disabled { background: #94a3b8; cursor: not-allowed; }
@@ -230,9 +274,9 @@
 
 <div class="main-content">
     <div class="header">
-        <div>
-            <div class="header-title">🤖 Diagnostic Expert</div>
-            <div class="header-subtitle">Assistant de diagnostic — GMAO Sakété</div>
+        <div class="header-info">
+            <div class="header-title">🔬 Diagnostic Expert</div>
+            <div class="header-subtitle">Assistant technique biomédical — GMAO Sakété</div>
         </div>
         <button class="scan-btn" onclick="openScanner()">📷 Scanner QR</button>
     </div>
@@ -251,24 +295,26 @@
         <button class="quick-btn" onclick="quickSend('alarme pression')">⚠️ Alarme pression</button>
         <button class="quick-btn" onclick="quickSend('écran noir')">🖥️ Écran noir</button>
         <button class="quick-btn" onclick="quickSend('bruit anormal')">🔊 Bruit anormal</button>
-        <button class="quick-btn" onclick="quickSend('image pas claire')">📷 Image floue</button>
+        <button class="quick-btn" onclick="quickSend('image floue')">📷 Image floue</button>
         <button class="quick-btn" onclick="quickSend('satO2 inexacte')">💓 SpO2 inexacte</button>
+        <button class="quick-btn" onclick="quickSend('fuite')">💧 Fuite</button>
         <button class="quick-btn" onclick="quickSend('aide')">❓ Aide</button>
     </div>
 
     <div class="chat-container" id="chatContainer">
         <div class="message bot">
             <div class="message-content">
-                👋 <strong>Bonjour !</strong><br><br>
-                Je suis votre assistant de diagnostic — GMAO Sakété.<br><br>
-                🔍 Scannez un QR code ou décrivez le problème rencontré.
+                👋 <strong>Bonjour Technicien !</strong><br><br>
+                Je suis votre assistant de diagnostic biomédical.<br><br>
+                🔍 Scannez le QR code de l'équipement ou décrivez le symptôme observé.<br><br>
+                💡 <em>Je vous guiderai vers les causes probables et la procédure d'intervention.</em>
             </div>
         </div>
     </div>
 
     <div class="input-area">
         <input type="text" id="messageInput"
-               placeholder="Décrivez le problème..."
+               placeholder="Décrivez le symptôme technique..."
                onkeypress="if(event.key==='Enter') sendMessage()">
         <button id="sendBtn" onclick="sendMessage()">➤</button>
     </div>
@@ -279,18 +325,17 @@
     const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
 
     // ─── ÉTAT ──────────────────────────────────────────────
-    let currentEquipment = null;
+    let currentEquipment  = null;
     let conversationId    = null;
-    let waitingForDetails = false; // true quand on attend la description de panne
-    let pendingEquipmentId = null; // équipement en attente de description
+    let lastDiagData      = null; // Données du dernier diagnostic pour créer l'intervention
 
     // ─── AUTH ──────────────────────────────────────────────
     function getToken() { return localStorage.getItem('token'); }
-    if (!getToken()) window.location.href = '/login.html';
+    if (!getToken()) window.location.href = '/connexion.html';
 
     // ─── SIDEBAR ───────────────────────────────────────────
     function loadSidebar() {
-        fetch('/components/sidebar.html')
+        fetch('/composants/sidebar.html')
             .then(r => r.text())
             .then(html => document.getElementById('sidebar-container').innerHTML = html)
             .catch(() => {});
@@ -306,20 +351,11 @@
         input.value = '';
         setSendDisabled(true);
         addMessage(message, 'user');
-
-        // Si on attendait une description de panne → créer le signalement
-        if (waitingForDetails && pendingEquipmentId) {
-            waitingForDetails = false;
-            await createSignalement(pendingEquipmentId, message);
-            pendingEquipmentId = null;
-            setSendDisabled(false);
-            return;
-        }
-
         showTyping();
 
         try {
-            const response = await fetch(`${API_URL}/chatbot/message`, {
+            // ✅ Route correcte pour le technicien
+            const response = await fetch(`${API_URL}/chatbot/diagnostic`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -336,30 +372,30 @@
 
             if (!response.ok) {
                 const err = await response.json().catch(() => ({}));
-                addMessage(err.reply || '❌ Erreur serveur. Veuillez réessayer.', 'bot');
+                addMessage(err.reply || '❌ Erreur serveur. Réessayez.', 'bot');
                 setSendDisabled(false);
                 return;
             }
 
             const data = await response.json();
-
-            // Mettre à jour l'ID de conversation
             if (data.conversationId) conversationId = data.conversationId;
 
-            // Mettre à jour l'équipement détecté
+            // Équipement détecté automatiquement
             if (data.data?.equipmentId && !currentEquipment) {
                 await loadAndSetEquipment(data.data.equipmentId);
             }
 
             // Gérer les actions
             switch (data.action) {
-                case 'ask_panne_details':
+                case 'show_diagnostic':
+                    lastDiagData = data.data;
+                    addDiagnosticMessage(data.reply, data.data);
+                    break;
+
+                case 'ask_symptom':
                     addMessage(data.reply, 'bot');
-                    // Afficher un formulaire pour la description
                     if (data.data?.equipmentId) {
-                        showSignalementForm(data.data.equipmentId, data.data.equipmentNom);
-                    } else {
-                        waitingForDetails = false;
+                        await loadAndSetEquipment(data.data.equipmentId);
                     }
                     break;
 
@@ -368,94 +404,136 @@
                     setTimeout(() => openScanner(), 1000);
                     break;
 
-                case 'urgence_created':
-                    addMessage(data.reply, 'bot');
-                    addMessage('🚨 Alerte créée et équipe prévenue.', 'bot');
-                    break;
-
                 default:
                     addMessage(data.reply, 'bot');
             }
 
         } catch (error) {
             hideTyping();
-            console.error('Erreur chatbot:', error);
-            addMessage('❌ Connexion impossible. Vérifiez votre connexion et réessayez.', 'bot');
+            console.error('Erreur diagnostic:', error);
+            addMessage('❌ Connexion impossible. Vérifiez votre réseau.', 'bot');
         }
 
         setSendDisabled(false);
     }
 
-    // ─── FORMULAIRE DE SIGNALEMENT INLINE ──────────────────
-    function showSignalementForm(equipmentId, equipmentNom) {
-        pendingEquipmentId = equipmentId;
+    // ─── AFFICHER CARTE DIAGNOSTIC ─────────────────────────
+    function addDiagnosticMessage(text, diagData) {
         const container = document.getElementById('chatContainer');
-
         const div = document.createElement('div');
         div.className = 'message bot';
-        div.id = 'signalementFormMsg';
+
+        // Badge urgence
+        const urgence = diagData?.urgence || 'MOYENNE';
+        const urgenceLabels = {
+            CRITIQUE: '🚨 CRITIQUE',
+            HAUTE:    '⚠️ HAUTE',
+            MOYENNE:  '🟡 MOYENNE',
+            BASSE:    '🔵 BASSE'
+        };
+
+        // Boutons d'action selon disponibilité pièce
+        let actionsHtml = '';
+        if (diagData?.equipmentId) {
+            const pieceBtn = diagData.pieceSuggestion
+                ? `<button class="btn-primary" onclick="creerIntervention('${diagData.pieceSuggestion}')">🛠️ Créer intervention + pièce</button>`
+                : `<button class="btn-primary" onclick="creerIntervention()">🛠️ Créer intervention</button>`;
+
+            actionsHtml = `
+                <div class="action-buttons">
+                    ${pieceBtn}
+                    <button class="btn-secondary" onclick="addMessage('Nouveau diagnostic', \'user\'); sendMessage()">🔄 Autre symptôme</button>
+                </div>`;
+        }
+
+        // Formater le texte (** → <strong>, \n → <br>)
+        const formatted = text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+
         div.innerHTML = `
             <div class="message-content">
-                <div class="signalement-form">
-                    <div class="signalement-form-title">📝 Décrivez le problème sur ${equipmentNom || 'cet équipement'}</div>
-                    <textarea id="panneDescription" placeholder="Ex : L'écran reste noir au démarrage, aucune alarme sonore..."></textarea>
-                    <div class="action-buttons" style="margin-top:8px;">
-                        <button class="btn-primary" onclick="submitSignalement(${equipmentId})">📨 Signaler</button>
-                        <button class="btn-secondary" onclick="cancelSignalement()">Annuler</button>
-                    </div>
+                <span class="urgence-badge ${urgence}">${urgenceLabels[urgence] || urgence}</span>
+                <div class="diag-card">
+                    ${formatted}
                 </div>
+                ${actionsHtml}
             </div>`;
+
         container.appendChild(div);
         container.scrollTop = container.scrollHeight;
-        document.getElementById('panneDescription').focus();
     }
 
-    function submitSignalement(equipmentId) {
-        const desc = document.getElementById('panneDescription')?.value?.trim();
-        if (!desc) {
-            alert('Veuillez décrire le problème.');
+    // ─── CRÉER INTERVENTION ────────────────────────────────
+    async function creerIntervention(pieceSuggestion = null) {
+        if (!currentEquipment && !lastDiagData?.equipmentId) {
+            addMessage('❌ Aucun équipement sélectionné.', 'bot');
             return;
         }
-        // Supprimer le formulaire
-        document.getElementById('signalementFormMsg')?.remove();
-        pendingEquipmentId = null;
-        waitingForDetails = false;
-        createSignalement(equipmentId, desc);
-    }
 
-    function cancelSignalement() {
-        document.getElementById('signalementFormMsg')?.remove();
-        pendingEquipmentId = null;
-        waitingForDetails = false;
-        addMessage('❎ Signalement annulé.', 'bot');
-    }
-
-    // ─── CRÉER UN SIGNALEMENT ──────────────────────────────
-    async function createSignalement(equipmentId, description) {
+        const equipmentId = currentEquipment?.id || lastDiagData?.equipmentId;
+        setSendDisabled(true);
         showTyping();
+
         try {
-            const response = await fetch(`${API_URL}/chatbot/signaler`, {
+            // ✅ Route correcte pour créer une intervention
+            const response = await fetch(`${API_URL}/chatbot/intervention`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${getToken()}`
                 },
-                body: JSON.stringify({ equipmentId, description, conversationId })
+                body: JSON.stringify({
+                    equipmentId,
+                    diagnostic: lastDiagData ? `Diagnostic chatbot — Urgence: ${lastDiagData.urgence}` : 'Intervention manuelle',
+                    pieceSuggestion,
+                    pieceId: lastDiagData?.pieceId || null,
+                    conversationId
+                })
             });
 
             hideTyping();
             const data = await response.json();
 
             if (data.success) {
-                addMessage(data.message, 'bot');
-                addMessage(`📋 N° Signalement : **#${data.signalementId}** | Intervention **#${data.interventionId}** créée.`, 'bot');
+                showConfirmationIntervention(data);
             } else {
-                addMessage(data.message || '❌ Erreur lors du signalement.', 'bot');
+                addMessage(data.message || '❌ Erreur lors de la création.', 'bot');
             }
+
         } catch {
             hideTyping();
-            addMessage('❌ Erreur réseau. Contactez le service maintenance.', 'bot');
+            addMessage('❌ Erreur réseau. Réessayez.', 'bot');
         }
+
+        setSendDisabled(false);
+    }
+
+    // ─── CARTE CONFIRMATION INTERVENTION ──────────────────
+    function showConfirmationIntervention(data) {
+        const container = document.getElementById('chatContainer');
+        const div = document.createElement('div');
+        div.className = 'message bot';
+        div.innerHTML = `
+            <div class="message-content">
+                <div class="confirm-card">
+                    <div class="confirm-card-title">✅ Intervention créée !</div>
+                    <div class="confirm-card-detail">🔧 N° Intervention : <strong>#${data.interventionId}</strong></div>
+                    <div class="confirm-card-detail" style="font-size:12px; color:#6b7280; margin-top:6px;">
+                        L'intervention a été assignée et est maintenant en cours.
+                    </div>
+                </div>
+                <div class="action-buttons" style="margin-top:10px;">
+                    <button class="btn-primary" onclick="window.location.href='interventions.html'">
+                        📋 Voir les interventions
+                    </button>
+                    <button class="btn-secondary" onclick="nouveauDiagnostic()">
+                        🔄 Nouveau diagnostic
+                    </button>
+                </div>
+            </div>`;
+        container.appendChild(div);
+        container.scrollTop = container.scrollHeight;
     }
 
     // ─── CHARGEMENT ÉQUIPEMENT ─────────────────────────────
@@ -465,25 +543,34 @@
                 headers: { 'Authorization': `Bearer ${getToken()}` }
             });
             if (res.ok) {
-                const equipment = await res.json();
-                currentEquipment = equipment;
-                updateEquipmentContext(equipment);
+                const eq = await res.json();
+                currentEquipment = eq;
+                updateEquipmentContext(eq);
             }
         } catch {}
     }
 
-    function updateEquipmentContext(equipment) {
+    function updateEquipmentContext(eq) {
         document.getElementById('equipmentContext').style.display = 'flex';
         document.getElementById('currentEquipName').textContent =
-            `${equipment.nom}${equipment.marque ? ' (' + equipment.marque + ')' : ''}`;
+            `${eq.nom}${eq.marque ? ' (' + eq.marque + ')' : ''}`;
         document.getElementById('currentEquipService').textContent =
-            `${equipment.service || ''}${equipment.codeInventaire ? ' • ' + equipment.codeInventaire : ''}`;
+            `${eq.service || ''}${eq.codeInventaire ? ' • ' + eq.codeInventaire : ''}`;
     }
 
     function clearEquipment() {
         currentEquipment = null;
+        lastDiagData = null;
         document.getElementById('equipmentContext').style.display = 'none';
-        addMessage('🔄 Équipement désélectionné. Décrivez un nouveau problème.', 'bot');
+        addMessage('🔄 Équipement désélectionné. Décrivez un nouveau symptôme.', 'bot');
+    }
+
+    function nouveauDiagnostic() {
+        currentEquipment = null;
+        lastDiagData = null;
+        conversationId = null;
+        document.getElementById('equipmentContext').style.display = 'none';
+        addMessage('🆕 Nouveau diagnostic. Décrivez le problème ou scannez un QR code.', 'bot');
     }
 
     // ─── UTILITAIRES UI ────────────────────────────────────
@@ -491,7 +578,6 @@
         const container = document.getElementById('chatContainer');
         const div = document.createElement('div');
         div.className = `message ${sender}`;
-        // Convertir **gras** en <strong> et \n en <br>
         const formatted = text
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\n/g, '<br>');
@@ -501,8 +587,8 @@
     }
 
     function showTyping() {
-        const container = document.getElementById('chatContainer');
         if (document.getElementById('typingIndicator')) return;
+        const container = document.getElementById('chatContainer');
         const div = document.createElement('div');
         div.id = 'typingIndicator';
         div.className = 'message bot';
