@@ -1,78 +1,44 @@
-<!-- frontend/components/sidebar.html - Version verte -->
-<div class="sidebar">
+<!-- frontend/composants/sidebar.html - Sidebar technicien -->
+<div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-logo">🏥 <span>GMAO</span> Sakété</div>
+        <div class="sidebar-subtitle">Hôpital de Zone Sakété-Ifangni</div>
     </div>
-    <div class="sidebar-menu">
-        <a href="dashboard.html" class="sidebar-item">
-            <span class="sidebar-icon">📊</span>
-            <span class="sidebar-text">Accueil</span>
-        </a>
-        <a href="inventaire.html" class="sidebar-item">
-            <span class="sidebar-icon">📦</span>
-            <span class="sidebar-text">Inventaire</span>
-        </a>
-        <a href="maintenances.html" class="sidebar-item">
-            <span class="sidebar-icon">🔧</span>
-            <span class="sidebar-text">Maintenance</span>
 
-            <a href="historique-travaux.html" class="sidebar-item">
-    <span class="sidebar-icon">📋</span>
-    <span class="sidebar-text">Historique travaux</span>
-</a>
-        </a>
-        <a href="stock.html" class="sidebar-item">
-            <span class="sidebar-icon">⚙️</span>
-            <span class="sidebar-text">Pièces</span>
-        </a>
-        <a href="gestion-techniciens.html" class="sidebar-item">
-            <span class="sidebar-icon">👥</span>
-            <span class="sidebar-text">Techniciens</span>
-        </a>
-        <a href="planning-garde.html" class="sidebar-item">
-            <span class="sidebar-icon">📅</span>
-            <span class="sidebar-text">Planning garde</span>
-        </a>
-        <a href="codir-rapports.html" class="sidebar-item">
-            <span class="sidebar-icon">📈</span>
-            <span class="sidebar-text">Rapports CoDIR</span>
-        </a>
-        <a href="fournisseurs.html" class="sidebar-item">
-            <span class="sidebar-icon">🏭</span>
-            <span class="sidebar-text">Fournisseurs</span>
-        </a>
-        <a href="utilisateurs.html" class="sidebar-item">
-            <span class="sidebar-icon">👥</span>
-            <span class="sidebar-text">Utilisateurs</span>
-        </a>
-        <a href="alertes.html" class="sidebar-item">
-            <span class="sidebar-icon">⚠️</span>
-            <span class="sidebar-text">Alertes</span>
-        </a>
-        <a href="documents.html" class="sidebar-item">
-            <span class="sidebar-icon">📚</span>
-            <span class="sidebar-text">Documents</span>
-        </a>
-        <a href="parametres.html" class="sidebar-item">
-            <span class="sidebar-icon">⚙️</span>
-            <span class="sidebar-text">Paramètres</span>
-        </a>
-        <a href="profil.html" class="sidebar-item">
-            <span class="sidebar-icon">👤</span>
-            <span class="sidebar-text">Mon profil</span>
-        </a>
-        <a href="diagnostic-bot.html" class="sidebar-item">
-            <span class="sidebar-icon">🤖</span>
-            <span class="sidebar-text">Diagnostic expert</span>
-        </a>
+    <div class="sidebar-menu">
+        <div class="sidebar-section">Principal</div>
+        <a href="dashboard.html"           class="sidebar-item"><span class="sidebar-icon">📊</span><span class="sidebar-text">Accueil</span></a>
+        <a href="inventaire.html"          class="sidebar-item"><span class="sidebar-icon">📦</span><span class="sidebar-text">Inventaire</span></a>
+        <a href="maintenances.html"        class="sidebar-item"><span class="sidebar-icon">🔧</span><span class="sidebar-text">Maintenance</span></a>
+        <!-- ✅ Historique travaux sorti du lien Maintenance -->
+        <a href="historique-travaux.html"  class="sidebar-item sidebar-sub"><span class="sidebar-icon">📋</span><span class="sidebar-text">Historique travaux</span></a>
+        <a href="stock.html"               class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Pièces</span></a>
+
+        <div class="sidebar-section">Équipe</div>
+        <a href="gestion-techniciens.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span class="sidebar-text">Techniciens</span></a>
+        <a href="planning-garde.html"      class="sidebar-item"><span class="sidebar-icon">📅</span><span class="sidebar-text">Planning garde</span></a>
+
+        <div class="sidebar-section">Rapports</div>
+        <a href="codir-rapports.html"      class="sidebar-item"><span class="sidebar-icon">📈</span><span class="sidebar-text">Rapports CoDIR</span></a>
+        <a href="fournisseurs.html"        class="sidebar-item"><span class="sidebar-icon">🏭</span><span class="sidebar-text">Fournisseurs</span></a>
+
+        <div class="sidebar-section">Système</div>
+        <a href="utilisateurs.html"        class="sidebar-item"><span class="sidebar-icon">👤</span><span class="sidebar-text">Utilisateurs</span></a>
+        <a href="alertes.html"             class="sidebar-item"><span class="sidebar-icon">⚠️</span><span class="sidebar-text">Alertes</span></a>
+        <a href="documents.html"           class="sidebar-item"><span class="sidebar-icon">📚</span><span class="sidebar-text">Documents</span></a>
+        <a href="parametres.html"          class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Paramètres</span></a>
+        <a href="profil.html"              class="sidebar-item"><span class="sidebar-icon">👤</span><span class="sidebar-text">Mon profil</span></a>
+
+        <div class="sidebar-section">Outils</div>
+        <!-- ✅ Lien corrigé : chatbot.html -->
+        <a href="chatbot.html"             class="sidebar-item"><span class="sidebar-icon">🤖</span><span class="sidebar-text">Diagnostic expert</span></a>
     </div>
 </div>
 
 <style>
     .sidebar {
         position: fixed;
-        top: 0;
-        left: 0;
+        top: 0; left: 0;
         width: 280px;
         height: 100vh;
         background: #1b5e20;
@@ -82,75 +48,95 @@
         z-index: 1000;
         box-shadow: 2px 0 10px rgba(0,0,0,0.1);
         overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255,255,255,0.2) transparent;
     }
 
     .sidebar-header {
-        padding: 25px 20px;
-        border-bottom: 1px solid rgba(255,255,255,0.2);
+        padding: 22px 20px;
+        border-bottom: 1px solid rgba(255,255,255,0.15);
         background: #2e7d32;
+        flex-shrink: 0;
     }
+    .sidebar-logo { font-size: 20px; font-weight: bold; }
+    .sidebar-logo span { color: #ffd600; }
+    .sidebar-subtitle { font-size: 11px; opacity: 0.6; margin-top: 4px; }
 
-    .sidebar-logo {
-        font-size: 20px;
-        font-weight: bold;
-    }
+    .sidebar-menu { flex: 1; padding: 8px 0 20px; }
 
-    .sidebar-logo span {
-        color: #ffd600;
-    }
-
-    .sidebar-menu {
-        flex: 1;
-        padding: 15px 0;
+    .sidebar-section {
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: rgba(255,255,255,0.35);
+        padding: 14px 20px 4px;
     }
 
     .sidebar-item {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 12px 20px;
-        color: rgba(255,255,255,0.9);
+        padding: 11px 20px;
+        color: rgba(255,255,255,0.85);
         text-decoration: none;
-        transition: all 0.3s;
+        transition: all 0.2s;
         border-left: 3px solid transparent;
+        font-size: 14px;
     }
-
     .sidebar-item:hover {
-        background: #2e7d32;
+        background: rgba(255,255,255,0.1);
         color: white;
         border-left-color: #ffd600;
     }
-
     .sidebar-item.active {
-        background: #2e7d32;
+        background: rgba(255,255,255,0.15);
         color: white;
         border-left-color: #ffd600;
+        font-weight: 600;
     }
 
-    .sidebar-icon { width: 24px; text-align: center; font-size: 18px; }
+    /* Sous-élément légèrement indenté */
+    .sidebar-item.sidebar-sub {
+        padding-left: 36px;
+        font-size: 13px;
+        opacity: 0.85;
+    }
+    .sidebar-item.sidebar-sub::before {
+        content: '└';
+        color: rgba(255,255,255,0.3);
+        font-size: 12px;
+        margin-right: -4px;
+    }
+
+    .sidebar-icon { width: 22px; text-align: center; font-size: 17px; flex-shrink: 0; }
     .sidebar-text { font-size: 14px; font-weight: 500; }
 
     @media (max-width: 768px) {
-        .sidebar { transform: translateX(-100%); width: 260px; }
+        .sidebar {
+            transform: translateX(-100%);
+            width: 260px;
+            transition: transform 0.3s ease;
+        }
         .sidebar.open { transform: translateX(0); }
     }
 </style>
 
 <script>
-    // Marquer l'onglet actif
-    const currentPage = window.location.pathname.split('/').pop().replace('.html', '');
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-        const href = item.getAttribute('href');
-        if (href && href.includes(currentPage)) {
-            item.classList.add('active');
-        } else if (currentPage === '' && href === 'dashboard.html') {
-            item.classList.add('active');
-        }
-    });
+    // ── Marquer l'onglet actif ─────────────────────────────
+    (function() {
+        const page = window.location.pathname.split('/').pop() || 'dashboard.html';
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            const href = item.getAttribute('href') || '';
+            if (href === page || (page === '' && href === 'dashboard.html')) {
+                item.classList.add('active');
+            }
+        });
+    })();
 
-    // Gestion déconnexion globale
+    // ── Déconnexion globale ───────────────────────────────
+    // ✅ Redirige vers /connexion.html
     window.logout = function() {
         localStorage.clear();
-        window.location.href = '/login.html';
+        window.location.replace('/login.html');
     };
 </script>
