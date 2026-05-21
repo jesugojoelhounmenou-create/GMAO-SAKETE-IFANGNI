@@ -1,74 +1,89 @@
 import prisma from '../config/database.js';
 
-// Base de connaissances simple du chatbot
+// ============================================================
+// BASE DE CONNAISSANCES — Arbre de décision par intentions
+// ============================================================
 const intents = {
-  // Signalement de panne
   panne: {
-    keywords: ['panne', 'cassé', 'ne fonctionne', 'marche pas', 'hs', 'hors service', 'problème', 'dysfonctionnement'],
+    keywords: ['panne', 'cassé', 'ne fonctionne', 'marche pas', 'hs', 'hors service', 'problème', 'dysfonctionnement', 'défaillance', 'arrêté'],
     action: 'signaler_panne',
-    response: (equipment) => `⚠️ Je vais vous aider à signaler une panne sur ${equipment?.nom || 'cet équipément'}. Pouvez-vous décrire le problème plus précisément ?\n\n📝 Exemples:\n- L'écran reste noir\n- Il y a une alarme\n- La mesure est inexacte`
+    response: (equipment) =>
+      equipment
+        ? `⚠️ Panne détectée sur **${equipment.nom}**.\n\nPouvez-vous décrire le problème plus précisément ?\n\n📝 Exemples :\n• L'écran reste noir\n• Une alarme est déclenchée\n• La mesure est inexacte\n• Bruit anormal`
+        : `Quel équipement est en panne ? Précisez le nom (ex : respirateur, échographe, moniteur...).`
   },
-  // État d'un équipement
+
   etat: {
-    keywords: ['état', 'statut', 'disponible', 'fonctionne', 'fonctionnel', 'en panne', 'est-ce que'],
+    keywords: ['état', 'statut', 'disponible', 'fonctionne', 'fonctionnel', 'en panne', 'est-ce que', 'vérifier'],
     action: 'verifier_etat',
-    response: (equipment) => equipment ? `🔍 **${equipment.nom}**\n📊 Statut: ${equipment.statut === 'FONCTIONNEL' ? '✅ FONCTIONNEL' : '❌ EN PANNE'}\n📍 Service: ${equipment.service}\n📅 Dernière maintenance: ${equipment.updatedAt ? new Date(equipment.updatedAt).toLocaleDateString() : 'Non effectuée'}` : "Quel équipement souhaitez-vous vérifier ?"
+    response: (equipment) =>
+      equipment
+        ? `🔍 **${equipment.nom}**\n📊 Statut : ${equipment.statut === 'FONCTIONNEL' ? '✅ FONCTIONNEL' : '❌ EN PANNE'}\n📍 Service : ${equipment.service}\n📅 Dernière MAJ : ${equipment.updatedAt ? new Date(equipment.updatedAt).toLocaleDateString('fr-FR') : 'Non renseignée'}`
+        : `Quel équipement souhaitez-vous vérifier ?`
   },
-  // Guide d'utilisation
+
   guide: {
-    keywords: ['comment utiliser', 'guide', 'manuel', 'utilisation', 'mode d\'emploi', 'notice'],
+    keywords: ["comment utiliser", "guide", "manuel", "utilisation", "mode d'emploi", "notice", "tutoriel"],
     action: 'afficher_guide',
-    response: (equipment) => equipment ? `📖 **Guide d'utilisation - ${equipment.nom}**\n\n🔗 [Télécharger le manuel](${equipment.manuelUrl || '/documents/manuel-generique.pdf'})\n\n❓ Questions fréquentes:\n• Vérifiez que l'appareil est branché\n• Redémarrez l'équipement\n• Contactez le technicien si le problème persiste` : "Pour quel équipement souhaitez-vous un guide ?"
+    response: (equipment) =>
+      equipment
+        ? `📖 **Guide — ${equipment.nom}**\n\n🔗 Manuel : ${equipment.manuelUrl ? `[Télécharger](${equipment.manuelUrl})` : 'Non disponible'}\n\n❓ Vérifications rapides :\n• L'appareil est-il branché ?\n• Avez-vous redémarré l'équipement ?\n• Contactez le technicien si le problème persiste.`
+        : `Pour quel équipement souhaitez-vous un guide ?`
   },
-  // Scanner QR
+
   scanner: {
-    keywords: ['scanner', 'qr code', 'flash', 'code barre', 'scan'],
+    keywords: ['scanner', 'qr code', 'flash', 'code barre', 'scan', 'qr'],
     action: 'ouvrir_scanner',
-    response: "📱 Activez la caméra pour scanner le QR code sur l'équipement.\n\n📷 Positionnez le code dans le cadre."
+    response: `📱 Activez la caméra pour scanner le QR code sur l'équipement.\n\n📷 Positionnez le code dans le cadre.`
   },
-  // Aide
-  aide: {
-    keywords: ['aide', 'help', 'bonjour', 'salut', 'que faire', 'comment ça marche', 'assistance'],
-    action: 'afficher_aide',
-    response: "👋 **Assistant Maintenance**\n\nVoici ce que je peux faire pour vous :\n\n• **Signaler une panne** : \"le respirateur est en panne\"\n• **Vérifier l'état** : \"état de l'échographe\"\n• **Demander un guide** : \"comment utiliser le moniteur\"\n• **Scanner un QR code** : \"scanner\"\n\n💡 *Décrivez simplement votre besoin, je vous guide !*"
-  },
-  // Urgence
+
   urgence: {
-    keywords: ['urgence', 'critique', 'grave', 'immédiat', 'vital', 'alerte'],
+    keywords: ['urgence', 'critique', 'grave', 'immédiat', 'vital', 'alerte', 'danger'],
     action: 'urgence',
-    response: (equipment) => `🚨 **URGENCE SIGNALÉE** 🚨\n\n${equipment?.nom ? `Équipement: ${equipment.nom}\n` : ''}Un technicien va être alerté immédiatement.\n\n⏱️ Intervention prioritaire engagée.\n\nMerci de patienter.`
+    response: (equipment) =>
+      `🚨 **URGENCE SIGNALÉE** 🚨\n\n${equipment?.nom ? `Équipement : ${equipment.nom}\n` : ''}Un technicien va être alerté immédiatement.\n\n⏱️ Intervention prioritaire engagée.\n\nMerci de patienter.`
+  },
+
+  aide: {
+    keywords: ['aide', 'help', 'bonjour', 'salut', 'bonsoir', 'que faire', 'comment ça marche', 'assistance', 'démarrer'],
+    action: 'afficher_aide',
+    response: `👋 **Assistant Maintenance GMAO Sakété**\n\nVoici ce que je peux faire :\n\n• **Signaler une panne** : "le respirateur est en panne"\n• **Vérifier l'état** : "état de l'échographe"\n• **Demander un guide** : "comment utiliser le moniteur"\n• **Scanner un QR code** : "scanner"\n• **Urgence** : "urgence moniteur"\n\n💡 Décrivez simplement votre besoin !`
   }
 };
 
-// Extraire un équipement du message
+// ============================================================
+// UTILITAIRES
+// ============================================================
+
+/** Cherche un équipement dans la base à partir d'un message */
 async function extractEquipment(message, userService) {
-  // Chercher par nom dans la base
-  const allEquipments = await prisma.equipement.findMany({
-    where: { service: userService || undefined },
-    select: { id: true, nom: true, statut: true, codeInventaire: true, service: true }
-  });
-  
-  const messageLower = message.toLowerCase();
-  
-  // Chercher une correspondance
-  let found = null;
-  for (const eq of allEquipments) {
-    const nomLower = eq.nom.toLowerCase();
-    if (messageLower.includes(nomLower) || 
-        messageLower.includes(eq.codeInventaire?.toLowerCase()) ||
-        nomLower.split(' ').some(word => messageLower.includes(word) && word.length > 3)) {
-      found = eq;
-      break;
+  try {
+    const allEquipments = await prisma.equipement.findMany({
+      where: userService ? { service: userService } : undefined,
+      select: { id: true, nom: true, statut: true, codeInventaire: true, service: true, updatedAt: true, manuelUrl: true }
+    });
+
+    const messageLower = message.toLowerCase();
+
+    for (const eq of allEquipments) {
+      const nomLower = eq.nom.toLowerCase();
+      if (
+        messageLower.includes(nomLower) ||
+        (eq.codeInventaire && messageLower.includes(eq.codeInventaire.toLowerCase())) ||
+        nomLower.split(' ').some(word => word.length > 3 && messageLower.includes(word))
+      ) {
+        return eq;
+      }
     }
+    return null;
+  } catch {
+    return null;
   }
-  
-  return found;
 }
 
-// Déterminer l'intention du message
+/** Détecte l'intention à partir des mots-clés */
 function detectIntent(message) {
   const messageLower = message.toLowerCase();
-  
   for (const [intent, data] of Object.entries(intents)) {
     for (const keyword of data.keywords) {
       if (messageLower.includes(keyword)) {
@@ -76,204 +91,221 @@ function detectIntent(message) {
       }
     }
   }
-  
-  // Par défaut: aide
   return { intent: 'aide', action: 'afficher_aide', responseTemplate: intents.aide.response };
 }
 
-// Envoyer un message au chatbot
+/** Récupère ou crée une conversation */
+async function getOrCreateConversation(conversationId, userId) {
+  if (conversationId) {
+    const existing = await prisma.conversation.findUnique({
+      where: { id: parseInt(conversationId) }
+    });
+    if (existing) return existing;
+  }
+  return prisma.conversation.create({
+    data: {
+      utilisateurId: userId,
+      type: 'SIMPLE',
+      dateDebut: new Date()
+    }
+  });
+}
+
+// ============================================================
+// CONTROLLER PRINCIPAL — Envoi d'un message au chatbot
+// ============================================================
 export const chatbotMessage = async (req, res) => {
   const { message, equipmentId, conversationId } = req.body;
-  const userId = req.user.id;
-  const userService = req.user.service;
+
+  if (!message || message.trim() === '') {
+    return res.status(400).json({ reply: '❌ Message vide.', action: 'error' });
+  }
+
+  const userId = req.user?.id;
+  const userService = req.user?.service || null;
 
   try {
-    // Récupérer ou créer la conversation
-    let conversation;
-    if (conversationId) {
-      conversation = await prisma.conversation.findUnique({
-        where: { id: parseInt(conversationId) },
-        include: { messages: true }
-      });
-    }
-    
-    if (!conversation) {
-      conversation = await prisma.conversation.create({
-        data: {
-          utilisateurId: userId,
-          type: 'SIMPLE',
-          dateDebut: new Date(),
-        }
-      });
-    }
+    // 1. Conversation
+    const conversation = await getOrCreateConversation(conversationId, userId);
 
-    // Sauvegarder le message utilisateur
+    // 2. Sauvegarder le message utilisateur
     await prisma.message.create({
       data: {
         conversationId: conversation.id,
         auteur: 'USER',
         contenu: message,
-        dateEnvoi: new Date(),
+        dateEnvoi: new Date()
       }
     });
 
-    // Détecter l'intention
-    const { intent, action, responseTemplate } = detectIntent(message);
-    
-    // Extraire l'équipement si pertinent
-    const equipment = await extractEquipment(message, userService);
-    
+    // 3. Détecter l'intention
+    const { action, responseTemplate } = detectIntent(message);
+
+    // 4. Identifier l'équipement (depuis le message ou depuis equipmentId passé)
+    let equipment = null;
+    if (equipmentId) {
+      equipment = await prisma.equipement.findUnique({ where: { id: parseInt(equipmentId) } });
+    }
+    if (!equipment) {
+      equipment = await extractEquipment(message, userService);
+    }
+
+    // 5. Construire la réponse
     let reply = '';
     let actionToTake = action;
     let data = {};
 
-    // Générer la réponse selon l'action
     switch (action) {
       case 'signaler_panne':
+        reply = typeof responseTemplate === 'function' ? responseTemplate(equipment) : responseTemplate;
         if (equipment) {
-          reply = responseTemplate(equipment);
           actionToTake = 'ask_panne_details';
-          data = { equipmentId: equipment.id };
-        } else {
-          reply = "Quel équipement est en panne ? Veuillez préciser le nom (ex: respirateur, échographe, moniteur...).";
+          data = { equipmentId: equipment.id, equipmentNom: equipment.nom };
         }
         break;
-        
+
       case 'verifier_etat':
-        if (equipment) {
-          reply = responseTemplate(equipment);
-        } else {
-          reply = "Quel équipement souhaitez-vous vérifier ?";
-        }
+        reply = typeof responseTemplate === 'function' ? responseTemplate(equipment) : responseTemplate;
+        if (equipment) data = { equipmentId: equipment.id };
         break;
-        
+
       case 'afficher_guide':
-        if (equipment) {
-          reply = responseTemplate(equipment);
-        } else {
-          reply = "Pour quel équipement souhaitez-vous un guide ?";
-        }
+        reply = typeof responseTemplate === 'function' ? responseTemplate(equipment) : responseTemplate;
+        if (equipment) data = { equipmentId: equipment.id };
         break;
-        
+
       case 'urgence':
-        reply = responseTemplate(equipment);
+        reply = typeof responseTemplate === 'function' ? responseTemplate(equipment) : responseTemplate;
         if (equipment) {
-          // Créer une alerte urgente
-          await prisma.alerte.create({
-            data: {
-              type: 'PANNE_URGENTE',
-              niveau: 'CRITIQUE',
-              message: `Urgence signalée via chatbot: ${equipment.nom}`,
-              equipementId: equipment.id,
-            }
-          });
+          try {
+            await prisma.alerte.create({
+              data: {
+                type: 'PANNE_URGENTE',
+                niveau: 'CRITIQUE',
+                message: `Urgence signalée via chatbot : ${equipment.nom}`,
+                equipementId: equipment.id
+              }
+            });
+          } catch {
+            // alerte non bloquante
+          }
           actionToTake = 'urgence_created';
           data = { equipmentId: equipment.id };
         }
         break;
-        
+
       case 'ouvrir_scanner':
-        reply = responseTemplate;
+        reply = typeof responseTemplate === 'string' ? responseTemplate : responseTemplate();
         actionToTake = 'open_scanner';
         break;
-        
+
       default:
-        reply = responseTemplate;
+        reply = typeof responseTemplate === 'string' ? responseTemplate : responseTemplate();
     }
 
-    // Sauvegarder la réponse du bot
+    // 6. Sauvegarder la réponse du bot
     const botMessage = await prisma.message.create({
       data: {
         conversationId: conversation.id,
         auteur: 'BOT',
         contenu: reply,
         typeMessage: actionToTake,
-        donnees: data,
-        dateEnvoi: new Date(),
+        // donnees stocké en JSON string pour éviter les erreurs Prisma
+        donnees: Object.keys(data).length > 0 ? JSON.stringify(data) : null,
+        dateEnvoi: new Date()
       }
     });
 
-    res.json({
+    return res.json({
       reply,
       action: actionToTake,
       data,
       conversationId: conversation.id,
       messageId: botMessage.id
     });
-    
+
   } catch (error) {
     console.error('Erreur chatbot:', error);
-    res.status(500).json({ 
-      reply: "❌ Désolé, une erreur s'est produite. Veuillez réessayer ou contacter le technicien directement.",
+    return res.status(500).json({
+      reply: '❌ Une erreur s\'est produite. Veuillez réessayer ou contacter le service maintenance.',
       action: 'error'
     });
   }
 };
 
-// Créer un signalement depuis le chatbot
+// ============================================================
+// CONTROLLER — Créer un signalement depuis le chatbot
+// ============================================================
 export const chatbotCreateSignalement = async (req, res) => {
   const { equipmentId, description, conversationId } = req.body;
-  const userId = req.user.id;
+  const userId = req.user?.id;
+
+  if (!equipmentId || !description) {
+    return res.status(400).json({ success: false, message: '❌ Équipement et description requis.' });
+  }
 
   try {
+    const equipId = parseInt(equipmentId);
+
+    // Vérifier que l'équipement existe
+    const equipement = await prisma.equipement.findUnique({ where: { id: equipId } });
+    if (!equipement) {
+      return res.status(404).json({ success: false, message: '❌ Équipement introuvable.' });
+    }
+
     // Créer le signalement
     const signalement = await prisma.signalement.create({
       data: {
-        equipementId: parseInt(equipmentId),
+        equipementId: equipId,
         signaleParId: userId,
-        description: description,
-        priorite: 'MOYENNE',
+        description,
+        priorite: 'MOYENNE'
       },
-      include: {
-        equipement: true,
-      }
+      include: { equipement: true }
     });
 
     // Créer l'intervention associée
     const intervention = await prisma.intervention.create({
       data: {
         signalementId: signalement.id,
-        equipementId: signalement.equipementId,
+        equipementId: equipId,
         type: 'CORRECTIF',
         statut: 'EN_ATTENTE',
-        diagnostic: description,
+        diagnostic: description
       }
     });
 
-    // Mettre à jour la conversation
+    // Mettre à jour la conversation si fournie
     if (conversationId) {
       await prisma.conversation.update({
         where: { id: parseInt(conversationId) },
-        data: { 
-          type: 'SIGNALEMENT',
-          equipementId: signalement.equipementId,
-        }
-      });
+        data: { type: 'SIGNALEMENT', equipementId: equipId }
+      }).catch(() => {}); // non bloquant
     }
 
     // Créer une alerte
     await prisma.alerte.create({
       data: {
-        type: 'PANNE_URGENTE',
+        type: 'NOUVELLE_PANNE',
         niveau: 'ATTENTION',
-        message: `Nouvelle panne signalée: ${signalement.equipement.nom}`,
-        equipementId: signalement.equipementId,
-        interventionId: intervention.id,
+        message: `Nouvelle panne signalée via chatbot : ${equipement.nom}`,
+        equipementId: equipId,
+        interventionId: intervention.id
       }
-    });
+    }).catch(() => {}); // non bloquant
 
-    res.json({
+    return res.json({
       success: true,
-      message: `✅ Panne signalée avec succès ! Un technicien va prendre en charge l'intervention sur ${signalement.equipement.nom}.`,
+      message: `✅ Panne signalée avec succès ! Un technicien va prendre en charge l'intervention sur **${equipement.nom}**.`,
       signalementId: signalement.id,
       interventionId: intervention.id
     });
-    
+
   } catch (error) {
-    console.error('Erreur création signalement chatbot:', error);
-    res.status(500).json({ 
+    console.error('Erreur signalement chatbot:', error);
+    return res.status(500).json({
       success: false,
-      message: "❌ Erreur lors du signalement. Veuillez contacter le service maintenance directement."
+      message: '❌ Erreur lors du signalement. Contactez le service maintenance directement.'
     });
   }
 };
