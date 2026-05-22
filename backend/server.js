@@ -1,3 +1,4 @@
+// backend/server.js
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -9,7 +10,7 @@ import morgan from 'morgan';
 import compression from 'compression';
 import { exec } from 'child_process';
 import util from 'util';
-import prisma from './config/database.js';  // ✅ IMPORT AJOUTÉ
+import prisma from './config/database.js';
 
 dotenv.config();
 
@@ -23,7 +24,7 @@ async function runMigrations() {
   if (process.env.NODE_ENV === 'production' || process.env.RUN_MIGRATIONS === 'true') {
     console.log('📦 Synchronisation du schéma avec la base de données...');
     try {
-      const { stdout, stderr } = await execPromise('npx prisma db push');
+      const { stdout, stderr } = await execPromise('npx prisma db push --accept-data-loss');
       console.log('✅ Résultat:', stdout);
       if (stderr) console.warn('⚠️', stderr);
     } catch (error) {
@@ -36,31 +37,33 @@ async function runMigrations() {
 await runMigrations();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 10000;
 
+// Configuration CORS
 const corsOptions = {
     origin: [
         'https://gmao-sakete.netlify.app', 
         'https://*.netlify.app', 
         'https://gmao-sakete.vercel.app', 
-        'https://gmao-sakete-ifangni.vercel.app',  // ← AJOUTE CETTE LIGNE
-        'https://gmao-sakete-ifangni-hlmd03cpo.vercel.app',  // ← AJOUTE CETTE LIGNE AUSSI
-        'https://*.vercel.app'
+        'https://gmao-sakete-ifangni.vercel.app',
+        'https://gmao-sakete-ifangni-hlmd03cpo.vercel.app',
+        'https://*.vercel.app',
+        'http://localhost:3000',
+        'http://localhost:5000'
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
     credentials: true,
     optionsSuccessStatus: 200
 };
 
+// Middlewares
 app.use(cors(corsOptions));
-
-// Middleware
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(compression());
 app.use(morgan('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Dossiers statiques
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -91,6 +94,9 @@ import mobileRoutes from './routes/mobile.js';
 import alerteRoutes from './routes/alertes.js';
 import fournisseurRoutes from './routes/fournisseurs.js';
 import technicienRoutes from './routes/techniciens.js';
+import statistiquesRoutes from './routes/statistiques.js';
+import documentRoutes from './routes/documents.js';
+import signalementRoutes from './routes/signalements.js';
 
 // ============ ROUTES API ============
 app.use('/api/auth', authRoutes);
@@ -108,19 +114,22 @@ app.use('/api/mobile', mobileRoutes);
 app.use('/api/alertes', alerteRoutes);
 app.use('/api/fournisseurs', fournisseurRoutes);
 app.use('/api/techniciens', technicienRoutes);
+app.use('/api/statistiques', statistiquesRoutes);
+app.use('/api/documents', documentRoutes);
+app.use('/api/signalements', signalementRoutes);
 
-// Route de santé
+// ============ ROUTE DE SANTÉ ============
 app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     timestamp: new Date(), 
     uptime: process.uptime(),
-    cors: 'enabled'
+    cors: 'enabled',
+    environment: process.env.NODE_ENV || 'development'
   });
 });
 
-// ============ ROUTE TEMPORAIRE D'ACTIVATION ============
-// (placée ici avant le middleware 404 pour être atteignable)
+// ============ ROUTES TEMPORAIRES DE DEBUG ============
 app.post('/api/debug/activate/:email', async (req, res) => {
   const { email } = req.params;
   try {
@@ -133,7 +142,7 @@ app.post('/api/debug/activate/:email', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-// TEMPORAIRE : Mettre à jour le rôle sans token
+
 app.put('/api/debug/set-technician/:email', async (req, res) => {
   const { email } = req.params;
   try {
@@ -149,17 +158,33 @@ app.put('/api/debug/set-technician/:email', async (req, res) => {
 
 // ============ PAGE D'ACCUEIL API ============
 app.get('/', (req, res) => {
-  res.json({ message: 'API GMAO Sakété-Ifangni est en ligne' });
+  res.json({ 
+    message: 'API GMAO Sakété-Ifangni est en ligne',
+    version: '2.1.0',
+    endpoints: {
+      auth: '/api/auth',
+      users: '/api/users',
+      equipements: '/api/equipements',
+      maintenances: '/api/maintenances',
+      stock: '/api/stock',
+      chatbot: '/api/chatbot',
+      statistiques: '/api/statistiques'
+    }
+  });
 });
 
-// ============ GESTION DES ERREURS 404 (doit être après toutes les routes) ============
+// ============ GESTION DES ERREURS 404 ============
 app.use((req, res) => {
-  res.status(404).json({ message: 'Route non trouvée' });
+  res.status(404).json({ 
+    message: 'Route non trouvée',
+    path: req.originalUrl,
+    method: req.method
+  });
 });
 
 // ============ GESTION DES ERREURS GLOBALES ============
 app.use((err, req, res, next) => {
-  console.error('Erreur serveur:', err.stack);
+  console.error('❌ Erreur serveur:', err.stack);
   res.status(500).json({
     message: 'Erreur interne du serveur',
     error: process.env.NODE_ENV === 'development' ? err.message : undefined
@@ -171,4 +196,13 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Serveur démarré sur http://0.0.0.0:${PORT}`);
   console.log(`📱 Mode: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🗄️ Base de données: PostgreSQL`);
+  console.log(`\n📡 Routes disponibles:`);
+  console.log(`   POST   /api/auth/login`);
+  console.log(`   POST   /api/auth/register`);
+  console.log(`   GET    /api/equipements`);
+  console.log(`   GET    /api/maintenances`);
+  console.log(`   POST   /api/chatbot/diagnostic`);
+  console.log(`   GET    /api/statistiques/kpis`);
+  console.log(`   GET    /api/statistiques/tendance-disponibilite`);
+  console.log(`   GET    /api/health`);
 });
