@@ -1,5 +1,5 @@
 /* ============================================
-   STYLES GÉNÉRAUX PLEIN ÉCRAN - GMAO Sakété
+   STYLES GENERAUX PLEIN ECRAN - GMAO Sakete
 ============================================ */
 
 /* ============================================
@@ -256,7 +256,7 @@ tr:hover {
 }
 
 /* ============================================
-   GRILLE ÉQUIPEMENTS
+   GRILLE EQUIPEMENTS
 ============================================ */
 .equipment-grid {
     display: grid;
@@ -862,7 +862,7 @@ tr:hover {
 }
 
 /* ============================================
-   ANIMATIONS RÉDUITES
+   ANIMATIONS REDUITES
 ============================================ */
 @media (prefers-reduced-motion: reduce) {
     *,
