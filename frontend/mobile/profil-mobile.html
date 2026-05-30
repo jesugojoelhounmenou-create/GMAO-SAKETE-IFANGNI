@@ -183,7 +183,7 @@
 <body>
 
 <div class="header">
-    <div class="avatar">👤</div>
+    <div class="avatar">U</div>
     <h2 id="userName">Chargement...</h2>
     <p id="userRole"></p>
 </div>
@@ -192,7 +192,7 @@
     <div class="skeleton"></div>
 </div>
 
-<button class="logout-btn" onclick="logout()">🚪 Se déconnecter</button>
+<button class="logout-btn" onclick="logout()">Se deconnecter</button>
 
 <div class="bottom-nav">
     <a href="dashboard-mobile.html" class="nav-item">
@@ -216,15 +216,14 @@
     const API_URL = 'https://gmao-sakete-ifangni-1.onrender.com/api';
     const token = localStorage.getItem('token');
     
-    // Auth check
     if (!token) window.location.href = '/login.html';
     
     const userRole = localStorage.getItem('userRole');
     const userName = localStorage.getItem('userName');
     
     function getRoleLabel(role) {
-        if (role === 'TECHNICIEN') return '🔧 Technicien Biomédical';
-        if (role === 'SOIGNANT') return '👨‍⚕️ Personnel Soignant';
+        if (role === 'TECHNICIEN') return 'Technicien Biomedical';
+        if (role === 'SOIGNANT') return 'Personnel Soignant';
         return role || 'Utilisateur';
     }
     
@@ -240,7 +239,6 @@
     
     async function loadProfile() {
         try {
-            // Récupérer les informations de l'utilisateur
             const res = await fetch(`${API_URL}/users/me`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -252,7 +250,6 @@
             document.getElementById('userName').innerHTML = `${escapeHtml(user.nom)} ${escapeHtml(user.prenom || '')}`;
             document.getElementById('userRole').innerHTML = getRoleLabel(user.role);
             
-            // Récupérer les statistiques selon le rôle
             let statsHtml = '';
             let interventionsTotal = 0;
             let interventionsTerminees = 0;
@@ -281,11 +278,11 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-number">${interventionsTerminees}</div>
-                            <div class="stat-label">Terminées</div>
+                            <div class="stat-label">Terminees</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-number">${tauxSucces}%</div>
-                            <div class="stat-label">Taux succès</div>
+                            <div class="stat-label">Taux succes</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-number">${satisfaction}/5</div>
@@ -315,51 +312,51 @@
                         </div>
                         <div class="stat-card">
                             <div class="stat-number">${interventionsTerminees}</div>
-                            <div class="stat-label">Résolus</div>
+                            <div class="stat-label">Resolus</div>
                         </div>
                         <div class="stat-card">
                             <div class="stat-number">${tauxSucces}%</div>
-                            <div class="stat-label">Taux résolution</div>
+                            <div class="stat-label">Taux resolution</div>
                         </div>
                     </div>
                 `;
             }
             
             const statusBadge = user.statut === 'ACTIF' 
-                ? '<span class="badge-active">✅ Actif</span>' 
-                : '<span class="badge-active" style="background:#fef3c7; color:#d97706;">⏳ En attente</span>';
+                ? '<span class="badge-active">Actif</span>' 
+                : '<span class="badge-active" style="background:#fef3c7; color:#d97706;">En attente</span>';
             
             document.getElementById('content').innerHTML = `
                 <div class="card">
-                    <div class="card-title">👤 Informations personnelles</div>
+                    <div class="card-title">Informations personnelles</div>
                     <div class="info-item">
-                        <span class="label">📧 Email</span>
+                        <span class="label">Email</span>
                         <span class="value">${escapeHtml(user.email)}</span>
                     </div>
                     <div class="info-item">
-                        <span class="label">🆔 Matricule</span>
+                        <span class="label">Matricule</span>
                         <span class="value">${escapeHtml(user.matricule || '-')}</span>
                     </div>
                     <div class="info-item">
-                        <span class="label">🏥 Service</span>
-                        <span class="value">${escapeHtml(user.service || 'Non défini')}</span>
+                        <span class="label">Service</span>
+                        <span class="value">${escapeHtml(user.service || 'Non defini')}</span>
                     </div>
                     <div class="info-item">
-                        <span class="label">📞 Téléphone</span>
-                        <span class="value">${escapeHtml(user.telephone || 'Non renseigné')}</span>
+                        <span class="label">Telephone</span>
+                        <span class="value">${escapeHtml(user.telephone || 'Non renseigne')}</span>
                     </div>
                     <div class="info-item">
-                        <span class="label">📅 Inscrit le</span>
+                        <span class="label">Inscrit le</span>
                         <span class="value">${formatDate(user.createdAt)}</span>
                     </div>
                     <div class="info-item">
-                        <span class="label">🔒 Statut</span>
+                        <span class="label">Statut</span>
                         <span class="value">${statusBadge}</span>
                     </div>
                 </div>
                 
                 <div class="card">
-                    <div class="card-title">📊 Statistiques</div>
+                    <div class="card-title">Statistiques</div>
                     ${statsHtml}
                 </div>
             `;
@@ -367,9 +364,9 @@
             console.error('Erreur:', error);
             document.getElementById('content').innerHTML = `
                 <div class="card" style="text-align:center;">
-                    <div style="font-size:48px; margin-bottom:10px;">❌</div>
+                    <div style="font-size:48px; margin-bottom:10px;">!</div>
                     <div style="color:#64748b;">Erreur de chargement du profil</div>
-                    <button class="btn-secondary" style="margin-top:15px; padding:10px 20px; background:#e2e8f0; border:none; border-radius:30px;" onclick="location.reload()">🔄 Réessayer</button>
+                    <button class="btn-secondary" style="margin-top:15px; padding:10px 20px; background:#e2e8f0; border:none; border-radius:30px;" onclick="location.reload()">Reessayer</button>
                 </div>
             `;
         }
@@ -389,7 +386,7 @@
     }
     
     function logout() { 
-        if (confirm('🚪 Voulez-vous vraiment vous déconnecter ?')) {
+        if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
             localStorage.clear(); 
             window.location.href = '/login.html'; 
         }
