@@ -216,7 +216,6 @@
     const token = localStorage.getItem('token');
     let intervention = null;
     
-    // Auth check
     if (!token) window.location.href = '/login.html';
     
     const userRole = localStorage.getItem('userRole');
@@ -239,9 +238,9 @@
     
     function getStatusText(statut) {
         const map = {
-            'EN_ATTENTE': '⏳ En attente',
-            'EN_COURS': '🔧 En cours',
-            'TERMINE': '✅ Terminé'
+            'EN_ATTENTE': 'En attente',
+            'EN_COURS': 'En cours',
+            'TERMINE': 'Termine'
         };
         return map[statut] || statut;
     }
@@ -258,7 +257,6 @@
     
     async function load() {
         if (!interventionId) {
-            // Charger la liste des interventions du technicien
             try {
                 const res = await fetch(`${API_URL}/maintenances/mes-interventions`, {
                     headers: { 'Authorization': `Bearer ${token}` }
@@ -272,8 +270,8 @@
                 if (interventions.length === 0) {
                     document.getElementById('content').innerHTML = `
                         <div class="card">
-                            <div class="title">📋 Mes interventions</div>
-                            <p style="text-align:center; padding:20px; color:#94a3b8;">📭 Aucune intervention assignée</p>
+                            <div class="title">Mes interventions</div>
+                            <p style="text-align:center; padding:20px; color:#94a3b8;">Aucune intervention assignee</p>
                         </div>
                     `;
                     return;
@@ -281,14 +279,14 @@
                 
                 document.getElementById('content').innerHTML = `
                     <div class="card">
-                        <div class="title">📋 Mes interventions</div>
+                        <div class="title">Mes interventions</div>
                         ${interventions.map(i => {
                             const equipement = i.equipement || {};
                             const priorite = i.signalement?.priorite || i.priorite || 'MOYENNE';
                             return `
                                 <div class="info-row" style="cursor:pointer;" onclick="location.href='interventions-mobile.html?id=${i.id}'">
                                     <div>
-                                        <strong>${escapeHtml(equipement.nom || 'Équipement')}</strong><br>
+                                        <strong>${escapeHtml(equipement.nom || 'Equipement')}</strong><br>
                                         <small style="color:#64748b;">${escapeHtml(equipement.service || '-')}</small>
                                     </div>
                                     <div style="text-align:right;">
@@ -304,7 +302,7 @@
                 console.error('Erreur:', error);
                 document.getElementById('content').innerHTML = `
                     <div class="card">
-                        <div class="title">❌ Erreur</div>
+                        <div class="title">Erreur</div>
                         <p style="text-align:center; padding:20px;">Impossible de charger les interventions</p>
                     </div>
                 `;
@@ -312,13 +310,12 @@
             return;
         }
         
-        // Charger le détail d'une intervention
         try {
             const response = await fetch(`${API_URL}/maintenances/${interventionId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             
-            if (!response.ok) throw new Error('Intervention non trouvée');
+            if (!response.ok) throw new Error('Intervention non trouvee');
             
             intervention = await response.json();
             const equipement = intervention.equipement || {};
@@ -330,9 +327,9 @@
             
             document.getElementById('content').innerHTML = `
                 <div class="card">
-                    <div class="title">🔧 Intervention #${intervention.id}</div>
+                    <div class="title">Intervention ${intervention.id}</div>
                     <div class="info-row">
-                        <span class="label">Équipement</span>
+                        <span class="label">Equipement</span>
                         <span class="value"><strong>${escapeHtml(equipement.nom || '-')}</strong> (${escapeHtml(equipement.codeInventaire || '-')})</span>
                     </div>
                     <div class="info-row">
@@ -340,11 +337,11 @@
                         <span class="value">${escapeHtml(equipement.service || '-')}</span>
                     </div>
                     <div class="info-row">
-                        <span class="label">Priorité</span>
+                        <span class="label">Priorite</span>
                         <span class="value"><span class="priority priority-${priorite}">${priorite}</span></span>
                     </div>
                     <div class="info-row">
-                        <span class="label">Signalé le</span>
+                        <span class="label">Signale le</span>
                         <span class="value">${formatDate(intervention.signalement?.dateSignalement || intervention.createdAt)}</span>
                     </div>
                     <div class="info-row">
@@ -354,30 +351,30 @@
                 </div>
                 
                 <div class="card">
-                    <div class="title">📝 Description du problème</div>
+                    <div class="title">Description du probleme</div>
                     <div class="description-text">${escapeHtml(description)}</div>
                 </div>
                 
                 ${!isTermine ? `
                     <div class="card">
-                        <div class="title">📋 Rapport d'intervention</div>
-                        <label style="font-size:13px; font-weight:500;">Actions réalisées *</label>
-                        <textarea id="actions" rows="3" placeholder="Décrivez les actions effectuées...">${escapeHtml(intervention.actionsRealisees || '')}</textarea>
+                        <div class="title">Rapport d'intervention</div>
+                        <label style="font-size:13px; font-weight:500;">Actions realisees *</label>
+                        <textarea id="actions" rows="3" placeholder="Decrivez les actions effectuees...">${escapeHtml(intervention.actionsRealisees || '')}</textarea>
                         
                         <label style="font-size:13px; font-weight:500; margin-top:12px;">Rapport final</label>
                         <textarea id="rapport" rows="3" placeholder="Rapport final...">${escapeHtml(intervention.rapportFinal || '')}</textarea>
                         
-                        <label style="font-size:13px; font-weight:500; margin-top:12px;">Durée (minutes)</label>
-                        <input type="number" id="duree" placeholder="Durée en minutes" value="${intervention.dureeMinutes || ''}">
+                        <label style="font-size:13px; font-weight:500; margin-top:12px;">Duree (minutes)</label>
+                        <input type="number" id="duree" placeholder="Duree en minutes" value="${intervention.dureeMinutes || ''}">
                         
-                        ${isEnAttente ? `<button class="btn btn-primary" id="actionBtn" onclick="prendreEnCharge()">✅ Prendre en charge</button>` : ''}
-                        ${isEnCours ? `<button class="btn btn-success" id="actionBtn" onclick="terminer()">🏁 Terminer l'intervention</button>` : ''}
+                        ${isEnAttente ? `<button class="btn btn-primary" id="actionBtn" onclick="prendreEnCharge()">Prendre en charge</button>` : ''}
+                        ${isEnCours ? `<button class="btn btn-success" id="actionBtn" onclick="terminer()">Terminer l'intervention</button>` : ''}
                     </div>
                 ` : `
                     <div class="card">
-                        <div class="title">📋 Rapport final</div>
+                        <div class="title">Rapport final</div>
                         <div class="info-row">
-                            <span class="label">Actions réalisées</span>
+                            <span class="label">Actions realisees</span>
                             <span class="value">${escapeHtml(intervention.actionsRealisees || '-')}</span>
                         </div>
                         <div class="info-row">
@@ -385,11 +382,11 @@
                             <span class="value">${escapeHtml(intervention.rapportFinal || '-')}</span>
                         </div>
                         <div class="info-row">
-                            <span class="label">Durée</span>
+                            <span class="label">Duree</span>
                             <span class="value">${intervention.dureeMinutes || 0} minutes</span>
                         </div>
                         <div class="info-row">
-                            <span class="label">Terminé le</span>
+                            <span class="label">Termine le</span>
                             <span class="value">${formatDate(intervention.dateFin)}</span>
                         </div>
                     </div>
@@ -399,8 +396,8 @@
             console.error('Erreur:', error);
             document.getElementById('content').innerHTML = `
                 <div class="card">
-                    <div class="title">❌ Erreur</div>
-                    <p style="text-align:center; padding:20px;">Intervention non trouvée</p>
+                    <div class="title">Erreur</div>
+                    <p style="text-align:center; padding:20px;">Intervention non trouvee</p>
                     <button class="btn btn-secondary" onclick="history.back()">← Retour</button>
                 </div>
             `;
@@ -420,15 +417,15 @@
             });
             
             if (response.ok) { 
-                alert('✅ Intervention prise en charge'); 
+                alert('Intervention prise en charge'); 
                 load(); 
             } else {
-                alert('❌ Erreur lors de la prise en charge');
+                alert('Erreur lors de la prise en charge');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         } catch(error) {
-            alert('❌ Erreur de connexion');
+            alert('Erreur de connexion');
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
@@ -440,7 +437,7 @@
         const duree = document.getElementById('duree').value;
         
         if (!actions) {
-            alert('⚠️ Veuillez décrire les actions réalisées');
+            alert('Veuillez decrire les actions realisees');
             document.getElementById('actions').focus();
             return;
         }
@@ -468,15 +465,15 @@
             });
             
             if (response.ok) { 
-                alert('✅ Intervention terminée avec succès'); 
+                alert('Intervention terminee avec succes'); 
                 load(); 
             } else {
-                alert('❌ Erreur lors de la finalisation');
+                alert('Erreur lors de la finalisation');
                 btn.innerHTML = originalText;
                 btn.disabled = false;
             }
         } catch(error) {
-            alert('❌ Erreur de connexion');
+            alert('Erreur de connexion');
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
