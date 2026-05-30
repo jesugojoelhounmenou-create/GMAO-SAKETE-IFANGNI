@@ -3,36 +3,35 @@
     <div class="nav-container">
         <div class="nav-brand">
             <a href="/index.html">
-                <span class="logo-icon">🏥</span>
-                <span class="logo-text">GMAO <span class="logo-highlight">Sakété</span></span>
+                <span class="logo-icon">G</span>
+                <span class="logo-text">GMAO <span class="logo-highlight">Sakete</span></span>
             </a>
         </div>
         
         <div class="nav-menu" id="navMenu">
-            <a href="/technicien/dashboard.html" class="nav-link" data-icon="📊">Dashboard</a>
-            <a href="/technicien/inventaire.html" class="nav-link" data-icon="📦">Inventaire</a>
-            <a href="/technicien/maintenances.html" class="nav-link" data-icon="🔧">Maintenances</a>
-            <a href="/technicien/stock.html" class="nav-link" data-icon="⚙️">Stock</a>
-            <a href="/technicien/gestion-techniciens.html" class="nav-link" data-icon="👥">Techniciens</a>
-            <a href="/technicien/codir-rapports.html" class="nav-link" data-icon="📈">CoDIR</a>
-            <a href="/technicien/alertes.html" class="nav-link" data-icon="⚠️">Alertes</a>
-            <a href="/technicien/profil.html" class="nav-link" data-icon="👤">Profil</a>
+            <a href="/technicien/dashboard.html" class="nav-link">Dashboard</a>
+            <a href="/technicien/inventaire.html" class="nav-link">Inventaire</a>
+            <a href="/technicien/maintenances.html" class="nav-link">Maintenances</a>
+            <a href="/technicien/stock.html" class="nav-link">Stock</a>
+            <a href="/technicien/gestion-techniciens.html" class="nav-link">Techniciens</a>
+            <a href="/technicien/codir-rapports.html" class="nav-link">CoDIR</a>
+            <a href="/technicien/alertes.html" class="nav-link">Alertes</a>
+            <a href="/technicien/profil.html" class="nav-link">Profil</a>
         </div>
         
         <div class="nav-user">
             <div class="user-info" id="userInfo">
-                <span class="user-avatar" id="userAvatar">👤</span>
+                <span class="user-avatar" id="userAvatar"></span>
                 <span class="user-name" id="navUserName">Chargement...</span>
                 <span class="user-role" id="navUserRole"></span>
             </div>
-            <button class="logout-btn-small" onclick="handleLogout()" title="Déconnexion">🚪</button>
+            <button class="logout-btn-small" onclick="handleLogout()" title="Deconnexion">D</button>
             <button class="mobile-menu-toggle" onclick="toggleMobileMenu()" aria-label="Menu">
                 <span class="menu-icon">☰</span>
             </button>
         </div>
     </div>
     
-    <!-- Indicateur de chargement dans la navbar -->
     <div class="nav-loading-bar" id="navLoadingBar" style="display: none;">
         <div class="loading-progress"></div>
     </div>
@@ -74,7 +73,8 @@
     }
     
     .logo-icon {
-        font-size: 28px;
+        font-size: 24px;
+        font-weight: bold;
     }
     
     .logo-highlight { 
@@ -95,13 +95,6 @@
         transition: all 0.3s;
         font-size: 14px;
         font-weight: 500;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-    }
-    
-    .nav-link::before {
-        content: attr(data-icon);
     }
     
     .nav-link:hover {
@@ -140,6 +133,8 @@
         align-items: center;
         justify-content: center;
         font-size: 14px;
+        font-weight: bold;
+        color: white;
     }
     
     .user-name {
@@ -161,7 +156,8 @@
         height: 36px;
         border-radius: 50%;
         cursor: pointer;
-        font-size: 16px;
+        font-size: 14px;
+        font-weight: bold;
         transition: all 0.2s;
         display: flex;
         align-items: center;
@@ -190,7 +186,6 @@
         background: rgba(255,255,255,0.1);
     }
     
-    /* Barre de chargement */
     .nav-loading-bar {
         position: absolute;
         bottom: 0;
@@ -214,7 +209,6 @@
         100% { width: 100%; }
     }
     
-    /* Responsive */
     @media (max-width: 1024px) {
         .nav-link {
             padding: 8px 12px;
@@ -247,7 +241,6 @@
             text-align: center; 
             padding: 14px;
             font-size: 16px;
-            justify-content: center;
         }
         
         .mobile-menu-toggle { 
@@ -274,15 +267,14 @@
     @media (max-width: 480px) {
         .gmao-navbar { padding: 0 12px; }
         .logo-text { font-size: 16px; }
-        .logo-icon { font-size: 24px; }
+        .logo-icon { font-size: 20px; }
         .user-avatar { width: 32px; height: 32px; font-size: 12px; }
-        .logout-btn-small { width: 32px; height: 32px; font-size: 14px; }
+        .logout-btn-small { width: 32px; height: 32px; font-size: 12px; }
         .mobile-menu-toggle { width: 36px; height: 36px; }
     }
 </style>
 
 <script>
-    // Configuration de la navbar
     const Navbar = {
         init: function() {
             this.updateUserInfo();
@@ -306,9 +298,8 @@
         },
         
         getUserAvatar: function(name) {
-            if (!name) return '👤';
-            const firstLetter = name.charAt(0).toUpperCase();
-            return firstLetter;
+            if (!name) return 'U';
+            return name.charAt(0).toUpperCase();
         },
         
         setActiveLink: function() {
@@ -328,7 +319,6 @@
         },
         
         initMobileCloseOnClick: function() {
-            // Fermer le menu mobile quand on clique sur un lien
             const links = document.querySelectorAll('.nav-link');
             links.forEach(link => {
                 link.addEventListener('click', () => {
@@ -360,17 +350,14 @@
         }
     };
     
-    // Fonctions globales
     function toggleMobileMenu() {
         const menu = document.getElementById('navMenu');
         menu.classList.toggle('open');
     }
     
     function handleLogout() {
-        if (confirm('🚪 Voulez-vous vraiment vous déconnecter ?')) {
-            // Afficher le spinner
+        if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
             if (Navbar) Navbar.showLoading();
-            
             localStorage.clear();
             setTimeout(() => {
                 window.location.href = '/login.html';
@@ -378,36 +365,29 @@
         }
     }
     
-    // Fonction de compatibilité
     function logout() {
         handleLogout();
     }
     
-    // Initialisation
     document.addEventListener('DOMContentLoaded', () => {
         Navbar.init();
     });
     
-    // Exporter pour utilisation globale
     window.Navbar = Navbar;
     
-    // Observer les changements de route (pour les SPA)
     window.addEventListener('popstate', () => {
         Navbar.setActiveLink();
         Navbar.closeMobileMenu();
     });
 </script>
 
-<!-- Exemple d'utilisation dynamique -->
 <script>
-    // Mettre à jour le nom de l'utilisateur après modification du profil
     function updateNavbarUserName(newName) {
         if (window.Navbar) {
             Navbar.setUserName(newName);
         }
     }
     
-    // Afficher le loader lors des chargements de page
     document.addEventListener('click', (e) => {
         const link = e.target.closest('.nav-link');
         if (link && link.getAttribute('href') && !link.getAttribute('href').startsWith('#')) {
@@ -415,7 +395,6 @@
         }
     });
     
-    // Cacher le loader quand la page est chargée
     window.addEventListener('load', () => {
         if (window.Navbar) setTimeout(() => Navbar.hideLoading(), 500);
     });
