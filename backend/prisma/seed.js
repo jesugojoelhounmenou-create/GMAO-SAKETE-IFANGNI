@@ -4,9 +4,9 @@ import bcrypt from 'bcryptjs';
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Démarrage du seed...');
+  console.log('Demarrage du seed...');
 
-  // Nettoyer la base (optionnel)
+  // Decommenter pour nettoyer la base
   // await prisma.message.deleteMany();
   // await prisma.conversation.deleteMany();
   // await prisma.alerte.deleteMany();
@@ -19,7 +19,6 @@ async function main() {
   // await prisma.equipement.deleteMany();
   // await prisma.user.deleteMany();
 
-  // 1. Créer le technicien biomédical
   const hashedPassword = await bcrypt.hash('admin123', 10);
   
   const technicien = await prisma.user.upsert({
@@ -32,15 +31,14 @@ async function main() {
       email: 'tech.biomedical@hopital.bj',
       password: hashedPassword,
       telephone: '+229 97 12 34 56',
-      service: 'AUTRE',
+      service: 'MAINTENANCE',
       role: 'TECHNICIEN',
       statut: 'ACTIF',
       dateValidation: new Date()
     }
   });
-  console.log(`✅ Technicien créé: ${technicien.nom} ${technicien.prenom}`);
+  console.log(`Technicien cree: ${technicien.nom} ${technicien.prenom}`);
 
-  // 2. Créer un soignant de test
   const soignant = await prisma.user.upsert({
     where: { email: 'infirmier.urgences@hopital.bj' },
     update: {},
@@ -58,9 +56,8 @@ async function main() {
       dateValidation: new Date()
     }
   });
-  console.log(`✅ Soignant créé: ${soignant.nom} ${soignant.prenom}`);
+  console.log(`Soignant cree: ${soignant.nom} ${soignant.prenom}`);
 
-  // 3. Créer des équipements
   const equipements = [
     {
       codeInventaire: 'RES-001',
@@ -72,7 +69,7 @@ async function main() {
       criticite: 'CRITIQUE',
       service: 'BLOC_OPERATOIRE',
       batiment: 'A',
-      salle: 'Bloc opératoire 2',
+      salle: 'Bloc operatoire 2',
       etage: 1,
       latitude: 6.7367,
       longitude: 2.6586,
@@ -82,7 +79,7 @@ async function main() {
     },
     {
       codeInventaire: 'ECH-001',
-      nom: 'Échographe GE Healthcare',
+      nom: 'Echographe GE Healthcare',
       marque: 'GE Healthcare',
       modele: 'Voluson S8',
       numeroSerie: 'SN-ECHO-001',
@@ -90,7 +87,7 @@ async function main() {
       criticite: 'HAUTE',
       service: 'RADIOLOGIE',
       batiment: 'A',
-      salle: 'Salle échographie 1',
+      salle: 'Salle echographie 1',
       etage: 0,
       latitude: 6.7360,
       longitude: 2.6580,
@@ -132,7 +129,7 @@ async function main() {
     },
     {
       codeInventaire: 'STER-001',
-      nom: 'Autoclave stérilisation',
+      nom: 'Autoclave sterilisation',
       marque: 'Tuttnauer',
       modele: '3870EA',
       numeroSerie: 'SN-STER-001',
@@ -140,14 +137,14 @@ async function main() {
       criticite: 'HAUTE',
       service: 'BLOC_OPERATOIRE',
       batiment: 'A',
-      salle: 'Stérilisation',
+      salle: 'Sterilisation',
       etage: 0,
       dateMiseService: new Date('2023-09-12'),
       statut: 'EN_MAINTENANCE'
     },
     {
       codeInventaire: 'PED-001',
-      nom: 'Couveuse néonatale',
+      nom: 'Couveuse neonatale',
       marque: 'Draeger',
       modele: 'Babyleo TN500',
       numeroSerie: 'SN-PED-001',
@@ -155,7 +152,7 @@ async function main() {
       criticite: 'CRITIQUE',
       service: 'PEDIATRIE',
       batiment: 'C',
-      salle: 'Néonatologie',
+      salle: 'Neonatologie',
       etage: 1,
       dateMiseService: new Date('2024-01-20'),
       statut: 'FONCTIONNEL'
@@ -169,9 +166,8 @@ async function main() {
       create: eq
     });
   }
-  console.log(`✅ ${equipements.length} équipements créés`);
+  console.log(`${equipements.length} equipements crees`);
 
-  // 4. Créer un signalement (panne en cours)
   const equipementPanne = await prisma.equipement.findUnique({
     where: { codeInventaire: 'MON-001' }
   });
@@ -181,15 +177,14 @@ async function main() {
       data: {
         equipementId: equipementPanne.id,
         signaleParId: soignant.id,
-        description: 'L\'écran clignote et la mesure de saturation est inexacte. Parfois l\'alarme se déclenche sans raison.',
+        description: 'L\'ecran clignote et la mesure de saturation est inexacte. Parfois l\'alarme se declenche sans raison.',
         priorite: 'HAUTE',
-        dateSignalement: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 heures avant
+        dateSignalement: new Date(Date.now() - 2 * 60 * 60 * 1000),
         traite: false
       }
     });
-    console.log(`✅ Signalement créé: #${signalement.id}`);
+    console.log(`Signalement cree: ${signalement.id}`);
 
-    // Intervention associée
     await prisma.intervention.create({
       data: {
         signalementId: signalement.id,
@@ -200,9 +195,8 @@ async function main() {
         dateDebut: new Date(Date.now() - 2 * 60 * 60 * 1000)
       }
     });
-    console.log(`✅ Intervention créée pour le signalement`);
+    console.log('Intervention creee pour le signalement');
 
-    // Alerte
     await prisma.alerte.create({
       data: {
         type: 'PANNE_URGENTE',
@@ -213,16 +207,15 @@ async function main() {
     });
   }
 
-  // 5. Créer des pièces de rechange
   const pieces = [
-    { code: 'SONDE-O2-01', designation: 'Sonde SpO2', categorie: 'SONDE', prixUnitaire: 45000, quantiteStock: 12, seuilAlerte: 5, emplacement: 'Etagère A3' },
-    { code: 'CABLE-ECG-01', designation: 'Câble ECG 3 voies', categorie: 'CABLE', prixUnitaire: 25000, quantiteStock: 8, seuilAlerte: 3, emplacement: 'Etagère B2' },
-    { code: 'FILTRE-AB-01', designation: 'Filtre antibactérien', categorie: 'CONSOMMABLE', prixUnitaire: 5500, quantiteStock: 45, seuilAlerte: 10, emplacement: 'Etagère C1' },
-    { code: 'BATTERIE-LIT-01', designation: 'Batterie lit médicalisé', categorie: 'BATTERIE', prixUnitaire: 125000, quantiteStock: 3, seuilAlerte: 2, emplacement: 'Etagère A5' },
-    { code: 'CAPTEUR-PR-01', designation: 'Capteur de pression', categorie: 'CAPTEUR', prixUnitaire: 89000, quantiteStock: 5, seuilAlerte: 2, emplacement: 'Etagère B4' },
-    { code: 'CARTE-MERE-01', designation: 'Carte mère respirateur', categorie: 'CARTE_MERE', prixUnitaire: 450000, quantiteStock: 1, seuilAlerte: 1, emplacement: 'Armoire sécurisée' },
-    { code: 'VENTIL-01', designation: 'Ventilateur de refroidissement', categorie: 'ELECTRONIQUE', prixUnitaire: 32000, quantiteStock: 4, seuilAlerte: 2, emplacement: 'Etagère D2' },
-    { code: 'ECRAN-LCD-01', designation: 'Écran LCD 7 pouces', categorie: 'ELECTRONIQUE', prixUnitaire: 185000, quantiteStock: 2, seuilAlerte: 1, emplacement: 'Etagère D4' }
+    { code: 'SONDE-O2-01', designation: 'Sonde SpO2', categorie: 'SONDE', prixUnitaire: 45000, quantiteStock: 12, seuilAlerte: 5, emplacement: 'Etagere A3' },
+    { code: 'CABLE-ECG-01', designation: 'Cable ECG 3 voies', categorie: 'CABLE', prixUnitaire: 25000, quantiteStock: 8, seuilAlerte: 3, emplacement: 'Etagere B2' },
+    { code: 'FILTRE-AB-01', designation: 'Filtre antibacterien', categorie: 'CONSOMMABLE', prixUnitaire: 5500, quantiteStock: 45, seuilAlerte: 10, emplacement: 'Etagere C1' },
+    { code: 'BATTERIE-LIT-01', designation: 'Batterie lit medicalise', categorie: 'BATTERIE', prixUnitaire: 125000, quantiteStock: 3, seuilAlerte: 2, emplacement: 'Etagere A5' },
+    { code: 'CAPTEUR-PR-01', designation: 'Capteur de pression', categorie: 'CAPTEUR', prixUnitaire: 89000, quantiteStock: 5, seuilAlerte: 2, emplacement: 'Etagere B4' },
+    { code: 'CARTE-MERE-01', designation: 'Carte mere respirateur', categorie: 'CARTE_MERE', prixUnitaire: 450000, quantiteStock: 1, seuilAlerte: 1, emplacement: 'Armoire securisee' },
+    { code: 'VENTIL-01', designation: 'Ventilateur de refroidissement', categorie: 'ELECTRONIQUE', prixUnitaire: 32000, quantiteStock: 4, seuilAlerte: 2, emplacement: 'Etagere D2' },
+    { code: 'ECRAN-LCD-01', designation: 'Ecran LCD 7 pouces', categorie: 'ELECTRONIQUE', prixUnitaire: 185000, quantiteStock: 2, seuilAlerte: 1, emplacement: 'Etagere D4' }
   ];
 
   for (const piece of pieces) {
@@ -232,9 +225,8 @@ async function main() {
       create: piece
     });
   }
-  console.log(`✅ ${pieces.length} pièces créées`);
+  console.log(`${pieces.length} pieces creees`);
 
-  // 6. Créer des maintenances préventives
   const respirateur = await prisma.equipement.findUnique({
     where: { codeInventaire: 'RES-001' }
   });
@@ -249,20 +241,20 @@ async function main() {
         type: 'MENSUELLE',
         periodicite: 30,
         prochaineRealisation: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-        checklist: {
-          "verifications": [
-            "Vérifier les alarmes",
+        checklist: JSON.stringify({
+          verifications: [
+            "Verifier les alarmes",
             "Tester les capteurs O2",
             "Nettoyer les filtres",
-            "Vérifier la batterie de secours",
+            "Verifier la batterie de secours",
             "Calibrer les capteurs de pression"
           ]
-        },
-        instructions: "Suivre la procédure standard de maintenance respirateur Siemens Servo-i",
+        }),
+        instructions: "Suivre la procedure standard de maintenance respirateur Siemens Servo-i",
         statut: 'PREVU'
       }
     });
-    console.log(`✅ Maintenance préventive respirateur planifiée`);
+    console.log('Maintenance preventive respirateur planifiee');
   }
 
   if (echographe) {
@@ -272,23 +264,22 @@ async function main() {
         type: 'TRIMESTRIELLE',
         periodicite: 90,
         prochaineRealisation: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
-        checklist: {
-          "verifications": [
+        checklist: JSON.stringify({
+          verifications: [
             "Nettoyer la sonde",
-            "Vérifier l'usure du câble",
+            "Verifier l'usure du cable",
             "Calibrer l'image",
-            "Tester les différents modes",
-            "Mettre à jour le logiciel"
+            "Tester les differents modes",
+            "Mettre a jour le logiciel"
           ]
-        },
-        instructions: "Maintenance trimestrielle échographe GE Voluson S8",
+        }),
+        instructions: "Maintenance trimestrielle echographe GE Voluson S8",
         statut: 'PREVU'
       }
     });
-    console.log(`✅ Maintenance préventive échographe planifiée`);
+    console.log('Maintenance preventive echographe planifiee');
   }
 
-  // 7. Créer un planning de garde
   const planningDates = [
     { date: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000), type: 'JOUR' },
     { date: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000), type: 'JOUR' },
@@ -309,16 +300,15 @@ async function main() {
       }
     });
   }
-  console.log(`✅ ${planningDates.length} gardes planifiées`);
+  console.log(`${planningDates.length} gardes planifiees`);
 
-  // 8. Créer des configurations par défaut
   const configs = [
-    { cle: 'SITE_NAME', valeur: 'Hôpital Zone Sakété-Ifangni', type: 'STRING', description: 'Nom du site' },
+    { cle: 'SITE_NAME', valeur: 'Hopital Zone Sakete-Ifangni', type: 'STRING', description: 'Nom du site' },
     { cle: 'SITE_LAT', valeur: '6.7367', type: 'STRING', description: 'Latitude GPS' },
     { cle: 'SITE_LNG', valeur: '2.6586', type: 'STRING', description: 'Longitude GPS' },
     { cle: 'ALERTE_EMAIL', valeur: 'true', type: 'BOOLEAN', description: 'Activer alertes email' },
     { cle: 'ALERTE_SMS', valeur: 'false', type: 'BOOLEAN', description: 'Activer alertes SMS' },
-    { cle: 'MAINTENANCE_HOURS', valeur: '48', type: 'INT', description: 'Délai SLA maintenance (heures)' },
+    { cle: 'MAINTENANCE_HOURS', valeur: '48', type: 'INT', description: 'Delai SLA maintenance (heures)' },
   ];
 
   for (const config of configs) {
@@ -328,17 +318,17 @@ async function main() {
       create: config
     });
   }
-  console.log(`✅ ${configs.length} configurations créées`);
+  console.log(`${configs.length} configurations creees`);
 
-  console.log('\n🌱 Seed terminé avec succès !');
-  console.log('\n📝 Identifiants de test:');
+  console.log('\nSeed termine avec succes');
+  console.log('\nIdentifiants de test:');
   console.log('   Technicien: tech.biomedical@hopital.bj / admin123');
   console.log('   Soignant: infirmier.urgences@hopital.bj / admin123');
 }
 
 main()
   .catch(e => {
-    console.error('❌ Erreur seed:', e);
+    console.error('Erreur seed:', e);
     process.exit(1);
   })
   .finally(async () => {
