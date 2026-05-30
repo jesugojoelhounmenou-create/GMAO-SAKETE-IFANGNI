@@ -1,6 +1,5 @@
 import prisma from '../config/database.js';
 
-// Liste des maintenances préventives
 export const getPreventives = async (req, res) => {
   const { statut, equipementId, type } = req.query;
 
@@ -22,11 +21,10 @@ export const getPreventives = async (req, res) => {
     res.json(preventives);
   } catch (error) {
     console.error('Erreur get preventives:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des maintenances preventives' });
   }
 };
 
-// Détail d'une préventive
 export const getPreventiveById = async (req, res) => {
   const { id } = req.params;
 
@@ -40,21 +38,24 @@ export const getPreventiveById = async (req, res) => {
     });
 
     if (!preventive) {
-      return res.status(404).json({ message: 'Maintenance préventive non trouvée' });
+      return res.status(404).json({ message: 'Maintenance preventive non trouvee' });
     }
 
     res.json(preventive);
   } catch (error) {
-    console.error('Erreur get preventive:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    console.error('Erreur get preventive by id:', error);
+    res.status(500).json({ message: 'Erreur lors de la recuperation' });
   }
 };
 
-// Ajouter une maintenance préventive
 export const addPreventive = async (req, res) => {
   const { equipementId, type, periodicite, prochaineRealisation, checklist, instructions, responsableId } = req.body;
 
   try {
+    if (!equipementId || !prochaineRealisation) {
+      return res.status(400).json({ message: 'Equipement et date de realisation sont requis' });
+    }
+
     const preventive = await prisma.maintenancePreventive.create({
       data: {
         equipementId: parseInt(equipementId),
@@ -69,51 +70,72 @@ export const addPreventive = async (req, res) => {
       include: { equipement: true }
     });
 
-    res.status(201).json({ message: 'Maintenance préventive planifiée', preventive });
+    res.status(201).json({ message: 'Maintenance preventive planifiee', preventive });
   } catch (error) {
     console.error('Erreur add preventive:', error);
-    res.status(500).json({ message: 'Erreur lors de l\'ajout' });
+    res.status(500).json({ message: 'Erreur lors de l\'ajout de la maintenance preventive' });
   }
 };
 
-// Mettre à jour une préventive
 export const updatePreventive = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
 
   try {
-    const preventive = await prisma.maintenancePreventive.update({
-      where: { id: parseInt(id) },
-      data: updateData
+    const existing = await prisma.maintenancePreventive.findUnique({
+      where: { id: parseInt(id) }
     });
 
-    res.json({ message: 'Maintenance préventive mise à jour', preventive });
+    if (!existing) {
+      return res.status(404).json({ message: 'Maintenance preventive non trouvee' });
+    }
+
+    const preventive = await prisma.maintenancePreventive.update({
+      where: { id: parseInt(id) },
+      data: {
+        type: updateData.type || existing.type,
+        periodicite: updateData.periodicite ? parseInt(updateData.periodicite) : existing.periodicite,
+        prochaineRealisation: updateData.prochaineRealisation ? new Date(updateData.prochaineRealisation) : existing.prochaineRealisation,
+        checklist: updateData.checklist ? JSON.stringify(updateData.checklist) : existing.checklist,
+        instructions: updateData.instructions !== undefined ? updateData.instructions : existing.instructions,
+        responsableId: updateData.responsableId ? parseInt(updateData.responsableId) : existing.responsableId,
+        statut: updateData.statut || existing.statut
+      }
+    });
+
+    res.json({ message: 'Maintenance preventive mise a jour', preventive });
   } catch (error) {
     console.error('Erreur update preventive:', error);
-    res.status(500).json({ message: 'Erreur lors de la mise à jour' });
+    res.status(500).json({ message: 'Erreur lors de la mise a jour' });
   }
 };
 
-// Supprimer une préventive
 export const deletePreventive = async (req, res) => {
   const { id } = req.params;
 
   try {
+    const existing = await prisma.maintenancePreventive.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existing) {
+      return res.status(404).json({ message: 'Maintenance preventive non trouvee' });
+    }
+
     await prisma.maintenancePreventive.delete({ where: { id: parseInt(id) } });
-    res.json({ message: 'Maintenance préventive supprimée' });
+    res.json({ message: 'Maintenance preventive supprimee' });
   } catch (error) {
     console.error('Erreur delete preventive:', error);
     res.status(500).json({ message: 'Erreur lors de la suppression' });
   }
 };
 
-// Réaliser une maintenance préventive (version corrigée)
 export const realiserPreventive = async (req, res) => {
   const { id } = req.params;
   const { rapport, checklistEffectuee, dureeReelle } = req.body;
 
   try {
-    console.log('🔧 Réalisation maintenance ID:', id);
+    console.log('Realisation maintenance ID:', id);
 
     const preventive = await prisma.maintenancePreventive.findUnique({
       where: { id: parseInt(id) },
@@ -121,14 +143,12 @@ export const realiserPreventive = async (req, res) => {
     });
 
     if (!preventive) {
-      return res.status(404).json({ message: 'Maintenance préventive non trouvée' });
+      return res.status(404).json({ message: 'Maintenance preventive non trouvee' });
     }
 
-    // Calculer la prochaine date
     const prochaineDate = new Date();
     prochaineDate.setDate(prochaineDate.getDate() + preventive.periodicite);
 
-    // Mettre à jour la maintenance préventive
     const updated = await prisma.maintenancePreventive.update({
       where: { id: parseInt(id) },
       data: {
@@ -141,23 +161,21 @@ export const realiserPreventive = async (req, res) => {
       }
     });
 
-    // Vérifier si l'utilisateur existe
     const technicien = await prisma.user.findUnique({
       where: { id: req.user.id }
     });
 
     if (!technicien) {
-      console.error('Technicien non trouvé:', req.user.id);
+      console.error('Technicien non trouve:', req.user.id);
     } else {
-      // Créer une intervention associée
       await prisma.intervention.create({
         data: {
           equipementId: preventive.equipementId,
           technicienId: req.user.id,
           type: 'PREVENTIF',
           statut: 'TERMINE',
-          diagnostic: `Maintenance préventive ${preventive.type} réalisée`,
-          rapportFinal: rapport || `Maintenance ${preventive.type} effectuée avec succès`,
+          diagnostic: `Maintenance preventive ${preventive.type} realisee`,
+          rapportFinal: rapport || `Maintenance ${preventive.type} effectuee avec succes`,
           dateDebut: new Date(),
           dateFin: new Date(),
           dureeMinutes: dureeReelle || 30
@@ -166,7 +184,7 @@ export const realiserPreventive = async (req, res) => {
     }
 
     res.json({ 
-      message: 'Maintenance préventive réalisée avec succès', 
+      message: 'Maintenance preventive realisee avec succes', 
       preventive: updated 
     });
   } catch (error) {
@@ -177,7 +195,6 @@ export const realiserPreventive = async (req, res) => {
   }
 };
 
-// Préventives à venir
 export const getPreventivesADate = async (req, res) => {
   const { jours = 7 } = req.query;
 
@@ -200,37 +217,41 @@ export const getPreventivesADate = async (req, res) => {
     res.json(preventives);
   } catch (error) {
     console.error('Erreur get preventives a date:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation' });
   }
 };
 
-// Statistiques préventives
 export const getStatsPreventives = async (req, res) => {
   try {
-    const [parType, tauxRealisation, prochainesEcheances] = await Promise.all([
-      prisma.maintenancePreventive.groupBy({
-        by: ['type'],
-        _count: true,
-        where: { statut: 'PREVU' }
-      }),
-      prisma.$queryRaw`
-        SELECT 
-          COUNT(CASE WHEN statut = 'REALISE' THEN 1 END) as realisees,
-          COUNT(*) as total
-        FROM MaintenancePreventive
-        WHERE dateRealisation >= date('now', '-30 days')
-      `,
-      prisma.maintenancePreventive.count({
-        where: {
-          statut: 'PREVU',
-          prochaineRealisation: { lte: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) }
-        }
-      })
-    ]);
+    const parType = await prisma.maintenancePreventive.groupBy({
+      by: ['type'],
+      _count: true,
+      where: { statut: 'PREVU' }
+    });
 
-    const total = tauxRealisation[0]?.total || 0;
-    const realisees = tauxRealisation[0]?.realisees || 0;
+    const trenteJoursAvant = new Date();
+    trenteJoursAvant.setDate(trenteJoursAvant.getDate() - 30);
+
+    const allPreventives = await prisma.maintenancePreventive.findMany({
+      where: {
+        dateRealisation: { gte: trenteJoursAvant }
+      },
+      select: { statut: true }
+    });
+
+    const total = allPreventives.length;
+    const realisees = allPreventives.filter(p => p.statut === 'REALISE').length;
     const taux = total > 0 ? ((realisees / total) * 100).toFixed(1) : 0;
+
+    const semaineProchaine = new Date();
+    semaineProchaine.setDate(semaineProchaine.getDate() + 7);
+
+    const prochainesEcheances = await prisma.maintenancePreventive.count({
+      where: {
+        statut: 'PREVU',
+        prochaineRealisation: { lte: semaineProchaine }
+      }
+    });
 
     res.json({
       parType,
@@ -241,6 +262,6 @@ export const getStatsPreventives = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur stats preventives:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des statistiques' });
   }
 };
