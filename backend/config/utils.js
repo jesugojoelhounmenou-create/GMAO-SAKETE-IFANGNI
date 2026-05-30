@@ -1,11 +1,11 @@
-// utils/matricule.js - Génération de matricules uniques pour GMAO Sakété
+// utils/matricule.js - Generation de matricules uniques pour GMAO Sakete
 
 // ============================================
 // CONFIGURATION
 // ============================================
 
 const MATRICULE_CONFIG = {
-    PREFIX: 'HZSI', // Hôpital Zone Sakété-Ifangni
+    PREFIX: 'HZSI',
     LENGTH: {
         NOM: 3,
         PRENOM: 2,
@@ -18,15 +18,9 @@ const MATRICULE_CONFIG = {
 // FONCTIONS UTILITAIRES
 // ============================================
 
-/**
- * Nettoyer une chaîne (enlever accents, caractères spéciaux)
- * @param {string} str - Chaîne à nettoyer
- * @returns {string} Chaîne nettoyée
- */
 const cleanString = (str) => {
     if (!str) return '';
     
-    // Supprimer les accents
     const accents = {
         'À': 'A', 'Á': 'A', 'Â': 'A', 'Ã': 'A', 'Ä': 'A', 'Å': 'A',
         'à': 'A', 'á': 'A', 'â': 'A', 'ã': 'A', 'ä': 'A', 'å': 'A',
@@ -47,17 +41,11 @@ const cleanString = (str) => {
         cleaned = cleaned.replace(new RegExp(accent, 'g'), letter);
     }
     
-    // Supprimer les caractères non alphabétiques
     cleaned = cleaned.replace(/[^A-Za-z]/g, '');
     
     return cleaned.toUpperCase();
 };
 
-/**
- * Générer une partie aléatoire
- * @param {number} length - Longueur de la partie aléatoire
- * @returns {string} Chaîne aléatoire
- */
 const generateRandomPart = (length = 4) => {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -67,27 +55,14 @@ const generateRandomPart = (length = 4) => {
     return result;
 };
 
-/**
- * Générer un numéro séquentiel
- * @param {number} count - Compteur actuel
- * @param {number} length - Longueur du padding
- * @returns {string} Numéro formaté
- */
 const generateSequentialNumber = (count, length = 4) => {
     return count.toString().padStart(length, '0');
 };
 
 // ============================================
-// GÉNÉRATEURS DE MATRICULE
+// GENERATEURS DE MATRICULE
 // ============================================
 
-/**
- * Générer un matricule unique (version standard)
- * @param {string} nom - Nom de la personne
- * @param {string} prenom - Prénom de la personne
- * @param {number} sequence - Numéro séquentiel (optionnel)
- * @returns {string} Matricule généré
- */
 export function generateMatricule(nom, prenom, sequence = null) {
     const cleanedNom = cleanString(nom);
     const cleanedPrenom = cleanString(prenom || '');
@@ -107,13 +82,6 @@ export function generateMatricule(nom, prenom, sequence = null) {
     return `${MATRICULE_CONFIG.PREFIX}${MATRICULE_CONFIG.SEPARATOR}${year}${MATRICULE_CONFIG.SEPARATOR}${nomCode}${prenomCode}${MATRICULE_CONFIG.SEPARATOR}${randomPart}`;
 }
 
-/**
- * Générer un matricule pour un technicien
- * @param {string} nom - Nom du technicien
- * @param {string} prenom - Prénom du technicien
- * @param {number} sequence - Numéro séquentiel
- * @returns {string} Matricule technicien
- */
 export function generateTechnicienMatricule(nom, prenom, sequence = null) {
     const prefix = 'TECH';
     const cleanedNom = cleanString(nom);
@@ -130,13 +98,6 @@ export function generateTechnicienMatricule(nom, prenom, sequence = null) {
     return `${prefix}${MATRICULE_CONFIG.SEPARATOR}${year}${MATRICULE_CONFIG.SEPARATOR}${nomCode}${prenomCode}${MATRICULE_CONFIG.SEPARATOR}${randomPart}`;
 }
 
-/**
- * Générer un matricule pour un équipement
- * @param {string} type - Type d'équipement
- * @param {string} service - Service
- * @param {number} sequence - Numéro séquentiel
- * @returns {string} Matricule équipement
- */
 export function generateEquipmentMatricule(type, service, sequence = null) {
     const typeMap = {
         'IMAGERIE': 'IMG',
@@ -169,12 +130,6 @@ export function generateEquipmentMatricule(type, service, sequence = null) {
     return `${typeCode}${MATRICULE_CONFIG.SEPARATOR}${serviceCode}${MATRICULE_CONFIG.SEPARATOR}${year}${MATRICULE_CONFIG.SEPARATOR}${sequencePart}`;
 }
 
-/**
- * Générer un matricule pour une pièce détachée
- * @param {string} categorie - Catégorie de la pièce
- * @param {number} sequence - Numéro séquentiel
- * @returns {string} Matricule pièce
- */
 export function generatePieceMatricule(categorie, sequence = null) {
     const categorieMap = {
         'ELECTRONIQUE': 'ELC',
@@ -196,12 +151,6 @@ export function generatePieceMatricule(categorie, sequence = null) {
     return `${categorieCode}${MATRICULE_CONFIG.SEPARATOR}${year}${MATRICULE_CONFIG.SEPARATOR}${sequencePart}`;
 }
 
-/**
- * Valider un format de matricule
- * @param {string} matricule - Matricule à valider
- * @param {string} type - Type de matricule ('user', 'technicien', 'equipment', 'piece')
- * @returns {boolean} true si valide
- */
 export function validateMatricule(matricule, type = 'user') {
     if (!matricule) return false;
     
@@ -216,11 +165,6 @@ export function validateMatricule(matricule, type = 'user') {
     return pattern ? pattern.test(matricule) : false;
 }
 
-/**
- * Extraire les informations d'un matricule
- * @param {string} matricule - Matricule à analyser
- * @returns {Object} Informations extraites
- */
 export function parseMatricule(matricule) {
     if (!matricule) return null;
     
@@ -239,13 +183,6 @@ export function parseMatricule(matricule) {
     return { isValid: false };
 }
 
-/**
- * Générer un matricule unique en vérifiant l'existence
- * @param {string} nom - Nom
- * @param {string} prenom - Prénom
- * @param {Function} checkExists - Fonction pour vérifier l'existence
- * @returns {Promise<string>} Matricule unique
- */
 export async function generateUniqueMatricule(nom, prenom, checkExists) {
     let matricule;
     let exists = true;
@@ -259,17 +196,12 @@ export async function generateUniqueMatricule(nom, prenom, checkExists) {
     }
     
     if (exists) {
-        // Dernier recours : utiliser un matricule avec timestamp
         const timestamp = Date.now().toString().slice(-4);
         matricule = generateMatricule(nom, prenom, parseInt(timestamp));
     }
     
     return matricule;
 }
-
-// ============================================
-// EXPORTATION
-// ============================================
 
 export default {
     generateMatricule,
