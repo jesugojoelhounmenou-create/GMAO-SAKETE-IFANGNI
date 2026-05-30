@@ -200,8 +200,8 @@
 <body>
 
 <div class="header">
-    <h2>📷 Scanner QR Code</h2>
-    <p>Scannez le QR code de l'équipement</p>
+    <h2>Scanner QR Code</h2>
+    <p>Scannez le QR code de l'equipement</p>
 </div>
 
 <div class="video-container">
@@ -210,10 +210,10 @@
     <div class="scan-line"></div>
 </div>
 
-<button class="btn-scan" onclick="startScan()">🔍 Démarrer le scan</button>
+<button class="btn-scan" onclick="startScan()">Demarrer le scan</button>
 
 <div id="result" class="result">
-    <h3>📱 Résultat</h3>
+    <h3>Resultat</h3>
     <p id="scanResult">En attente de scan...</p>
 </div>
 
@@ -242,7 +242,6 @@
     let isScanning = false;
     const token = localStorage.getItem('token');
     
-    // Auth check
     if (!token) window.location.href = '/login.html';
     
     const userRole = localStorage.getItem('userRole');
@@ -250,9 +249,9 @@
     
     function getStatusText(statut) {
         const map = {
-            'FONCTIONNEL': '✅ Fonctionnel',
-            'EN_PANNE': '❌ En panne',
-            'EN_MAINTENANCE': '🔧 En maintenance'
+            'FONCTIONNEL': 'Fonctionnel',
+            'EN_PANNE': 'En panne',
+            'EN_MAINTENANCE': 'En maintenance'
         };
         return map[statut] || statut;
     }
@@ -273,7 +272,7 @@
         }
         
         const resultDiv = document.getElementById('scanResult');
-        resultDiv.innerHTML = '📷 Demarrage de la caméra...';
+        resultDiv.innerHTML = 'Demarrage de la camera...';
         
         html5QrCode = new Html5Qrcode("preview");
         isScanning = true;
@@ -289,10 +288,10 @@
                 onScanSuccess, 
                 onScanError
             );
-            resultDiv.innerHTML = '🔍 Scannez le QR code...';
+            resultDiv.innerHTML = 'Scannez le QR code...';
         } catch(e) { 
-            console.error("Erreur caméra:", e);
-            resultDiv.innerHTML = '❌ Impossible d\'accéder à la caméra. Vérifiez les permissions.';
+            console.error("Erreur camera:", e);
+            resultDiv.innerHTML = 'Impossible d\'acceder a la camera. Verifiez les permissions.';
             isScanning = false;
         }
     }
@@ -301,7 +300,7 @@
         if (html5QrCode && isScanning) {
             try {
                 await html5QrCode.stop();
-            } catch(e) { console.log("Erreur arrêt scan:", e); }
+            } catch(e) { console.log("Erreur arret scan:", e); }
             html5QrCode = null;
             isScanning = false;
         }
@@ -331,14 +330,14 @@
             if (isTechnicien) {
                 actionsHtml = `
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <a href="/technicien/equipement-detail.html?id=${equip.id}" style="flex:1; background:#0066FF; color:white; padding:12px; border-radius:50px; text-decoration:none; text-align:center; font-weight:600;">🔍 Voir détails</a>
-                        <button onclick="signalerPanne(${equip.id})" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:50px; font-weight:600; cursor:pointer;">⚠️ Panne</button>
+                        <a href="/technicien/equipement-detail.html?id=${equip.id}" style="flex:1; background:#0066FF; color:white; padding:12px; border-radius:50px; text-decoration:none; text-align:center; font-weight:600;">Voir details</a>
+                        <button onclick="signalerPanne(${equip.id})" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:50px; font-weight:600; cursor:pointer;">Panne</button>
                     </div>
                 `;
             } else {
                 actionsHtml = `
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <button onclick="signalerPanne(${equip.id})" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:50px; font-weight:600; cursor:pointer;">⚠️ Signaler une panne</button>
+                        <button onclick="signalerPanne(${equip.id})" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:50px; font-weight:600; cursor:pointer;">Signaler une panne</button>
                     </div>
                 `;
             }
@@ -347,36 +346,36 @@
                 <div class="equipment-card">
                     <div style="text-align:center; font-size:48px; margin-bottom:10px;">📱</div>
                     <div class="equipment-info">
-                        <div class="equipment-label">🏷️ Équipement</div>
+                        <div class="equipment-label">Equipement</div>
                         <div class="equipment-value"><strong>${escapeHtml(equip.nom)}</strong></div>
                     </div>
                     <div class="equipment-info">
-                        <div class="equipment-label">📦 Code inventaire</div>
+                        <div class="equipment-label">Code inventaire</div>
                         <div class="equipment-value">${escapeHtml(equip.codeInventaire)}</div>
                     </div>
                     <div class="equipment-info">
-                        <div class="equipment-label">📍 Service</div>
+                        <div class="equipment-label">Service</div>
                         <div class="equipment-value">${escapeHtml(equip.service || '-')}</div>
                     </div>
                     <div class="equipment-info">
-                        <div class="equipment-label">🔧 Statut</div>
+                        <div class="equipment-label">Statut</div>
                         <div class="equipment-value"><span class="status-badge status-${equip.statut}">${getStatusText(equip.statut)}</span></div>
                     </div>
                     ${equip.marque ? `
                     <div class="equipment-info">
-                        <div class="equipment-label">🏭 Marque</div>
+                        <div class="equipment-label">Marque</div>
                         <div class="equipment-value">${escapeHtml(equip.marque)} ${escapeHtml(equip.modele || '')}</div>
                     </div>
                     ` : ''}
                     ${actionsHtml}
-                    <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">📷 Scanner à nouveau</button>
+                    <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">Scanner a nouveau</button>
                 </div>
             `;
         } catch(error) {
             console.error('Erreur:', error);
             resultDiv.innerHTML = `
-                <div style="color:#dc2626;">❌ QR code non reconnu ou équipement non trouvé</div>
-                <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">📷 Réessayer</button>
+                <div style="color:#dc2626;">QR code non reconnu ou equipement non trouve</div>
+                <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">Reessayer</button>
             `;
         }
     }
@@ -399,10 +398,8 @@
         console.log("Erreur scan:", err); 
     }
     
-    // Démarrer automatiquement au chargement
     startScan();
     
-    // Nettoyer à la fermeture
     window.addEventListener('beforeunload', () => {
         if (html5QrCode && isScanning) {
             html5QrCode.stop().catch(console.log);
