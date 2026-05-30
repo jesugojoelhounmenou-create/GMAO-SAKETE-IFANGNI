@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // ============================================
-// VALIDATION DES VARIABES D'ENVIRONNEMENT
+// VALIDATION DES VARIABLES D'ENVIRONNEMENT
 // ============================================
 
 const requiredEnvVars = [
@@ -18,7 +18,7 @@ const requiredEnvVars = [
 const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
 
 if (missingEnvVars.length > 0) {
-    console.error('❌ Variables d\'environnement Cloudinary manquantes:', missingEnvVars.join(', '));
+    console.error('Variables d\'environnement Cloudinary manquantes:', missingEnvVars.join(', '));
     if (process.env.NODE_ENV === 'production') {
         throw new Error(`Cloudinary configuration missing: ${missingEnvVars.join(', ')}`);
     }
@@ -32,33 +32,23 @@ cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET,
-    secure: true, // Utiliser HTTPS
-    timeout: 60000 // Timeout de 60 secondes
+    secure: true,
+    timeout: 60000
 });
 
 // ============================================
 // FONCTIONS UTILITAIRES
 // ============================================
 
-/**
- * Vérifier si Cloudinary est correctement configuré
- * @returns {boolean} true si configuré
- */
 export const isCloudinaryConfigured = () => {
     return !!(process.env.CLOUDINARY_CLOUD_NAME &&
               process.env.CLOUDINARY_API_KEY &&
               process.env.CLOUDINARY_API_SECRET);
 };
 
-/**
- * Upload d'un fichier vers Cloudinary
- * @param {string|Buffer} file - Fichier à uploader (base64, buffer ou URL)
- * @param {Object} options - Options d'upload
- * @returns {Promise<Object>} Résultat de l'upload
- */
 export const uploadToCloudinary = async (file, options = {}) => {
     if (!isCloudinaryConfigured()) {
-        throw new Error('Cloudinary non configuré');
+        throw new Error('Cloudinary non configure');
     }
 
     const defaultOptions = {
@@ -84,38 +74,21 @@ export const uploadToCloudinary = async (file, options = {}) => {
         };
     } catch (error) {
         console.error('Erreur upload Cloudinary:', error);
-        throw new Error(`Upload échoué: ${error.message}`);
+        throw new Error(`Upload echoue: ${error.message}`);
     }
 };
 
-/**
- * Upload d'une image depuis une URL
- * @param {string} url - URL de l'image
- * @param {Object} options - Options d'upload
- * @returns {Promise<Object>} Résultat de l'upload
- */
 export const uploadFromUrl = async (url, options = {}) => {
     return uploadToCloudinary(url, options);
 };
 
-/**
- * Upload d'un fichier base64
- * @param {string} base64String - Chaîne base64 du fichier
- * @param {Object} options - Options d'upload
- * @returns {Promise<Object>} Résultat de l'upload
- */
 export const uploadFromBase64 = async (base64String, options = {}) => {
     return uploadToCloudinary(base64String, options);
 };
 
-/**
- * Supprimer un fichier de Cloudinary
- * @param {string} publicId - ID public du fichier
- * @returns {Promise<Object>} Résultat de la suppression
- */
 export const deleteFromCloudinary = async (publicId) => {
     if (!isCloudinaryConfigured()) {
-        throw new Error('Cloudinary non configuré');
+        throw new Error('Cloudinary non configure');
     }
 
     try {
@@ -126,16 +99,10 @@ export const deleteFromCloudinary = async (publicId) => {
         };
     } catch (error) {
         console.error('Erreur suppression Cloudinary:', error);
-        throw new Error(`Suppression échouée: ${error.message}`);
+        throw new Error(`Suppression echouee: ${error.message}`);
     }
 };
 
-/**
- * Obtenir une URL optimisée avec transformations
- * @param {string} publicId - ID public du fichier
- * @param {Object} transformations - Transformations à appliquer
- * @returns {string} URL transformée
- */
 export const getOptimizedUrl = (publicId, transformations = {}) => {
     if (!publicId) return null;
 
@@ -153,14 +120,9 @@ export const getOptimizedUrl = (publicId, transformations = {}) => {
     });
 };
 
-/**
- * Obtenir une URL pour un QR code
- * @param {string} data - Données du QR code
- * @returns {Promise<string>} URL du QR code généré
- */
 export const generateQrCodeUrl = async (data) => {
     if (!isCloudinaryConfigured()) {
-        throw new Error('Cloudinary non configuré');
+        throw new Error('Cloudinary non configure');
     }
 
     try {
@@ -174,18 +136,11 @@ export const generateQrCodeUrl = async (data) => {
         });
         return result.secure_url;
     } catch (error) {
-        console.error('Erreur génération QR code:', error);
-        throw new Error(`Génération QR code échouée: ${error.message}`);
+        console.error('Erreur generation QR code:', error);
+        throw new Error(`Generation QR code echouee: ${error.message}`);
     }
 };
 
-/**
- * Upload d'un document (PDF, DOC, etc.)
- * @param {Buffer} fileBuffer - Buffer du fichier
- * @param {string} originalName - Nom original du fichier
- * @param {Object} options - Options supplémentaires
- * @returns {Promise<Object>} Résultat de l'upload
- */
 export const uploadDocument = async (fileBuffer, originalName, options = {}) => {
     const defaultOptions = {
         folder: 'gmao-sakete/documents',
@@ -198,12 +153,6 @@ export const uploadDocument = async (fileBuffer, originalName, options = {}) => 
     return uploadToCloudinary(fileBuffer, { ...defaultOptions, ...options });
 };
 
-/**
- * Upload d'une image d'équipement
- * @param {Buffer} fileBuffer - Buffer de l'image
- * @param {number} equipementId - ID de l'équipement
- * @returns {Promise<Object>} Résultat de l'upload
- */
 export const uploadEquipmentImage = async (fileBuffer, equipementId) => {
     const options = {
         folder: `gmao-sakete/equipements/${equipementId}`,
@@ -215,12 +164,6 @@ export const uploadEquipmentImage = async (fileBuffer, equipementId) => {
     return uploadToCloudinary(fileBuffer, options);
 };
 
-/**
- * Upload d'une photo d'intervention
- * @param {Buffer} fileBuffer - Buffer de la photo
- * @param {number} interventionId - ID de l'intervention
- * @returns {Promise<Object>} Résultat de l'upload
- */
 export const uploadInterventionPhoto = async (fileBuffer, interventionId) => {
     const options = {
         folder: `gmao-sakete/interventions/${interventionId}`,
@@ -232,17 +175,12 @@ export const uploadInterventionPhoto = async (fileBuffer, interventionId) => {
     return uploadToCloudinary(fileBuffer, options);
 };
 
-/**
- * Obtenir les statistiques Cloudinary
- * @returns {Promise<Object>} Statistiques
- */
 export const getCloudinaryStats = async () => {
     if (!isCloudinaryConfigured()) {
         return { configured: false };
     }
 
     try {
-        // Récupérer les statistiques d'utilisation
         const usage = await cloudinary.api.usage();
         return {
             configured: true,
@@ -254,7 +192,7 @@ export const getCloudinaryStats = async () => {
             }
         };
     } catch (error) {
-        console.error('Erreur récupération stats Cloudinary:', error);
+        console.error('Erreur recuperation stats Cloudinary:', error);
         return {
             configured: true,
             error: error.message
@@ -262,11 +200,6 @@ export const getCloudinaryStats = async () => {
     }
 };
 
-/**
- * Créer une URL de signature pour upload direct depuis le frontend
- * @param {Object} options - Options de signature
- * @returns {Object} Signature et timestamp
- */
 export const generateUploadSignature = (options = {}) => {
     const timestamp = Math.round(Date.now() / 1000);
     const params = {
@@ -288,13 +221,6 @@ export const generateUploadSignature = (options = {}) => {
     };
 };
 
-// ============================================
-// MIDDLEWARE POUR EXPRESS
-// ============================================
-
-/**
- * Middleware pour vérifier la configuration Cloudinary
- */
 export const checkCloudinaryConfig = (req, res, next) => {
     if (!isCloudinaryConfigured()) {
         return res.status(503).json({
@@ -305,16 +231,11 @@ export const checkCloudinaryConfig = (req, res, next) => {
     next();
 };
 
-// ============================================
-// EXPORTATION PAR DÉFAUT
-// ============================================
-
-// Log de statut au démarrage (non bloquant)
 if (isCloudinaryConfigured()) {
-    console.log('✅ Cloudinary configuré avec succès');
-    console.log(`   Cloud Name: ${process.env.CLOUDINARY_CLOUD_NAME}`);
+    console.log('Cloudinary configure avec succes');
+    console.log('   Cloud Name:', process.env.CLOUDINARY_CLOUD_NAME);
 } else {
-    console.warn('⚠️ Cloudinary non configuré - les fonctionnalités de stockage seront limitées');
+    console.warn('Cloudinary non configure - les fonctionnalites de stockage seront limitees');
 }
 
 export default cloudinary;
