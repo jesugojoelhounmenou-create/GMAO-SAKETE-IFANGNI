@@ -1,4 +1,4 @@
-/* Styles spécifiques pour mobile - GMAO Sakété */
+/* Styles specifiques pour mobile - GMAO Sakete */
 
 /* ============================================
    VARIABLES MOBILE
@@ -340,7 +340,7 @@
     to { transform: rotate(360deg); }
 }
 
-/* Liste d'éléments */
+/* Liste d'elements */
 .list-item-mobile {
     display: flex;
     align-items: center;
@@ -545,7 +545,7 @@
     }
 }
 
-/* Écrans très petits (moins de 360px) */
+/* Ecrans tres petits (moins de 360px) */
 @media (max-width: 360px) {
     .stat-card-mobile {
         min-width: 130px;
@@ -570,7 +570,7 @@
     }
 }
 
-/* Animations réduites */
+/* Animations reduites */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation-duration: 0.01ms !important;
