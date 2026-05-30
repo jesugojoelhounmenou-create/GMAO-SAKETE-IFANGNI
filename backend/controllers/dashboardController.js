@@ -1,6 +1,5 @@
 import prisma from '../config/database.js';
 
-// Dashboard technicien
 export const getTechnicienDashboard = async (req, res) => {
   try {
     const today = new Date();
@@ -57,7 +56,6 @@ export const getTechnicienDashboard = async (req, res) => {
       }),
     ]);
 
-    // Calculer la disponibilité
     const total = statsEquipements.reduce((acc, s) => acc + s._count, 0);
     const fonctionnel = statsEquipements.find(s => s.statut === 'FONCTIONNEL')?._count || 0;
     const disponibilite = total > 0 ? ((fonctionnel / total) * 100).toFixed(1) : 0;
@@ -80,12 +78,11 @@ export const getTechnicienDashboard = async (req, res) => {
       alertesCritiques,
     });
   } catch (error) {
-    console.error('Erreur dashboard:', error);
+    console.error('Erreur dashboard technicien:', error);
     res.status(500).json({ message: 'Erreur lors du chargement du dashboard' });
   }
 };
 
-// Dashboard soignant
 export const getSoignantDashboard = async (req, res) => {
   const userId = req.user.id;
 
@@ -131,11 +128,10 @@ export const getSoignantDashboard = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur dashboard soignant:', error);
-    res.status(500).json({ message: 'Erreur lors du chargement' });
+    res.status(500).json({ message: 'Erreur lors du chargement du dashboard' });
   }
 };
 
-// Dashboard mobile (version optimisée)
 export const getMobileDashboard = async (req, res) => {
   try {
     const [
@@ -182,6 +178,6 @@ export const getMobileDashboard = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur dashboard mobile:', error);
-    res.status(500).json({ message: 'Erreur lors du chargement' });
+    res.status(500).json({ message: 'Erreur lors du chargement du dashboard mobile' });
   }
 };
