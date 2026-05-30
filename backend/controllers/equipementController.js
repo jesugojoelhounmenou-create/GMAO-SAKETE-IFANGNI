@@ -1,11 +1,9 @@
 import prisma from '../config/database.js';
 import QRCode from 'qrcode';
 
-// Générer QR code pour un équipement (URL directe)
 const generateQR = async (equipment) => {
   const baseUrl = process.env.FRONTEND_URL || 'http://localhost:5500';
   
-  // URL directe vers la fiche technique
   const qrData = `${baseUrl}/technicien/equipement-detail.html?id=${equipment.id}`;
   
   const qrBase64 = await QRCode.toDataURL(qrData, {
@@ -16,7 +14,6 @@ const generateQR = async (equipment) => {
   return qrBase64;
 };
 
-// Ajouter un équipement
 export const addEquipment = async (req, res) => {
   const {
     codeInventaire, nom, marque, modele, numeroSerie,
@@ -26,16 +23,14 @@ export const addEquipment = async (req, res) => {
   } = req.body;
 
   try {
-    // Vérifier si le code existe
     const existing = await prisma.equipement.findUnique({
       where: { codeInventaire }
     });
 
     if (existing) {
-      return res.status(400).json({ message: 'Ce code inventaire existe déjà' });
+      return res.status(400).json({ message: 'Ce code inventaire existe deja' });
     }
 
-    // Créer l'équipement
     const equipement = await prisma.equipement.create({
       data: {
         codeInventaire,
@@ -59,7 +54,6 @@ export const addEquipment = async (req, res) => {
       },
     });
 
-    // Générer QR code
     const qrBase64 = await generateQR(equipement);
     
     const updated = await prisma.equipement.update({
@@ -68,16 +62,15 @@ export const addEquipment = async (req, res) => {
     });
 
     res.status(201).json({
-      message: 'Équipement ajouté avec succès',
+      message: 'Equipement ajoute avec succes',
       equipement: updated,
     });
   } catch (error) {
-    console.error('Erreur ajout équipement:', error);
+    console.error('Erreur ajout equipement:', error);
     res.status(500).json({ message: 'Erreur lors de l\'ajout' });
   }
 };
 
-// Liste tous les équipements
 export const getAllEquipments = async (req, res) => {
   const { service, statut, type, search } = req.query;
 
@@ -89,10 +82,10 @@ export const getAllEquipments = async (req, res) => {
     if (type && type !== '') filters.typeMedical = type;
     if (search) {
       filters.OR = [
-        { nom: { contains: search } },
-        { codeInventaire: { contains: search } },
-        { marque: { contains: search } },
-        { modele: { contains: search } },
+        { nom: { contains: search, mode: 'insensitive' } },
+        { codeInventaire: { contains: search, mode: 'insensitive' } },
+        { marque: { contains: search, mode: 'insensitive' } },
+        { modele: { contains: search, mode: 'insensitive' } },
       ];
     }
 
@@ -110,12 +103,11 @@ export const getAllEquipments = async (req, res) => {
 
     res.json(equipements);
   } catch (error) {
-    console.error('Erreur liste équipements:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    console.error('Erreur liste equipements:', error);
+    res.status(500).json({ message: 'Erreur lors de la recuperation' });
   }
 };
 
-// Détail d'un équipement
 export const getEquipmentById = async (req, res) => {
   const { id } = req.params;
 
@@ -138,34 +130,31 @@ export const getEquipmentById = async (req, res) => {
     });
 
     if (!equipement) {
-      return res.status(404).json({ message: 'Équipement non trouvé' });
+      return res.status(404).json({ message: 'Equipement non trouve' });
     }
 
     res.json(equipement);
   } catch (error) {
-    console.error('Erreur détail équipement:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    console.error('Erreur detail equipement:', error);
+    res.status(500).json({ message: 'Erreur lors de la recuperation' });
   }
 };
 
-// Mettre à jour un équipement
 export const updateEquipment = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
 
   try {
-    console.log('📝 Mise à jour équipement ID:', id);
+    console.log('Mise a jour equipement ID:', id);
 
-    // Vérifier si l'équipement existe
     const existing = await prisma.equipement.findUnique({
       where: { id: parseInt(id) }
     });
 
     if (!existing) {
-      return res.status(404).json({ message: 'Équipement non trouvé' });
+      return res.status(404).json({ message: 'Equipement non trouve' });
     }
 
-    // Préparer les données avec conversion correcte des dates
     const data = {
       nom: updateData.nom,
       codeInventaire: updateData.codeInventaire,
@@ -187,7 +176,6 @@ export const updateEquipment = async (req, res) => {
       data: data,
     });
 
-    // Regénérer QR code si nécessaire
     if (updateData.nom !== existing.nom || updateData.codeInventaire !== existing.codeInventaire) {
       const newQR = await generateQR(equipement);
       await prisma.equipement.update({
@@ -196,32 +184,29 @@ export const updateEquipment = async (req, res) => {
       });
     }
 
-    res.json({ message: 'Équipement mis à jour avec succès', equipement });
+    res.json({ message: 'Equipement mis a jour avec succes', equipement });
   } catch (error) {
-    console.error('Erreur mise à jour:', error);
+    console.error('Erreur mise a jour:', error);
     res.status(500).json({ message: 'Erreur serveur: ' + error.message });
   }
 };
 
-// Supprimer un équipement
 export const deleteEquipment = async (req, res) => {
   const { id } = req.params;
 
   try {
     await prisma.equipement.delete({ where: { id: parseInt(id) } });
-    res.json({ message: 'Équipement supprimé' });
+    res.json({ message: 'Equipement supprime' });
   } catch (error) {
     console.error('Erreur suppression:', error);
     res.status(500).json({ message: 'Erreur lors de la suppression' });
   }
 };
 
-// Scanner QR code
 export const scanQRCode = async (req, res) => {
   const { qrData } = req.body;
 
   try {
-    // Si c'est une URL directe, extraire l'ID
     if (typeof qrData === 'string' && qrData.includes('equipement-detail.html')) {
       const match = qrData.match(/id=(\d+)/);
       if (match) {
@@ -258,7 +243,7 @@ export const scanQRCode = async (req, res) => {
     });
 
     if (!equipement) {
-      return res.status(404).json({ message: 'Équipement non trouvé' });
+      return res.status(404).json({ message: 'Equipement non trouve' });
     }
 
     const derniereMaintenance = await prisma.intervention.findFirst({
@@ -277,7 +262,6 @@ export const scanQRCode = async (req, res) => {
   }
 };
 
-// Statistiques pour dashboard
 export const getEquipmentStats = async (req, res) => {
   try {
     const [total, fonctionnel, panne, maintenance, parService, parType] = await Promise.all([
@@ -301,7 +285,7 @@ export const getEquipmentStats = async (req, res) => {
       parType,
     });
   } catch (error) {
-    console.error('Erreur stats:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération des stats' });
+    console.error('Erreur stats equipements:', error);
+    res.status(500).json({ message: 'Erreur lors de la recuperation des statistiques' });
   }
 };
