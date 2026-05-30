@@ -4,11 +4,6 @@
 // FORMATAGE DE DATES
 // ============================================
 
-/**
- * Formater une date (JJ/MM/AAAA)
- * @param {string|Date} date - Date à formater
- * @returns {string} Date formatée
- */
 function formatDate(date) {
     if (!date) return '-';
     try {
@@ -24,11 +19,6 @@ function formatDate(date) {
     }
 }
 
-/**
- * Formater une date et heure (JJ/MM/AAAA HH:MM)
- * @param {string|Date} date - Date à formater
- * @returns {string} Date et heure formatées
- */
 function formatDateTime(date) {
     if (!date) return '-';
     try {
@@ -46,11 +36,6 @@ function formatDateTime(date) {
     }
 }
 
-/**
- * Formater une heure seulement (HH:MM)
- * @param {string|Date} date - Date à formater
- * @returns {string} Heure formatée
- */
 function formatTime(date) {
     if (!date) return '-';
     try {
@@ -65,11 +50,6 @@ function formatTime(date) {
     }
 }
 
-/**
- * Temps écoulé depuis une date
- * @param {string|Date} date - Date de référence
- * @returns {string} Temps écoulé (ex: "il y a 5 min")
- */
 function timeAgo(date) {
     if (!date) return '-';
     try {
@@ -78,7 +58,7 @@ function timeAgo(date) {
         
         const seconds = Math.floor((Date.now() - d.getTime()) / 1000);
         
-        if (seconds < 10) return 'à l\'instant';
+        if (seconds < 10) return 'a l\'instant';
         if (seconds < 60) return `il y a ${seconds} sec`;
         
         const minutes = Math.floor(seconds / 60);
@@ -99,12 +79,6 @@ function timeAgo(date) {
     }
 }
 
-/**
- * Calculer la durée entre deux dates
- * @param {string|Date} start - Date de début
- * @param {string|Date} end - Date de fin
- * @returns {string} Durée formatée (ex: "2h 30min")
- */
 function formatDuration(start, end) {
     if (!start || !end) return '-';
     try {
@@ -131,11 +105,6 @@ function formatDuration(start, end) {
 // FORMATAGE DE NOMBRES
 // ============================================
 
-/**
- * Formater un prix en FCFA
- * @param {number} price - Prix à formater
- * @returns {string} Prix formaté
- */
 function formatPrice(price) {
     if (price === null || price === undefined) return '0 FCFA';
     const num = typeof price === 'string' ? parseFloat(price) : price;
@@ -143,11 +112,6 @@ function formatPrice(price) {
     return num.toLocaleString('fr-FR') + ' FCFA';
 }
 
-/**
- * Formater un nombre avec séparateur de milliers
- * @param {number} number - Nombre à formater
- * @returns {string} Nombre formaté
- */
 function formatNumber(number) {
     if (number === null || number === undefined) return '0';
     const num = typeof number === 'string' ? parseFloat(number) : number;
@@ -155,12 +119,6 @@ function formatNumber(number) {
     return num.toLocaleString('fr-FR');
 }
 
-/**
- * Formater un pourcentage
- * @param {number} value - Valeur (0-1 ou 0-100)
- * @param {boolean} isDecimal - Si la valeur est en décimal (0-1)
- * @returns {string} Pourcentage formaté
- */
 function formatPercent(value, isDecimal = false) {
     if (value === null || value === undefined) return '0%';
     let percent = isDecimal ? value * 100 : value;
@@ -172,43 +130,28 @@ function formatPercent(value, isDecimal = false) {
 // BADGES ET STATUTS
 // ============================================
 
-/**
- * Obtenir le badge de statut d'équipement
- * @param {string} statut - Statut de l'équipement
- * @returns {string} HTML du badge
- */
 function getStatusBadge(statut) {
     const statusMap = {
-        'FONCTIONNEL': '<span class="badge badge-success">✅ Fonctionnel</span>',
-        'EN_PANNE': '<span class="badge badge-danger">❌ En panne</span>',
-        'EN_MAINTENANCE': '<span class="badge badge-warning">🔧 En maintenance</span>',
-        'HORS_SERVICE': '<span class="badge badge-dark">⚠️ Hors service</span>',
-        'OPERATIONNEL': '<span class="badge badge-success">✅ Opérationnel</span>'
+        'FONCTIONNEL': '<span class="badge badge-success">Fonctionnel</span>',
+        'EN_PANNE': '<span class="badge badge-danger">En panne</span>',
+        'EN_MAINTENANCE': '<span class="badge badge-warning">En maintenance</span>',
+        'HORS_SERVICE': '<span class="badge badge-dark">Hors service</span>',
+        'OPERATIONNEL': '<span class="badge badge-success">Operationnel</span>'
     };
     return statusMap[statut] || `<span class="badge">${statut}</span>`;
 }
 
-/**
- * Obtenir le badge de priorité
- * @param {string} priorite - Niveau de priorité
- * @returns {string} HTML du badge
- */
 function getPriorityBadge(priorite) {
     const priorityMap = {
-        'CRITIQUE': '<span class="badge badge-danger">🔴 Critique</span>',
-        'HAUTE': '<span class="badge badge-warning">🟠 Haute</span>',
-        'MOYENNE': '<span class="badge badge-info">🟡 Moyenne</span>',
-        'BASSE': '<span class="badge badge-success">🟢 Basse</span>',
-        'NORMALE': '<span class="badge badge-info">🔵 Normale</span>'
+        'CRITIQUE': '<span class="badge badge-danger">Critique</span>',
+        'HAUTE': '<span class="badge badge-warning">Haute</span>',
+        'MOYENNE': '<span class="badge badge-info">Moyenne</span>',
+        'BASSE': '<span class="badge badge-success">Basse</span>',
+        'NORMALE': '<span class="badge badge-info">Normale</span>'
     };
     return priorityMap[priorite] || `<span class="badge">${priorite}</span>`;
 }
 
-/**
- * Obtenir le texte du statut d'équipement
- * @param {string} statut - Statut de l'équipement
- * @returns {string} Texte du statut
- */
 function getStatusText(statut) {
     const statusMap = {
         'FONCTIONNEL': 'Fonctionnel',
@@ -219,11 +162,6 @@ function getStatusText(statut) {
     return statusMap[statut] || statut;
 }
 
-/**
- * Obtenir la classe CSS pour le statut
- * @param {string} statut - Statut de l'équipement
- * @returns {string} Classe CSS
- */
 function getStatusClass(statut) {
     const statusMap = {
         'FONCTIONNEL': 'success',
@@ -235,29 +173,21 @@ function getStatusClass(statut) {
 }
 
 // ============================================
-# NOTIFICATIONS
-============================================
+// NOTIFICATIONS
+// ============================================
 
-/**
- * Afficher une notification toast
- * @param {string} message - Message à afficher
- * @param {string} type - Type de notification (success, error, warning, info)
- * @param {number} duration - Durée d'affichage en ms
- */
 function showToast(message, type = 'success', duration = 3000) {
-    // Supprimer les toasts existants
     const existingToasts = document.querySelectorAll('.gmao-toast');
     existingToasts.forEach(toast => toast.remove());
     
     const toast = document.createElement('div');
     toast.className = `gmao-toast toast-${type}`;
     
-    const icons = {
-        success: '✅',
-        error: '❌',
-        warning: '⚠️',
-        info: 'ℹ️'
-    };
+    let icon = '';
+    if (type === 'success') icon = '✓';
+    else if (type === 'error') icon = '✗';
+    else if (type === 'warning') icon = '⚠';
+    else icon = 'ℹ';
     
     toast.innerHTML = `
         <div style="
@@ -278,7 +208,7 @@ function showToast(message, type = 'success', duration = 3000) {
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
             animation: slideUpFade 0.3s ease;
         ">
-            <span>${icons[type] || 'ℹ️'}</span>
+            <span>${icon}</span>
             <span>${message}</span>
         </div>
         <style>
@@ -304,12 +234,6 @@ function showToast(message, type = 'success', duration = 3000) {
     }, duration);
 }
 
-/**
- * Afficher une boîte de dialogue de confirmation
- * @param {string} message - Message de confirmation
- * @param {Function} callback - Fonction à exécuter si confirmé
- * @param {string} title - Titre de la confirmation
- */
 function confirmAction(message, callback, title = 'Confirmation') {
     if (confirm(`${title}\n\n${message}`)) {
         if (callback && typeof callback === 'function') {
@@ -320,10 +244,6 @@ function confirmAction(message, callback, title = 'Confirmation') {
     return false;
 }
 
-/**
- * Afficher une boîte de dialogue personnalisée
- * @param {object} options - Options de la boîte de dialogue
- */
 function showDialog(options) {
     const {
         title = 'Information',
@@ -344,30 +264,22 @@ function showDialog(options) {
 }
 
 // ============================================
-# CHARGEMENT DE DONNÉES
-============================================
+// CHARGEMENT DE DONNEES
+// ============================================
 
-/**
- * Charger les options d'un select via API
- * @param {string} selectId - ID du select
- * @param {string} url - URL de l'API
- * @param {string} valueField - Champ pour la valeur
- * @param {string} textField - Champ pour le texte
- * @param {string} placeholder - Texte par défaut
- */
-async function loadSelectOptions(selectId, url, valueField, textField, placeholder = 'Sélectionner') {
+async function loadSelectOptions(selectId, url, valueField, textField, placeholder = 'Selectionner') {
     const select = document.getElementById(selectId);
     if (!select) {
-        console.warn(`Select #${selectId} non trouvé`);
+        console.warn(`Select ${selectId} non trouve`);
         return;
     }
     
-    select.innerHTML = `<option value="">📋 ${placeholder}</option>`;
+    select.innerHTML = `<option value="">${placeholder}</option>`;
     
     try {
         const token = localStorage.getItem('token');
         if (!token) {
-            console.warn('Token non trouvé');
+            console.warn('Token non trouve');
             return;
         }
         
@@ -388,16 +300,10 @@ async function loadSelectOptions(selectId, url, valueField, textField, placehold
         });
     } catch (error) {
         console.error('Erreur chargement select:', error);
-        select.innerHTML = `<option value="">❌ Erreur de chargement</option>`;
+        select.innerHTML = `<option value="">Erreur de chargement</option>`;
     }
 }
 
-/**
- * Charger les données d'un tableau via API
- * @param {string} url - URL de l'API
- * @param {Function} renderRow - Fonction pour rendre une ligne
- * @param {string} containerId - ID du conteneur
- */
 async function loadTableData(url, renderRow, containerId) {
     const container = document.getElementById(containerId);
     if (!container) return;
@@ -406,7 +312,7 @@ async function loadTableData(url, renderRow, containerId) {
     
     try {
         const token = localStorage.getItem('token');
-        if (!token) throw new Error('Non authentifié');
+        if (!token) throw new Error('Non authentifie');
         
         const response = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
@@ -418,58 +324,37 @@ async function loadTableData(url, renderRow, containerId) {
         const items = Array.isArray(data) ? data : (data.data || data.items || []);
         
         if (items.length === 0) {
-            container.innerHTML = '<div class="empty-state">📭 Aucune donnée disponible</div>';
+            container.innerHTML = '<div class="empty-state">Aucune donnee disponible</div>';
             return;
         }
         
         container.innerHTML = items.map(renderRow).join('');
     } catch (error) {
         console.error('Erreur chargement:', error);
-        container.innerHTML = '<div class="empty-state">❌ Erreur de chargement</div>';
+        container.innerHTML = '<div class="empty-state">Erreur de chargement</div>';
     }
 }
 
 // ============================================
-# VALIDATION
-============================================
+// VALIDATION
+// ============================================
 
-/**
- * Valider une adresse email
- * @param {string} email - Email à valider
- * @returns {boolean} true si valide
- */
 function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
 }
 
-/**
- * Valider un numéro de téléphone (Bénin)
- * @param {string} phone - Téléphone à valider
- * @returns {boolean} true si valide
- */
 function isValidPhone(phone) {
     const regex = /^(\+229|0)[0-9]{8,9}$/;
     return regex.test(phone);
 }
 
-/**
- * Tronquer un texte
- * @param {string} text - Texte à tronquer
- * @param {number} maxLength - Longueur maximale
- * @returns {string} Texte tronqué
- */
 function truncate(text, maxLength = 50) {
     if (!text) return '';
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
 }
 
-/**
- * Échapper les caractères HTML
- * @param {string} str - Chaîne à échapper
- * @returns {string} Chaîne échappée
- */
 function escapeHtml(str) {
     if (!str) return '';
     return String(str)
@@ -481,14 +366,9 @@ function escapeHtml(str) {
 }
 
 // ============================================
-# GÉNÉRATION DE CODES
-============================================
+// GENERATION DE CODES
+// ============================================
 
-/**
- * Générer un code aléatoire
- * @param {number} length - Longueur du code
- * @returns {string} Code généré
- */
 function generateCode(length = 8) {
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let code = '';
@@ -498,11 +378,6 @@ function generateCode(length = 8) {
     return code;
 }
 
-/**
- * Générer un matricule
- * @param {string} prefix - Préfixe (ex: 'HZSI')
- * @returns {string} Matricule généré
- */
 function generateMatricule(prefix = 'HZSI') {
     const year = new Date().getFullYear();
     const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
@@ -510,46 +385,37 @@ function generateMatricule(prefix = 'HZSI') {
 }
 
 // ============================================
-# EXPORTATION
-============================================
+// EXPORTATION
+// ============================================
 
-// Export pour ES modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
-        // Dates
         formatDate,
         formatDateTime,
         formatTime,
         timeAgo,
         formatDuration,
-        // Nombres
         formatPrice,
         formatNumber,
         formatPercent,
-        // Badges
         getStatusBadge,
         getPriorityBadge,
         getStatusText,
         getStatusClass,
-        // Notifications
         showToast,
         confirmAction,
         showDialog,
-        // Chargement
         loadSelectOptions,
         loadTableData,
-        // Validation
         isValidEmail,
         isValidPhone,
         truncate,
         escapeHtml,
-        // Génération
         generateCode,
         generateMatricule
     };
 }
 
-// Export global
 if (typeof window !== 'undefined') {
     window.Utils = {
         formatDate,
