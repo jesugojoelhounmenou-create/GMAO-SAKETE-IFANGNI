@@ -5,7 +5,6 @@ import { PrismaClient } from '@prisma/client';
 // CONFIGURATION PRISMA
 // ============================================
 
-// Options de logging selon l'environnement
 const getLogOptions = () => {
     const env = process.env.NODE_ENV || 'development';
     
@@ -21,7 +20,6 @@ const getLogOptions = () => {
     }
 };
 
-// Création du client Prisma
 const prisma = new PrismaClient({
     log: getLogOptions(),
     errorFormat: process.env.NODE_ENV === 'development' ? 'pretty' : 'minimal'
@@ -31,63 +29,45 @@ const prisma = new PrismaClient({
 // GESTION DES CONNEXIONS
 // ============================================
 
-// Variable pour suivre l'état de la connexion
 let isConnected = false;
 
-/**
- * Vérifier et établir la connexion à la base de données
- * @returns {Promise<boolean>} true si connecté
- */
 export const connectDB = async () => {
     if (isConnected) {
-        console.log('📊 Base de données déjà connectée');
+        console.log('Base de donnees deja connectee');
         return true;
     }
 
     try {
         await prisma.$connect();
         isConnected = true;
-        console.log('✅ Base de données connectée avec succès');
+        console.log('Base de donnees connectee avec succes');
         return true;
     } catch (error) {
-        console.error('❌ Erreur de connexion à la base de données:', error.message);
+        console.error('Erreur de connexion a la base de donnees:', error.message);
         return false;
     }
 };
 
-/**
- * Déconnecter la base de données (utilisé pour les tests)
- * @returns {Promise<void>}
- */
 export const disconnectDB = async () => {
     if (!isConnected) return;
 
     try {
         await prisma.$disconnect();
         isConnected = false;
-        console.log('🔌 Base de données déconnectée');
+        console.log('Base de donnees deconnectee');
     } catch (error) {
-        console.error('❌ Erreur lors de la déconnexion:', error.message);
+        console.error('Erreur lors de la deconnexion:', error.message);
     }
 };
 
-/**
- * Vérifier l'état de la connexion
- * @returns {boolean} true si connecté
- */
 export const isDatabaseConnected = () => isConnected;
 
-/**
- * Tester la connexion à la base de données
- * @returns {Promise<Object>} Résultat du test
- */
 export const testConnection = async () => {
     try {
-        // Exécuter une requête simple pour tester
-        const result = await prisma.$queryRaw`SELECT 1 as connected`;
+        await prisma.$queryRaw`SELECT 1 as connected`;
         return {
             success: true,
-            message: 'Connexion à la base de données établie',
+            message: 'Connexion a la base de donnees etablie',
             timestamp: new Date().toISOString()
         };
     } catch (error) {
@@ -99,38 +79,19 @@ export const testConnection = async () => {
     }
 };
 
-// ============================================
-// MIDDLEWARE POUR EXPRESS
-// ============================================
-
-/**
- * Middleware pour s'assurer que la base de données est connectée
- * @param {Object} req - Requête Express
- * @param {Object} res - Réponse Express
- * @param {Function} next - Fonction next
- */
 export const ensureDatabaseConnection = async (req, res, next) => {
     if (!isConnected) {
         const connected = await connectDB();
         if (!connected) {
             return res.status(503).json({
                 success: false,
-                error: 'Service de base de données temporairement indisponible'
+                error: 'Service de base de donnees temporairement indisponible'
             });
         }
     }
     next();
 };
 
-// ============================================
-// TRANSACTIONS
-// ============================================
-
-/**
- * Exécuter une transaction
- * @param {Function} callback - Fonction de transaction
- * @returns {Promise<any>} Résultat de la transaction
- */
 export const runTransaction = async (callback) => {
     try {
         return await prisma.$transaction(async (tx) => {
@@ -142,14 +103,6 @@ export const runTransaction = async (callback) => {
     }
 };
 
-// ============================================
-// HEALTH CHECK
-// ============================================
-
-/**
- * Obtenir les métriques de santé de la base de données
- * @returns {Promise<Object>} Métriques
- */
 export const getDatabaseHealth = async () => {
     try {
         const startTime = Date.now();
@@ -172,16 +125,6 @@ export const getDatabaseHealth = async () => {
     }
 };
 
-// ============================================
-// HELPERS DE REQUÊTES
-// ============================================
-
-/**
- * Helper pour les requêtes paginées
- * @param {Object} model - Modèle Prisma
- * @param {Object} options - Options de pagination
- * @returns {Promise<Object>} Résultat paginé
- */
 export const paginate = async (model, options = {}) => {
     const {
         page = 1,
@@ -220,15 +163,7 @@ export const paginate = async (model, options = {}) => {
     };
 };
 
-/**
- * Helper pour vérifier l'existence d'un enregistrement
- * @param {Object} model - Modèle Prisma
- * @param {Object} where - Condition de recherche
- * @param {string} errorMessage - Message d'erreur personnalisé
- * @returns {Promise<Object>} L'enregistrement trouvé
- * @throws {Error} Si non trouvé
- */
-export const findOrFail = async (model, where, errorMessage = 'Ressource non trouvée') => {
+export const findOrFail = async (model, where, errorMessage = 'Ressource non trouvee') => {
     const record = await model.findUnique({ where });
     if (!record) {
         const error = new Error(errorMessage);
@@ -238,14 +173,6 @@ export const findOrFail = async (model, where, errorMessage = 'Ressource non tro
     return record;
 };
 
-/**
- * Helper pour créer ou mettre à jour (upsert)
- * @param {Object} model - Modèle Prisma
- * @param {Object} where - Condition de recherche
- * @param {Object} createData - Données pour la création
- * @param {Object} updateData - Données pour la mise à jour
- * @returns {Promise<Object>} Résultat de l'opération
- */
 export const upsertRecord = async (model, where, createData, updateData) => {
     return model.upsert({
         where,
@@ -254,16 +181,10 @@ export const upsertRecord = async (model, where, createData, updateData) => {
     });
 };
 
-// ============================================
-// INITIALISATION
-// ============================================
-
-// Connecter automatiquement au démarrage (non bloquant)
 if (process.env.NODE_ENV !== 'test') {
     connectDB().catch(console.error);
 }
 
-// Gestion de la fermeture propre
 process.on('beforeExit', async () => {
     await disconnectDB();
 });
@@ -277,9 +198,5 @@ process.on('SIGTERM', async () => {
     await disconnectDB();
     process.exit(0);
 });
-
-// ============================================
-// EXPORTATION
-// ============================================
 
 export default prisma;
