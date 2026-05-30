@@ -1,15 +1,10 @@
 import prisma from '../config/database.js';
+import jwt from 'jsonwebtoken';
 
-// ============================================
-// DASHBOARD MOBILE
-// ============================================
-
-// Dashboard principal pour mobile
 export const getMobileDashboard = async (req, res) => {
   const technicienId = req.user.id;
 
   try {
-    // Statistiques rapides
     const [totalEquipements, statsEquipements, urgencesCount, interventionsEnCours] = await Promise.all([
       prisma.equipement.count(),
       prisma.equipement.groupBy({
@@ -33,7 +28,6 @@ export const getMobileDashboard = async (req, res) => {
     const fonctionnel = statsEquipements.find(s => s.statut === 'FONCTIONNEL')?._count || 0;
     const disponibilite = totalEquipements > 0 ? ((fonctionnel / totalEquipements) * 100).toFixed(1) : 0;
 
-    // Urgences (avec détails limités pour mobile)
     const urgences = await prisma.intervention.findMany({
       where: {
         statut: 'EN_ATTENTE',
@@ -69,7 +63,6 @@ export const getMobileDashboard = async (req, res) => {
       take: 10
     });
 
-    // Interventions en cours du technicien
     const interventionsEnCoursList = await prisma.intervention.findMany({
       where: {
         technicienId: technicienId,
@@ -88,7 +81,6 @@ export const getMobileDashboard = async (req, res) => {
       orderBy: { dateDebut: 'desc' }
     });
 
-    // Maintenances préventives du jour
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -115,7 +107,6 @@ export const getMobileDashboard = async (req, res) => {
       take: 5
     });
 
-    // Alertes non résolues (critiques uniquement pour mobile)
     const alertes = await prisma.alerte.findMany({
       where: {
         resolue: false,
@@ -161,29 +152,21 @@ export const getMobileDashboard = async (req, res) => {
   }
 };
 
-
-// Rafraîchir le token (prolonger la session)
 export const refreshToken = async (req, res) => {
   const user = req.user;
   
-  // Générer un nouveau token avec durée prolongée
   const newToken = jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET || 'secretkey',
-    { expiresIn: '30d' }  // 30 jours
+    { expiresIn: '30d' }
   );
   
   res.json({ 
     token: newToken,
-    expiresIn: 30 * 24 * 60 * 60 * 1000 // 30 jours en ms
+    expiresIn: 30 * 24 * 60 * 60 * 1000
   });
 };
 
-// ============================================
-// INTERVENTIONS MOBILE
-// ============================================
-
-// Liste des interventions (avec filtres)
 export const getMobileInterventions = async (req, res) => {
   const { statut, page = 1, limit = 20 } = req.query;
   const technicienId = req.user.id;
@@ -238,11 +221,10 @@ export const getMobileInterventions = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur mobile interventions:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des interventions' });
   }
 };
 
-// Détail d'une intervention (mobile)
 export const getMobileInterventionDetail = async (req, res) => {
   const { id } = req.params;
 
@@ -268,17 +250,16 @@ export const getMobileInterventionDetail = async (req, res) => {
     });
 
     if (!intervention) {
-      return res.status(404).json({ message: 'Intervention non trouvée' });
+      return res.status(404).json({ message: 'Intervention non trouvee' });
     }
 
     res.json(intervention);
   } catch (error) {
     console.error('Erreur mobile intervention detail:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation du detail' });
   }
 };
 
-// Mettre à jour une intervention (mobile)
 export const updateMobileIntervention = async (req, res) => {
   const { id } = req.params;
   const { actionsRealisees, rapportFinal, dureeMinutes, piecesUtilisees, statut } = req.body;
@@ -297,14 +278,12 @@ export const updateMobileIntervention = async (req, res) => {
       include: { equipement: true }
     });
 
-    // Si l'intervention est terminée, mettre à jour le statut de l'équipement
     if (statut === 'TERMINE') {
       await prisma.equipement.update({
         where: { id: intervention.equipementId },
         data: { statut: 'FONCTIONNEL' }
       });
 
-      // Résoudre les alertes liées
       await prisma.alerte.updateMany({
         where: { interventionId: intervention.id, resolue: false },
         data: {
@@ -315,14 +294,13 @@ export const updateMobileIntervention = async (req, res) => {
       });
     }
 
-    res.json({ message: 'Intervention mise à jour', intervention });
+    res.json({ message: 'Intervention mise a jour', intervention });
   } catch (error) {
     console.error('Erreur update mobile intervention:', error);
-    res.status(500).json({ message: 'Erreur lors de la mise à jour' });
+    res.status(500).json({ message: 'Erreur lors de la mise a jour' });
   }
 };
 
-// Prendre en charge une intervention (mobile)
 export const prendreEnChargeMobile = async (req, res) => {
   const { id } = req.params;
   const technicienId = req.user.id;
@@ -341,7 +319,6 @@ export const prendreEnChargeMobile = async (req, res) => {
       }
     });
 
-    // Mettre à jour le statut de l'équipement
     await prisma.equipement.update({
       where: { id: intervention.equipementId },
       data: { statut: 'EN_MAINTENANCE' }
@@ -356,10 +333,6 @@ export const prendreEnChargeMobile = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la prise en charge' });
   }
 };
-
-// ============================================
-// SCAN QR CODE (MOBILE)
-// ============================================
 
 export const scanQRCodeMobile = async (req, res) => {
   const { qrData } = req.body;
@@ -395,16 +368,14 @@ export const scanQRCodeMobile = async (req, res) => {
     });
 
     if (!equipement) {
-      return res.status(404).json({ message: 'Équipement non trouvé' });
+      return res.status(404).json({ message: 'Equipement non trouve' });
     }
 
-    // Dernière intervention
     const derniereIntervention = await prisma.intervention.findFirst({
       where: { equipementId: equipement.id, statut: 'TERMINE' },
       orderBy: { dateFin: 'desc' }
     });
 
-    // Intervention en cours
     const interventionEnCours = equipement.maintenances[0];
 
     res.json({
@@ -434,11 +405,6 @@ export const scanQRCodeMobile = async (req, res) => {
   }
 };
 
-// ============================================
-// ÉQUIPEMENTS MOBILE
-// ============================================
-
-// Liste des équipements (version mobile)
 export const getMobileEquipements = async (req, res) => {
   const { search, service, statut, page = 1, limit = 20 } = req.query;
   const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -489,11 +455,10 @@ export const getMobileEquipements = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur mobile equipements:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des equipements' });
   }
 };
 
-// Détail d'un équipement (mobile)
 export const getMobileEquipementDetail = async (req, res) => {
   const { id } = req.params;
 
@@ -521,19 +486,15 @@ export const getMobileEquipementDetail = async (req, res) => {
     });
 
     if (!equipement) {
-      return res.status(404).json({ message: 'Équipement non trouvé' });
+      return res.status(404).json({ message: 'Equipement non trouve' });
     }
 
     res.json(equipement);
   } catch (error) {
     console.error('Erreur mobile equipement detail:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation du detail' });
   }
 };
-
-// ============================================
-// ALERTES MOBILE
-// ============================================
 
 export const getMobileAlertes = async (req, res) => {
   const { niveau, limit = 20 } = req.query;
@@ -565,13 +526,9 @@ export const getMobileAlertes = async (req, res) => {
     res.json(alertes);
   } catch (error) {
     console.error('Erreur mobile alertes:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des alertes' });
   }
 };
-
-// ============================================
-// STATISTIQUES MOBILE (PostgreSQL compatible)
-// ============================================
 
 export const getMobileStats = async (req, res) => {
   const { periode = '30' } = req.query;
@@ -580,7 +537,6 @@ export const getMobileStats = async (req, res) => {
   dateDebut.setDate(dateDebut.getDate() - jours);
 
   try {
-    // Interventions par jour (PostgreSQL)
     const interventionsParJour = await prisma.$queryRaw`
       SELECT 
         TO_CHAR("dateDebut", 'YYYY-MM-DD') as date,
@@ -592,7 +548,6 @@ export const getMobileStats = async (req, res) => {
       ORDER BY date ASC
     `;
 
-    // Pannes par service
     const pannesParService = await prisma.$queryRaw`
       SELECT 
         e.service,
@@ -606,7 +561,6 @@ export const getMobileStats = async (req, res) => {
       LIMIT 5
     `;
 
-    // Top équipements en panne
     const topEquipements = await prisma.$queryRaw`
       SELECT 
         e.nom,
@@ -621,7 +575,6 @@ export const getMobileStats = async (req, res) => {
       LIMIT 5
     `;
 
-    // Temps moyen d'intervention
     const tempsMoyen = await prisma.$queryRaw`
       SELECT 
         AVG("dureeMinutes")::int as moyenne
@@ -640,13 +593,9 @@ export const getMobileStats = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur mobile stats:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération des stats' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des statistiques' });
   }
 };
-
-// ============================================
-// PROFIL TECHNICIEN MOBILE
-// ============================================
 
 export const getMobileProfil = async (req, res) => {
   const technicienId = req.user.id;
@@ -668,7 +617,6 @@ export const getMobileProfil = async (req, res) => {
       }
     });
 
-    // Statistiques personnelles
     const [totalInterventions, interventionsTerminees, satisfaction] = await Promise.all([
       prisma.intervention.count({ where: { technicienId } }),
       prisma.intervention.count({ where: { technicienId, statut: 'TERMINE' } }),
@@ -678,7 +626,6 @@ export const getMobileProfil = async (req, res) => {
       })
     ]);
 
-    // Dernières interventions
     const dernieresInterventions = await prisma.intervention.findMany({
       where: { technicienId, statut: 'TERMINE' },
       include: { equipement: { select: { nom: true, service: true } } },
@@ -698,13 +645,9 @@ export const getMobileProfil = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur mobile profil:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération du profil' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation du profil' });
   }
 };
-
-// ============================================
-// MISE À JOUR POSITION GPS
-// ============================================
 
 export const updateMobilePosition = async (req, res) => {
   const { latitude, longitude } = req.body;
@@ -720,16 +663,12 @@ export const updateMobilePosition = async (req, res) => {
       }
     });
 
-    res.json({ message: 'Position mise à jour' });
+    res.json({ message: 'Position mise a jour' });
   } catch (error) {
     console.error('Erreur update position:', error);
-    res.status(500).json({ message: 'Erreur lors de la mise à jour' });
+    res.status(500).json({ message: 'Erreur lors de la mise a jour' });
   }
 };
-
-// ============================================
-// NOTIFICATIONS PUSH TOKEN
-// ============================================
 
 export const registerPushToken = async (req, res) => {
   const { pushToken } = req.body;
@@ -741,9 +680,9 @@ export const registerPushToken = async (req, res) => {
       data: { pushToken }
     });
 
-    res.json({ message: 'Token push enregistré' });
+    res.json({ message: 'Token push enregistre' });
   } catch (error) {
     console.error('Erreur register push token:', error);
-    res.status(500).json({ message: 'Erreur lors de l\'enregistrement' });
+    res.status(500).json({ message: 'Erreur lors de l\'enregistrement du token' });
   }
 };
