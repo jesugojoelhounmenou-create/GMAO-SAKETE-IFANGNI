@@ -1,8 +1,8 @@
 <!-- frontend/components/sidebar.html - Sidebar technicien -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <div class="sidebar-logo">🏥 <span>GMAO</span> Sakété</div>
-        <div class="sidebar-subtitle">Hôpital de Zone Sakété-Ifangni</div>
+        <div class="sidebar-logo">GMAO <span>Sakete</span></div>
+        <div class="sidebar-subtitle">Hopital de Zone Sakete-Ifangni</div>
     </div>
 
     <div class="sidebar-menu">
@@ -11,9 +11,9 @@
         <a href="inventaire.html"          class="sidebar-item"><span class="sidebar-icon">📦</span><span class="sidebar-text">Inventaire</span></a>
         <a href="maintenances.html"        class="sidebar-item"><span class="sidebar-icon">🔧</span><span class="sidebar-text">Maintenance</span></a>
         <a href="historique-travaux.html"  class="sidebar-item sidebar-sub"><span class="sidebar-icon">📋</span><span class="sidebar-text">Historique travaux</span></a>
-        <a href="stock.html"               class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Pièces</span></a>
+        <a href="stock.html"               class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Pieces</span></a>
 
-        <div class="sidebar-section">Équipe</div>
+        <div class="sidebar-section">Equipe</div>
         <a href="gestion-techniciens.html" class="sidebar-item"><span class="sidebar-icon">👥</span><span class="sidebar-text">Techniciens</span></a>
         <a href="planning-garde.html"      class="sidebar-item"><span class="sidebar-icon">📅</span><span class="sidebar-text">Planning garde</span></a>
 
@@ -21,21 +21,20 @@
         <a href="codir-rapports.html"      class="sidebar-item"><span class="sidebar-icon">📈</span><span class="sidebar-text">Rapports CoDIR</span></a>
         <a href="fournisseurs.html"        class="sidebar-item"><span class="sidebar-icon">🏭</span><span class="sidebar-text">Fournisseurs</span></a>
 
-        <div class="sidebar-section">Système</div>
+        <div class="sidebar-section">Systeme</div>
         <a href="utilisateurs.html"        class="sidebar-item"><span class="sidebar-icon">👤</span><span class="sidebar-text">Utilisateurs</span></a>
         <a href="alertes.html"             class="sidebar-item"><span class="sidebar-icon">⚠️</span><span class="sidebar-text">Alertes</span></a>
         <a href="documents.html"           class="sidebar-item"><span class="sidebar-icon">📚</span><span class="sidebar-text">Documents</span></a>
-        <a href="parametres.html"          class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Paramètres</span></a>
+        <a href="parametres.html"          class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Parametres</span></a>
         <a href="profil.html"              class="sidebar-item"><span class="sidebar-icon">👤</span><span class="sidebar-text">Mon profil</span></a>
 
         <div class="sidebar-section">Outils</div>
         <a href="chatbot.html"             class="sidebar-item"><span class="sidebar-icon">🤖</span><span class="sidebar-text">Diagnostic expert</span></a>
     </div>
 
-    <!-- ✅ Bouton de déconnexion ajouté -->
     <div class="sidebar-footer">
         <button class="sidebar-logout-btn" onclick="window.logout()">
-            🚪 Déconnexion
+            Deconnexion
         </button>
     </div>
 </div>
@@ -104,7 +103,6 @@
         font-weight: 600;
     }
 
-    /* Sous-élément légèrement indenté */
     .sidebar-item.sidebar-sub {
         padding-left: 36px;
         font-size: 13px;
@@ -120,7 +118,6 @@
     .sidebar-icon { width: 22px; text-align: center; font-size: 17px; flex-shrink: 0; }
     .sidebar-text { font-size: 14px; font-weight: 500; }
 
-    /* ✅ Footer avec bouton de déconnexion */
     .sidebar-footer {
         padding: 16px 20px;
         border-top: 1px solid rgba(255,255,255,0.15);
@@ -160,7 +157,6 @@
 </style>
 
 <script>
-    // ── Marquer l'onglet actif ─────────────────────────────
     (function() {
         const page = window.location.pathname.split('/').pop() || 'dashboard.html';
         document.querySelectorAll('.sidebar-item').forEach(item => {
@@ -171,15 +167,13 @@
         });
     })();
 
-    // ── Déconnexion globale ───────────────────────────────
     window.logout = function() {
-        if (confirm('🚪 Voulez-vous vraiment vous déconnecter ?')) {
+        if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
             localStorage.clear();
             window.location.replace('/login.html');
         }
     };
 
-    // ── Menu mobile (toggle) ──────────────────────────────
     window.toggleMobileMenu = function() {
         const sidebar = document.getElementById('sidebar');
         if (sidebar) {
