@@ -7,18 +7,17 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// ============================================
-// CRUD TECHNICIENS
-// ============================================
-
-// Créer un nouveau technicien
 export const createTechnicien = async (req, res) => {
     const { nom, prenom, email, telephone, matricule, service, password } = req.body;
 
     try {
+        if (!nom || !email || !password) {
+            return res.status(400).json({ message: 'Nom, email et mot de passe sont requis' });
+        }
+
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ message: 'Cet email existe déjà' });
+            return res.status(400).json({ message: 'Cet email existe deja' });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,18 +37,19 @@ export const createTechnicien = async (req, res) => {
             }
         });
 
+        const { password: _, ...technicienWithoutPassword } = technicien;
+
         res.status(201).json({ 
             success: true, 
-            message: 'Technicien créé avec succès', 
-            technicien 
+            message: 'Technicien cree avec succes', 
+            technicien: technicienWithoutPassword 
         });
     } catch (error) {
-        console.error('Erreur création technicien:', error);
-        res.status(500).json({ message: 'Erreur lors de la création' });
+        console.error('Erreur creation technicien:', error);
+        res.status(500).json({ message: 'Erreur lors de la creation du technicien' });
     }
 };
 
-// Liste tous les techniciens
 export const getAllTechniciens = async (req, res) => {
     const { archived, search } = req.query;
 
@@ -64,10 +64,10 @@ export const getAllTechniciens = async (req, res) => {
 
         if (search) {
             where.OR = [
-                { nom: { contains: search } },
-                { prenom: { contains: search } },
-                { email: { contains: search } },
-                { matricule: { contains: search } }
+                { nom: { contains: search, mode: 'insensitive' } },
+                { prenom: { contains: search, mode: 'insensitive' } },
+                { email: { contains: search, mode: 'insensitive' } },
+                { matricule: { contains: search, mode: 'insensitive' } }
             ];
         }
 
@@ -82,14 +82,15 @@ export const getAllTechniciens = async (req, res) => {
             orderBy: { createdAt: 'desc' }
         });
 
-        res.json(techniciens);
+        const techniciensWithoutPassword = techniciens.map(({ password, ...rest }) => rest);
+
+        res.json(techniciensWithoutPassword);
     } catch (error) {
         console.error('Erreur liste techniciens:', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération' });
+        res.status(500).json({ message: 'Erreur lors de la recuperation des techniciens' });
     }
 };
 
-// Détail d'un technicien
 export const getTechnicienById = async (req, res) => {
     const { id } = req.params;
 
@@ -108,73 +109,94 @@ export const getTechnicienById = async (req, res) => {
         });
 
         if (!technicien || technicien.role !== 'TECHNICIEN') {
-            return res.status(404).json({ message: 'Technicien non trouvé' });
+            return res.status(404).json({ message: 'Technicien non trouve' });
         }
 
-        res.json(technicien);
+        const { password, ...technicienWithoutPassword } = technicien;
+
+        res.json(technicienWithoutPassword);
     } catch (error) {
-        console.error('Erreur détail technicien:', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération' });
+        console.error('Erreur detail technicien:', error);
+        res.status(500).json({ message: 'Erreur lors de la recuperation du technicien' });
     }
 };
 
-// Modifier un technicien
 export const updateTechnicien = async (req, res) => {
     const { id } = req.params;
     const { nom, prenom, email, telephone, service } = req.body;
 
     try {
-        const technicien = await prisma.user.update({
-            where: { id: parseInt(id) },
-            data: { nom, prenom, email, telephone, service }
+        const existing = await prisma.user.findUnique({
+            where: { id: parseInt(id), role: 'TECHNICIEN' }
         });
 
-        res.json({ success: true, message: 'Technicien modifié', technicien });
+        if (!existing) {
+            return res.status(404).json({ message: 'Technicien non trouve' });
+        }
+
+        const technicien = await prisma.user.update({
+            where: { id: parseInt(id) },
+            data: { 
+                nom: nom || existing.nom,
+                prenom: prenom !== undefined ? prenom : existing.prenom,
+                email: email || existing.email,
+                telephone: telephone !== undefined ? telephone : existing.telephone,
+                service: service || existing.service
+            }
+        });
+
+        const { password, ...technicienWithoutPassword } = technicien;
+
+        res.json({ success: true, message: 'Technicien modifie', technicien: technicienWithoutPassword });
     } catch (error) {
-        console.error('Erreur modification:', error);
-        res.status(500).json({ message: 'Erreur lors de la modification' });
+        console.error('Erreur modification technicien:', error);
+        res.status(500).json({ message: 'Erreur lors de la modification du technicien' });
     }
 };
 
-// Supprimer un technicien
 export const deleteTechnicien = async (req, res) => {
     const { id } = req.params;
 
     try {
+        const existing = await prisma.user.findUnique({
+            where: { id: parseInt(id), role: 'TECHNICIEN' }
+        });
+
+        if (!existing) {
+            return res.status(404).json({ message: 'Technicien non trouve' });
+        }
+
         await prisma.user.delete({ where: { id: parseInt(id) } });
-        res.json({ success: true, message: 'Technicien supprimé' });
+        res.json({ success: true, message: 'Technicien supprime' });
     } catch (error) {
-        console.error('Erreur suppression:', error);
-        res.status(500).json({ message: 'Erreur lors de la suppression' });
+        console.error('Erreur suppression technicien:', error);
+        res.status(500).json({ message: 'Erreur lors de la suppression du technicien' });
     }
 };
 
-// ============================================
-// GESTION DES DÉPARTS (MUTATION)
-// ============================================
-
-// Enregistrer le départ d'un technicien
 export const enregistrerDepart = async (req, res) => {
     const { id } = req.params;
     const { nouveauHopital, motif, archiveInterventions, rapport } = req.body;
 
     try {
+        if (!nouveauHopital || !motif) {
+            return res.status(400).json({ message: 'Nouvel hopital et motif sont requis' });
+        }
+
         const technicien = await prisma.user.findUnique({
-            where: { id: parseInt(id) },
+            where: { id: parseInt(id), role: 'TECHNICIEN' },
             include: { interventions: true }
         });
 
         if (!technicien) {
-            return res.status(404).json({ message: 'Technicien non trouvé' });
+            return res.status(404).json({ message: 'Technicien non trouve' });
         }
 
-        // Désactiver le compte
         await prisma.user.update({
             where: { id: parseInt(id) },
             data: { statut: 'INACTIF' }
         });
 
-        // Enregistrer le départ
         const depart = await prisma.technicienDepart.create({
             data: {
                 technicienId: parseInt(id),
@@ -185,7 +207,6 @@ export const enregistrerDepart = async (req, res) => {
             }
         });
 
-        // Exporter les interventions si demandé
         let exportUrl = null;
         if (archiveInterventions) {
             exportUrl = await exporterInterventionsTechnicien(id, technicien.nom);
@@ -193,18 +214,17 @@ export const enregistrerDepart = async (req, res) => {
 
         res.json({
             success: true,
-            message: `Départ de ${technicien.nom} enregistré`,
+            message: `Depart de ${technicien.nom} enregistre`,
             depart,
             exportUrl
         });
     } catch (error) {
-        console.error('Erreur départ:', error);
-        res.status(500).json({ message: 'Erreur lors de l\'enregistrement' });
+        console.error('Erreur enregistrement depart:', error);
+        res.status(500).json({ message: 'Erreur lors de l\'enregistrement du depart' });
     }
 };
 
-// Exporter les interventions d'un technicien
-export const exporterInterventionsTechnicien = async (technicienId, nomTechnicien) => {
+const exporterInterventionsTechnicien = async (technicienId, nomTechnicien) => {
     try {
         const interventions = await prisma.intervention.findMany({
             where: { technicienId: parseInt(technicienId) },
@@ -245,12 +265,11 @@ export const exporterInterventionsTechnicien = async (technicienId, nomTechnicie
         
         return `/uploads/exports/${filename}`;
     } catch (error) {
-        console.error('Erreur export:', error);
+        console.error('Erreur export interventions:', error);
         return null;
     }
 };
 
-// Liste des départs
 export const getDeparts = async (req, res) => {
     try {
         const departs = await prisma.technicienDepart.findMany({
@@ -263,12 +282,11 @@ export const getDeparts = async (req, res) => {
         });
         res.json(departs);
     } catch (error) {
-        console.error('Erreur:', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération' });
+        console.error('Erreur recuperation departs:', error);
+        res.status(500).json({ message: 'Erreur lors de la recuperation des departs' });
     }
 };
 
-// Statistiques des départs
 export const getStatsDeparts = async (req, res) => {
     try {
         const total = await prisma.technicienDepart.count();
@@ -278,23 +296,33 @@ export const getStatsDeparts = async (req, res) => {
         });
         res.json({ total, parMotif });
     } catch (error) {
-        console.error('Erreur:', error);
-        res.status(500).json({ message: 'Erreur lors de la récupération' });
+        console.error('Erreur recuperation stats departs:', error);
+        res.status(500).json({ message: 'Erreur lors de la recuperation des statistiques' });
     }
 };
 
-// Réactiver un technicien (annuler départ)
 export const reactiverTechnicien = async (req, res) => {
     const { id } = req.params;
 
     try {
+        const existing = await prisma.user.findUnique({
+            where: { id: parseInt(id), role: 'TECHNICIEN' }
+        });
+
+        if (!existing) {
+            return res.status(404).json({ message: 'Technicien non trouve' });
+        }
+
         const technicien = await prisma.user.update({
             where: { id: parseInt(id) },
             data: { statut: 'ACTIF' }
         });
-        res.json({ success: true, message: 'Technicien réactivé', technicien });
+
+        const { password, ...technicienWithoutPassword } = technicien;
+
+        res.json({ success: true, message: 'Technicien reactive', technicien: technicienWithoutPassword });
     } catch (error) {
-        console.error('Erreur réactivation:', error);
-        res.status(500).json({ message: 'Erreur lors de la réactivation' });
+        console.error('Erreur reactivation technicien:', error);
+        res.status(500).json({ message: 'Erreur lors de la reactivation du technicien' });
     }
 };
