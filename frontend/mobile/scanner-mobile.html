@@ -201,7 +201,7 @@
 
 <div class="header">
     <h2>Scanner QR Code</h2>
-    <p>Scannez le QR code de l'equipement</p>
+    <p>Scannez le QR code de l'équipement</p>
 </div>
 
 <div class="video-container">
@@ -210,28 +210,28 @@
     <div class="scan-line"></div>
 </div>
 
-<button class="btn-scan" onclick="startScan()">Demarrer le scan</button>
+<button class="btn-scan" onclick="startScan()">Démarrer le scan</button>
 
 <div id="result" class="result">
-    <h3>Resultat</h3>
+    <h3>Résultat</h3>
     <p id="scanResult">En attente de scan...</p>
 </div>
 
 <div class="bottom-nav">
     <a href="dashboard-mobile.html" class="nav-item">
-        <span class="nav-icon">🏠</span>Accueil
+        <span class="nav-icon">Accueil</span>
     </a>
     <a href="interventions-mobile.html" class="nav-item">
-        <span class="nav-icon">🔧</span>Travaux
+        <span class="nav-icon">Travaux</span>
     </a>
     <a href="scanner-mobile.html" class="nav-item active">
-        <span class="nav-icon">📷</span>Scan
+        <span class="nav-icon">Scan</span>
     </a>
     <a href="diagnostic-mobile.html" class="nav-item">
-        <span class="nav-icon">🤖</span>Diagnostic
+        <span class="nav-icon">Diagnostic</span>
     </a>
     <a href="profil-mobile.html" class="nav-item">
-        <span class="nav-icon">👤</span>Profil
+        <span class="nav-icon">Profil</span>
     </a>
 </div>
 
@@ -272,7 +272,7 @@
         }
         
         const resultDiv = document.getElementById('scanResult');
-        resultDiv.innerHTML = 'Demarrage de la camera...';
+        resultDiv.innerHTML = 'Démarrage de la caméra...';
         
         html5QrCode = new Html5Qrcode("preview");
         isScanning = true;
@@ -290,8 +290,8 @@
             );
             resultDiv.innerHTML = 'Scannez le QR code...';
         } catch(e) { 
-            console.error("Erreur camera:", e);
-            resultDiv.innerHTML = 'Impossible d\'acceder a la camera. Verifiez les permissions.';
+            console.error("Erreur caméra:", e);
+            resultDiv.innerHTML = 'Impossible d\'accéder à la caméra. Vérifiez les permissions.';
             isScanning = false;
         }
     }
@@ -300,7 +300,7 @@
         if (html5QrCode && isScanning) {
             try {
                 await html5QrCode.stop();
-            } catch(e) { console.log("Erreur arret scan:", e); }
+            } catch(e) { console.log("Erreur arrêt scan:", e); }
             html5QrCode = null;
             isScanning = false;
         }
@@ -330,7 +330,7 @@
             if (isTechnicien) {
                 actionsHtml = `
                     <div style="display: flex; gap: 10px; margin-top: 15px;">
-                        <a href="/technicien/equipement-detail.html?id=${equip.id}" style="flex:1; background:#0066FF; color:white; padding:12px; border-radius:50px; text-decoration:none; text-align:center; font-weight:600;">Voir details</a>
+                        <a href="/technicien/equipement-detail.html?id=${equip.id}" style="flex:1; background:#0066FF; color:white; padding:12px; border-radius:50px; text-decoration:none; text-align:center; font-weight:600;">Voir détails</a>
                         <button onclick="signalerPanne(${equip.id})" style="flex:1; background:#ef4444; color:white; border:none; padding:12px; border-radius:50px; font-weight:600; cursor:pointer;">Panne</button>
                     </div>
                 `;
@@ -346,7 +346,7 @@
                 <div class="equipment-card">
                     <div style="text-align:center; font-size:48px; margin-bottom:10px;">📱</div>
                     <div class="equipment-info">
-                        <div class="equipment-label">Equipement</div>
+                        <div class="equipment-label">Équipement</div>
                         <div class="equipment-value"><strong>${escapeHtml(equip.nom)}</strong></div>
                     </div>
                     <div class="equipment-info">
@@ -368,14 +368,14 @@
                     </div>
                     ` : ''}
                     ${actionsHtml}
-                    <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">Scanner a nouveau</button>
+                    <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">Scanner à nouveau</button>
                 </div>
             `;
         } catch(error) {
             console.error('Erreur:', error);
             resultDiv.innerHTML = `
-                <div style="color:#dc2626;">QR code non reconnu ou equipement non trouve</div>
-                <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">Reessayer</button>
+                <div style="color:#dc2626;">QR code non reconnu ou équipement non trouvé</div>
+                <button onclick="resetScanner()" class="btn-secondary" style="margin-top:15px;">Réessayer</button>
             `;
         }
     }
