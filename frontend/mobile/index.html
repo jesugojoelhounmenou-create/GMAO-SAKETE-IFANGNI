@@ -112,20 +112,19 @@
 </head>
 <body>
     <div class="container">
-        <div class="logo">🏥</div>
-        <h1>GMAO Sakété</h1>
-        <p class="subtitle">Gestion de Maintenance<br>Assistée par Ordinateur</p>
-        <p class="hospital-name">🏥 Hôpital de Zone Sakété-Ifangni</p>
+        <div class="logo">H</div>
+        <h1>GMAO Sakete</h1>
+        <p class="subtitle">Gestion de Maintenance<br>Assistee par Ordinateur</p>
+        <p class="hospital-name">Hopital de Zone Sakete-Ifangni</p>
         
-        <a href="/login.html?mobile=true" class="btn">🔐 Se connecter</a>
-        <a href="/register.html?mobile=true" class="btn btn-outline">📝 Créer un compte</a>
+        <a href="/login.html?mobile=true" class="btn">Se connecter</a>
+        <a href="/register.html?mobile=true" class="btn btn-outline">Creer un compte</a>
         
-        <p class="info-text">📱 Application mobile optimisée pour tous les appareils</p>
-        <div class="version">v2.1.0 - GMAO Sakété</div>
+        <p class="info-text">Application mobile optimisee pour tous les appareils</p>
+        <div class="version">v2.1.0 - GMAO Sakete</div>
     </div>
 
     <script>
-        // Vérification de session
         const token = localStorage.getItem('token');
         const userRole = localStorage.getItem('userRole');
         
@@ -137,11 +136,10 @@
             }
         }
         
-        // Détection de l'installation PWA
         if ('standalone' in window.navigator && window.navigator.standalone) {
-            console.log('Application installée (iOS)');
+            console.log('Application installee (iOS)');
         } else if (window.matchMedia('(display-mode: standalone)').matches) {
-            console.log('Application installée (Android)');
+            console.log('Application installee (Android)');
         }
     </script>
 </body>
