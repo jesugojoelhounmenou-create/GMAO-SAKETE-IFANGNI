@@ -2,27 +2,22 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/database.js';
 import { sendWelcomeEmail, sendValidationEmail } from '../config/email.js';
-import { generateMatricule } from '../config/utils.js';
+import { generateMatricule } from '../utils/matricule.js';
 import { sendValidationSMS } from '../config/sms.js';
 
-// Inscription (auto-inscription soignant, sauf email spécial pour technicien)
 export const register = async (req, res) => {
     const { nom, prenom, email, telephone, service, password } = req.body;
 
     try {
-        // Vérifier si l'email existe déjà
         const existingUser = await prisma.user.findUnique({ where: { email } });
         if (existingUser) {
-            return res.status(400).json({ message: 'Cet email est déjà utilisé' });
+            return res.status(400).json({ message: 'Cet email est deja utilise' });
         }
 
-        // Générer le matricule automatiquement
         const matricule = generateMatricule(nom, prenom || '');
 
-        // Hasher le mot de passe
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Déterminer rôle et statut selon l'email (création du premier technicien)
         let role = 'SOIGNANT';
         let statut = 'EN_ATTENTE';
         if (email === 'tech.biomedical@hopital.bj') {
@@ -30,7 +25,6 @@ export const register = async (req, res) => {
             statut = 'ACTIF';
         }
 
-        // Créer l'utilisateur
         const user = await prisma.user.create({
             data: {
                 nom,
@@ -45,15 +39,14 @@ export const register = async (req, res) => {
             },
         });
 
-        // ENVOI D'EMAIL (réactivé)
         try {
             await sendWelcomeEmail(user, password);
         } catch (emailError) {
-            console.log('Email non envoyé:', emailError.message);
+            console.log('Email non envoye:', emailError.message);
         }
 
         res.status(201).json({
-            message: 'Inscription réussie ! Vous pouvez vous connecter.',
+            message: 'Inscription reussie. Vous pouvez vous connecter.',
             user: {
                 id: user.id,
                 nom: user.nom,
@@ -69,7 +62,6 @@ export const register = async (req, res) => {
     }
 };
 
-// Connexion
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
@@ -80,7 +72,6 @@ export const login = async (req, res) => {
             return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
 
-        // Vérifier le statut
         if (user.statut === 'EN_ATTENTE') {
             return res.status(401).json({
                 message: 'Votre compte est en attente de validation par le technicien.'
@@ -88,30 +79,27 @@ export const login = async (req, res) => {
         }
 
         if (user.statut === 'INACTIF') {
-            return res.status(401).json({ message: 'Votre compte a été désactivé.' });
+            return res.status(401).json({ message: 'Votre compte a ete desactive.' });
         }
 
-        // Vérifier le mot de passe
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
             return res.status(401).json({ message: 'Email ou mot de passe incorrect' });
         }
 
-        // Mettre à jour dernière connexion
         await prisma.user.update({
             where: { id: user.id },
             data: { dernierConnexion: new Date() },
         });
 
-        // Générer le token JWT
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET || 'secretkey',
-            { expiresIn: '30d' }  // 30 jours
+            { expiresIn: '30d' }
         );
 
         res.json({
-            message: 'Connexion réussie',
+            message: 'Connexion reussie',
             token,
             user: {
                 id: user.id,
@@ -127,7 +115,6 @@ export const login = async (req, res) => {
     }
 };
 
-// Validation du compte par le technicien
 export const validateUser = async (req, res) => {
     const { userId } = req.params;
     const technicienId = req.user.id;
@@ -142,37 +129,34 @@ export const validateUser = async (req, res) => {
             },
         });
 
-        // ENVOI EMAIL + SMS DE VALIDATION
         try {
             await sendValidationEmail(user);
             if (user.telephone) {
                 await sendValidationSMS(user);
             }
         } catch (notifError) {
-            console.log('Notification non envoyée:', notifError.message);
+            console.log('Notification non envoyee:', notifError.message);
         }
 
-        res.json({ message: 'Compte validé avec succès', user });
+        res.json({ message: 'Compte valide avec succes', user });
     } catch (error) {
         console.error('Erreur validation:', error);
         res.status(500).json({ message: 'Erreur lors de la validation' });
     }
 };
 
-// Rejeter l'inscription
 export const rejectUser = async (req, res) => {
     const { userId } = req.params;
 
     try {
         await prisma.user.delete({ where: { id: parseInt(userId) } });
-        res.json({ message: 'Inscription rejetée' });
+        res.json({ message: 'Inscription rejetee' });
     } catch (error) {
         console.error('Erreur rejet:', error);
         res.status(500).json({ message: 'Erreur lors du rejet' });
     }
 };
 
-// Désactiver/Activer un compte
 export const toggleUserStatus = async (req, res) => {
     const { userId } = req.params;
     const { actif } = req.body;
@@ -183,14 +167,13 @@ export const toggleUserStatus = async (req, res) => {
             data: { statut: actif ? 'ACTIF' : 'INACTIF' },
         });
 
-        res.json({ message: `Compte ${actif ? 'activé' : 'désactivé'}`, user });
+        res.json({ message: `Compte ${actif ? 'active' : 'desactive'}`, user });
     } catch (error) {
         console.error('Erreur toggle:', error);
-        res.status(500).json({ message: 'Erreur lors de l\'opération' });
+        res.status(500).json({ message: 'Erreur lors de l\'operation' });
     }
 };
 
-// Rafraîchir le token
 export const refreshToken = async (req, res) => {
     const user = req.user;
     
@@ -206,7 +189,6 @@ export const refreshToken = async (req, res) => {
     });
 };
 
-// Vérifier le token
 export const verifyToken = async (req, res) => {
     res.json(req.user);
 };
