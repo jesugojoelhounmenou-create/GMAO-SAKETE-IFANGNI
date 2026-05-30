@@ -11,6 +11,7 @@ import { isTechnicien } from '../middleware/roleCheck.js';
 
 const router = express.Router();
 
+// Routes pour les alertes
 router.get('/', verifyToken, isTechnicien, getAlertes);
 router.get('/stats', verifyToken, isTechnicien, getStatsAlertes);
 router.get('/non-resolues', verifyToken, isTechnicien, getAlertesNonResolues);
