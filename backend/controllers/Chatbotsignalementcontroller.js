@@ -1,63 +1,58 @@
 import prisma from '../config/database.js';
 
 // ============================================================
-// BASE DE CONNAISSANCES SOIGNANT — Arbre de décision simplifié
+// BASE DE CONNAISSANCES SOIGNANT — Arbre de decision simplifie
 // Pas de diagnostic technique — uniquement signalement
 // ============================================================
 
 const intentsSoignant = {
   panne: {
-    keywords: ['panne', 'cassé', 'ne fonctionne', 'marche pas', 'hs', 'hors service',
-               'problème', 'dysfonctionnement', 'défaillant', 'arrêté', 'bloqué'],
+    keywords: ['panne', 'casse', 'ne fonctionne', 'marche pas', 'hs', 'hors service',
+               'probleme', 'dysfonctionnement', 'defaillant', 'arrete', 'bloque'],
     response: (eq) => eq
-      ? `⚠️ Problème détecté sur **${eq.nom}** (${eq.service}).\n\nPouvez-vous décrire ce que vous observez ?\n\n💡 Exemples :\n• Une alarme sonore\n• Un message d'erreur à l'écran\n• L'appareil ne démarre plus\n• Un bruit inhabituel`
-      : `Sur quel équipement avez-vous un problème ?\n\nPrécisez le nom (respirateur, moniteur, défibrillateur...)`
+      ? `Probleme detecte sur ${eq.nom} (${eq.service}).\n\nPouvez-vous decrire ce que vous observez ?\n\nExemples :\n- Une alarme sonore\n- Un message d'erreur a l'ecran\n- L'appareil ne demarre plus\n- Un bruit inhabituel`
+      : `Sur quel equipement avez-vous un probleme ?\n\nPrecisez le nom (respirateur, moniteur, defibrillateur...)`
   },
 
   urgence: {
-    keywords: ['urgence', 'critique', 'grave', 'immédiat', 'vital', 'danger', 'urgent'],
+    keywords: ['urgence', 'critique', 'grave', 'immediat', 'vital', 'danger', 'urgent'],
     response: (eq) =>
-      `🚨 **SIGNALEMENT URGENT**\n\n` +
-      (eq ? `Équipement : **${eq.nom}**\n` : '') +
-      `Le service de maintenance va être alerté immédiatement.\n\n⏱️ Intervention prioritaire.`
+      `SIGNALEMENT URGENT\n\n` +
+      (eq ? `Equipement : ${eq.nom}\n` : '') +
+      `Le service de maintenance va etre alerte immediatement.\n\nIntervention prioritaire.`
   },
 
   etat: {
-    keywords: ['état', 'statut', 'disponible', 'fonctionne', 'fonctionnel', 'est-ce que'],
+    keywords: ['etat', 'statut', 'disponible', 'fonctionne', 'fonctionnel', 'est-ce que'],
     response: (eq) => eq
-      ? `📊 **${eq.nom}**\n` +
-        `Statut : ${eq.statut === 'FONCTIONNEL' ? '✅ Fonctionnel' : '❌ En panne'}\n` +
+      ? `${eq.nom}\n` +
+        `Statut : ${eq.statut === 'FONCTIONNEL' ? 'Fonctionnel' : 'En panne'}\n` +
         `Service : ${eq.service}\n\n` +
         (eq.statut !== 'FONCTIONNEL'
-          ? `⚠️ Cet équipement est signalé comme défaillant. Souhaitez-vous faire un nouveau signalement ?`
-          : `Si vous constatez un problème, décrivez-le et je transmettrai au service maintenance.`)
-      : `Quel équipement souhaitez-vous vérifier ?`
+          ? `Cet equipement est signale comme defaillant. Souhaitez-vous faire un nouveau signalement ?`
+          : `Si vous constatez un probleme, decrivez-le et je transmettrai au service maintenance.`)
+      : `Quel equipement souhaitez-vous verifier ?`
   },
 
   scanner: {
     keywords: ['scanner', 'qr', 'code', 'flash', 'scan'],
     response: () =>
-      `📷 Scannez le QR code de l'équipement pour l'identifier automatiquement.\n\nAppuyez sur **Scanner QR** en haut de l'écran.`
+      `Scannez le QR code de l'equipement pour l'identifier automatiquement.\n\nAppuyez sur Scanner QR en haut de l'ecran.`
   },
 
   aide: {
     keywords: ['aide', 'help', 'bonjour', 'salut', 'bonsoir', 'que faire', 'comment', 'assistance'],
     response: () =>
-      `👋 **Bonjour !**\n\nJe suis l'assistant signalement de pannes.\n\n` +
+      `Bonjour !\n\nJe suis l'assistant signalement de pannes.\n\n` +
       `Voici ce que je peux faire :\n` +
-      `• **Signaler une panne** : "le respirateur est en panne"\n` +
-      `• **Vérifier un équipement** : "état du moniteur"\n` +
-      `• **Signalement urgent** : "urgence défibrillateur"\n` +
-      `• **Scanner QR** : "scanner"\n\n` +
-      `💡 Décrivez simplement le problème, je m'occupe du reste.`
+      `- Signaler une panne : "le respirateur est en panne"\n` +
+      `- Verifier un equipement : "etat du moniteur"\n` +
+      `- Signalement urgent : "urgence defibrillateur"\n` +
+      `- Scanner QR : "scanner"\n\n` +
+      `Decrivez simplement le probleme, je m'occupe du reste.`
   }
 };
 
-// ============================================================
-// UTILITAIRES
-// ============================================================
-
-/** Détecte l'intention du soignant */
 function detectIntentSoignant(message) {
   const msg = message.toLowerCase();
   for (const [intent, data] of Object.entries(intentsSoignant)) {
@@ -68,7 +63,6 @@ function detectIntentSoignant(message) {
   return { intent: 'aide', response: intentsSoignant.aide.response };
 }
 
-/** Cherche un équipement par nom dans le message */
 async function findEquipementSoignant(message, userService) {
   try {
     const equipements = await prisma.equipement.findMany({
@@ -94,7 +88,6 @@ async function findEquipementSoignant(message, userService) {
   } catch { return null; }
 }
 
-/** Récupère ou crée une conversation soignant */
 async function getOrCreateConversationSoignant(conversationId, userId, equipementId = null) {
   if (conversationId) {
     const existing = await prisma.conversation.findUnique({
@@ -112,21 +105,16 @@ async function getOrCreateConversationSoignant(conversationId, userId, equipemen
   });
 }
 
-// ============================================================
-// CONTROLLER SIGNALEMENT — Pour SOIGNANT
-// POST /api/chatbot/signalement
-// ============================================================
 export const chatbotSignalement = async (req, res) => {
   const { message, equipmentId, conversationId } = req.body;
   const userId      = req.user?.id;
   const userService = req.user?.service || null;
 
   if (!message?.trim()) {
-    return res.status(400).json({ reply: '❌ Message vide.', action: 'error' });
+    return res.status(400).json({ reply: 'Message vide.', action: 'error' });
   }
 
   try {
-    // 1. Identifier l'équipement
     let equipement = null;
     if (equipmentId) {
       equipement = await prisma.equipement.findUnique({
@@ -141,12 +129,10 @@ export const chatbotSignalement = async (req, res) => {
       equipement = await findEquipementSoignant(message, userService);
     }
 
-    // 2. Conversation
     const conversation = await getOrCreateConversationSoignant(
       conversationId, userId, equipement?.id
     );
 
-    // 3. Sauvegarder message utilisateur
     await prisma.message.create({
       data: {
         conversationId: conversation.id,
@@ -156,7 +142,6 @@ export const chatbotSignalement = async (req, res) => {
       }
     });
 
-    // 4. Détecter l'intention
     const { intent, response } = detectIntentSoignant(message);
     let reply  = '';
     let action = 'info';
@@ -177,12 +162,11 @@ export const chatbotSignalement = async (req, res) => {
         reply = response(equipement);
         action = 'urgence';
         if (equipement) {
-          // Créer une alerte urgente immédiatement
           await prisma.alerte.create({
             data: {
               type: 'PANNE_URGENTE',
               niveau: 'CRITIQUE',
-              message: `🚨 Urgence signalée via chatbot soignant : ${equipement.nom}`,
+              message: `Urgence signalee via chatbot soignant : ${equipement.nom}`,
               equipementId: equipement.id
             }
           }).catch(() => {});
@@ -209,7 +193,6 @@ export const chatbotSignalement = async (req, res) => {
         action = 'aide';
     }
 
-    // 5. Sauvegarder réponse bot
     await prisma.message.create({
       data: {
         conversationId: conversation.id,
@@ -224,18 +207,14 @@ export const chatbotSignalement = async (req, res) => {
     return res.json({ reply, action, data, conversationId: conversation.id });
 
   } catch (error) {
-    console.error('chatbotSignalement:', error);
+    console.error('chatbotSignalement error:', error);
     return res.status(500).json({
-      reply: '❌ Erreur serveur. Réessayez ou contactez le service maintenance.',
+      reply: 'Erreur serveur. Reessayez ou contactez le service maintenance.',
       action: 'error'
     });
   }
 };
 
-// ============================================================
-// CONTROLLER CRÉER SIGNALEMENT — Pour SOIGNANT
-// POST /api/chatbot/signaler
-// ============================================================
 export const chatbotCreerSignalement = async (req, res) => {
   const { equipmentId, description, priorite = 'MOYENNE', conversationId } = req.body;
   const userId = req.user?.id;
@@ -243,7 +222,7 @@ export const chatbotCreerSignalement = async (req, res) => {
   if (!equipmentId || !description?.trim()) {
     return res.status(400).json({
       success: false,
-      message: '❌ Équipement et description requis.'
+      message: 'Equipement et description requis.'
     });
   }
 
@@ -252,10 +231,9 @@ export const chatbotCreerSignalement = async (req, res) => {
 
     const equipement = await prisma.equipement.findUnique({ where: { id: equipId } });
     if (!equipement) {
-      return res.status(404).json({ success: false, message: '❌ Équipement introuvable.' });
+      return res.status(404).json({ success: false, message: 'Equipement introuvable.' });
     }
 
-    // Créer le signalement
     const signalement = await prisma.signalement.create({
       data: {
         equipementId: equipId,
@@ -266,32 +244,29 @@ export const chatbotCreerSignalement = async (req, res) => {
       }
     });
 
-    // Trouver un technicien disponible (premier technicien actif)
     const technicien = await prisma.user.findFirst({
       where: { role: 'TECHNICIEN', statut: 'ACTIF' },
       select: { id: true }
     });
 
     if (!technicien) {
-      // Pas de technicien actif — signalement créé sans intervention
       await prisma.alerte.create({
         data: {
           type: 'NOUVELLE_PANNE',
           niveau: priorite === 'CRITIQUE' ? 'CRITIQUE' : 'ATTENTION',
-          message: `Nouvelle panne signalée : ${equipement.nom} — Aucun technicien disponible`,
+          message: `Nouvelle panne signalee : ${equipement.nom} — Aucun technicien disponible`,
           equipementId: equipId
         }
       }).catch(() => {});
 
       return res.json({
         success: true,
-        message: `✅ Signalement enregistré sur **${equipement.nom}**.\n⚠️ Aucun technicien disponible actuellement — le responsable a été alerté.`,
+        message: `Signalement enregistre sur ${equipement.nom}.\nAucun technicien disponible actuellement — le responsable a ete alerte.`,
         signalementId: signalement.id,
         interventionId: null
       });
     }
 
-    // Créer l'intervention associée
     const intervention = await prisma.intervention.create({
       data: {
         signalementId: signalement.id,
@@ -303,7 +278,6 @@ export const chatbotCreerSignalement = async (req, res) => {
       }
     });
 
-    // Mettre à jour le statut équipement
     await prisma.equipement.update({
       where: { id: equipId },
       data: {
@@ -313,18 +287,16 @@ export const chatbotCreerSignalement = async (req, res) => {
       }
     }).catch(() => {});
 
-    // Créer une alerte
     await prisma.alerte.create({
       data: {
         type: 'NOUVELLE_PANNE',
         niveau: priorite === 'CRITIQUE' ? 'CRITIQUE' : 'ATTENTION',
-        message: `Panne signalée par soignant : ${equipement.nom} (${priorite})`,
+        message: `Panne signalee par soignant : ${equipement.nom} (${priorite})`,
         equipementId: equipId,
         interventionId: intervention.id
       }
     }).catch(() => {});
 
-    // Mettre à jour la conversation
     if (conversationId) {
       await prisma.conversation.update({
         where: { id: parseInt(conversationId) },
@@ -334,16 +306,16 @@ export const chatbotCreerSignalement = async (req, res) => {
 
     return res.json({
       success: true,
-      message: `✅ Panne signalée avec succès sur **${equipement.nom}**.\nUn technicien va prendre en charge l'intervention.`,
+      message: `Panne signalee avec succes sur ${equipement.nom}.\nUn technicien va prendre en charge l'intervention.`,
       signalementId: signalement.id,
       interventionId: intervention.id
     });
 
   } catch (error) {
-    console.error('chatbotCreerSignalement:', error);
+    console.error('chatbotCreerSignalement error:', error);
     return res.status(500).json({
       success: false,
-      message: '❌ Erreur lors du signalement. Contactez le service maintenance directement.'
+      message: 'Erreur lors du signalement. Contactez le service maintenance directement.'
     });
   }
 };
