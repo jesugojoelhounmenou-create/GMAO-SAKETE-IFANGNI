@@ -1,4 +1,4 @@
-// Gestion PWA (Progressive Web App) - GMAO Sakété v2.1.0
+// Gestion PWA (Progressive Web App) - GMAO Sakete v2.1.0
 
 // ============================================
 // CONFIGURATION
@@ -30,26 +30,21 @@ const PWA_CONFIG = {
         '/assets/images/icons/icon-384.png',
         '/assets/images/icons/icon-512.png'
     ],
-    // API endpoints à mettre en cache
     API_CACHE_ENDPOINTS: [
         '/equipements',
         '/stock',
         '/alertes',
         '/maintenances/mes-interventions'
     ],
-    // Durée de vie du cache API (24 heures)
     API_CACHE_TTL: 24 * 60 * 60 * 1000,
-    // Maximum de tentatives de synchronisation
     MAX_SYNC_RETRIES: 5,
-    // Délai entre les tentatives (exponentiel)
     SYNC_RETRY_DELAY: 5000
 };
 
 // ============================================
-# UTILITAIRES
-============================================
+// UTILITAIRES
+// ============================================
 
-// Stockage IndexedDB pour les requêtes hors ligne
 let db = null;
 
 function initIndexedDB() {
@@ -75,7 +70,6 @@ function initIndexedDB() {
     });
 }
 
-// Sauvegarder une requête pour synchronisation ultérieure
 async function savePendingRequest(requestData) {
     if (!db) await initIndexedDB();
     
@@ -95,7 +89,6 @@ async function savePendingRequest(requestData) {
     });
 }
 
-// Récupérer les requêtes en attente
 async function getPendingRequests() {
     if (!db) await initIndexedDB();
     
@@ -117,7 +110,6 @@ async function getPendingRequests() {
     });
 }
 
-// Supprimer une requête après synchronisation
 async function removePendingRequest(id) {
     if (!db) await initIndexedDB();
     
@@ -131,13 +123,12 @@ async function removePendingRequest(id) {
 }
 
 // ============================================
-# SERVICE WORKER
-============================================
+// SERVICE WORKER
+// ============================================
 
-// Enregistrer le Service Worker
 async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) {
-        console.warn('⚠️ Service Worker non supporté par ce navigateur');
+        console.warn('Service Worker non supporte par ce navigateur');
         return false;
     }
     
@@ -146,26 +137,23 @@ async function registerServiceWorker() {
             scope: '/'
         });
         
-        console.log('✅ Service Worker enregistré:', registration.scope);
+        console.log('Service Worker enregistre:', registration.scope);
         
-        // Vérifier les mises à jour
         checkForUpdates(registration);
         
-        // Écouter les messages du service worker
         listenToServiceWorkerMessages();
         
         return true;
     } catch (error) {
-        console.error('❌ Erreur enregistrement Service Worker:', error);
+        console.error('Erreur enregistrement Service Worker:', error);
         return false;
     }
 }
 
-// Vérifier les mises à jour
 function checkForUpdates(registration) {
     registration.addEventListener('updatefound', () => {
         const newWorker = registration.installing;
-        console.log('🔄 Nouveau Service Worker détecté');
+        console.log('Nouveau Service Worker detecte');
         
         newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
@@ -174,15 +162,12 @@ function checkForUpdates(registration) {
         });
     });
     
-    // Vérification périodique (toutes les heures)
     setInterval(() => {
         registration.update();
     }, 60 * 60 * 1000);
 }
 
-// Afficher notification de mise à jour
 function showUpdateNotification() {
-    // Vérifier si la bannière existe déjà
     if (document.getElementById('updateBanner')) return;
     
     const updateBanner = document.createElement('div');
@@ -205,10 +190,10 @@ function showUpdateNotification() {
             animation: slideUp 0.3s ease;
         ">
             <div style="display: flex; align-items: center; gap: 10px;">
-                <span style="font-size: 24px;">🔄</span>
+                <span style="font-size: 24px;">⟳</span>
                 <div>
                     <strong>Nouvelle version disponible</strong>
-                    <div style="font-size: 11px; opacity: 0.8;">Redémarrez pour bénéficier des dernières améliorations</div>
+                    <div style="font-size: 11px; opacity: 0.8;">Redemarrez pour beneficier des dernieres ameliorations</div>
                 </div>
             </div>
             <button onclick="window.refreshApp()" style="
@@ -220,11 +205,10 @@ function showUpdateNotification() {
                 cursor: pointer;
                 font-weight: 600;
                 transition: 0.2s;
-            ">Mettre à jour</button>
+            ">Mettre a jour</button>
         </div>
     `;
     
-    // Ajouter les styles d'animation
     const style = document.createElement('style');
     style.textContent = `
         @keyframes slideUp {
@@ -237,7 +221,6 @@ function showUpdateNotification() {
     document.body.appendChild(updateBanner);
 }
 
-// Rafraîchir l'application
 function refreshApp() {
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.ready.then(registration => {
@@ -251,7 +234,6 @@ function refreshApp() {
     }
 }
 
-// Écouter les messages du service worker
 function listenToServiceWorkerMessages() {
     navigator.serviceWorker.addEventListener('message', (event) => {
         const data = event.data;
@@ -260,10 +242,10 @@ function listenToServiceWorkerMessages() {
         
         switch (data.type) {
             case 'CACHE_UPDATED':
-                console.log('Cache mis à jour');
+                console.log('Cache mis a jour');
                 break;
             case 'SYNC_COMPLETE':
-                console.log('Synchronisation terminée');
+                console.log('Synchronisation terminee');
                 break;
             default:
                 console.log('Message du service worker:', data);
@@ -272,15 +254,13 @@ function listenToServiceWorkerMessages() {
 }
 
 // ============================================
-# MODE HORS LIGNE
-============================================
+// MODE HORS LIGNE
+// ============================================
 
-// Vérifier si l'application est en mode hors ligne
 function isOffline() {
     return !navigator.onLine;
 }
 
-// Afficher le mode hors ligne
 let offlineBanner = null;
 
 function showOfflineMode() {
@@ -306,12 +286,11 @@ function showOfflineMode() {
             gap: 8px;
         ">
             <span>📡</span>
-            <span>Mode hors ligne - Les données sont lues depuis le cache</span>
+            <span>Mode hors ligne - Les donnees sont lues depuis le cache</span>
         </div>
     `;
     document.body.prepend(offlineBanner);
     
-    // Ajuster le padding du body
     document.body.style.paddingTop = '40px';
 }
 
@@ -323,30 +302,26 @@ function hideOfflineMode() {
     }
 }
 
-// Écouter les changements de connexion
 function initNetworkListeners() {
     window.addEventListener('online', () => {
-        console.log('🟢 Connexion rétablie');
+        console.log('Connexion retablie');
         hideOfflineMode();
         syncOfflineData();
         
-        // Afficher un toast de confirmation
-        showToast('Connexion rétablie', 'success');
+        showToast('Connexion retablie', 'success');
     });
     
     window.addEventListener('offline', () => {
-        console.log('🔴 Mode hors ligne');
+        console.log('Mode hors ligne');
         showOfflineMode();
-        showToast('Mode hors ligne activé', 'warning');
+        showToast('Mode hors ligne active', 'warning');
     });
     
-    // Vérifier l'état initial
     if (isOffline()) {
         showOfflineMode();
     }
 }
 
-// Afficher un toast temporaire
 function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.style.cssText = `
@@ -373,27 +348,26 @@ function showToast(message, type = 'info') {
 }
 
 // ============================================
-# SYNCHRONISATION HORS LIGNE
-============================================
+// SYNCHRONISATION HORS LIGNE
+// ============================================
 
-// Synchroniser les données hors ligne
 async function syncOfflineData() {
     if (isOffline()) {
-        console.log('Toujours hors ligne, synchronisation différée');
+        console.log('Toujours hors ligne, synchronisation differee');
         return false;
     }
     
-    console.log('🔄 Synchronisation des données hors ligne...');
+    console.log('Synchronisation des donnees hors ligne...');
     
     try {
         const pendingRequests = await getPendingRequests();
         
         if (pendingRequests.length === 0) {
-            console.log('Aucune donnée en attente de synchronisation');
+            console.log('Aucune donnee en attente de synchronisation');
             return true;
         }
         
-        console.log(`${pendingRequests.length} requête(s) en attente`);
+        console.log(`${pendingRequests.length} requete(s) en attente`);
         
         let syncedCount = 0;
         
@@ -403,16 +377,15 @@ async function syncOfflineData() {
                 await removePendingRequest(request.id);
                 syncedCount++;
             } else if (request.retryCount >= PWA_CONFIG.MAX_SYNC_RETRIES) {
-                console.warn(`Requête abandonnée après ${PWA_CONFIG.MAX_SYNC_RETRIES} tentatives:`, request.url);
+                console.warn(`Requete abandonnee apres ${PWA_CONFIG.MAX_SYNC_RETRIES} tentatives:`, request.url);
                 await removePendingRequest(request.id);
             } else {
-                // Mettre à jour le compteur de tentatives
                 await updateRetryCount(request.id, request.retryCount + 1);
             }
         }
         
         if (syncedCount > 0) {
-            showToast(`${syncedCount} élément(s) synchronisé(s)`, 'success');
+            showToast(`${syncedCount} element(s) synchronise(s)`, 'success');
         }
         
         return true;
@@ -431,10 +404,10 @@ async function processPendingRequest(request) {
         });
         
         if (response.ok) {
-            console.log('✅ Requête synchronisée:', request.url);
+            console.log('Requete synchronisee:', request.url);
             return true;
         } else {
-            console.warn(`Échec synchronisation ${request.url}: ${response.status}`);
+            console.warn(`Echec synchronisation ${request.url}: ${response.status}`);
             return false;
         }
     } catch (error) {
@@ -466,8 +439,8 @@ async function updateRetryCount(id, newCount) {
 }
 
 // ============================================
-# INSTALLATION PWA
-============================================
+// INSTALLATION PWA
+// ============================================
 
 let deferredPrompt = null;
 
@@ -476,16 +449,14 @@ function initInstallPrompt() {
         e.preventDefault();
         deferredPrompt = e;
         
-        // Afficher le bouton d'installation
         showInstallButton();
     });
     
-    // Détecter si l'application est déjà installée
     window.addEventListener('appinstalled', () => {
-        console.log('✅ Application installée');
+        console.log('Application installee');
         deferredPrompt = null;
         hideInstallButton();
-        showToast('Application installée avec succès !', 'success');
+        showToast('Application installee avec succes', 'success');
     });
 }
 
@@ -537,32 +508,25 @@ function hideInstallButton() {
 }
 
 // ============================================
-# INITIALISATION
-============================================
+// INITIALISATION
+// ============================================
 
-// Initialiser la PWA
 async function initPWA() {
-    console.log('📱 Initialisation PWA...');
+    console.log('Initialisation PWA...');
     
-    // Initialiser IndexedDB
     await initIndexedDB();
     
-    // Enregistrer Service Worker
     const swRegistered = await registerServiceWorker();
     
     if (swRegistered) {
-        // Initialiser les notifications (si disponibles)
         if (typeof window.Notifications !== 'undefined') {
             window.Notifications.init();
         }
         
-        // Écouter les changements de réseau
         initNetworkListeners();
         
-        // Demander l'installation
         initInstallPrompt();
         
-        // Synchroniser périodiquement (toutes les heures)
         setInterval(() => {
             if (!isOffline()) {
                 syncOfflineData();
@@ -570,18 +534,15 @@ async function initPWA() {
         }, 60 * 60 * 1000);
     }
     
-    // Vérifier si l'application est déjà installée
     if (window.matchMedia('(display-mode: standalone)').matches) {
-        console.log('📱 Application installée - mode standalone');
+        console.log('Application installee - mode standalone');
         document.body.classList.add('pwa-installed');
         hideInstallButton();
     }
     
-    // Vérifier la version du cache
     await checkCacheVersion();
 }
 
-// Vérifier la version du cache
 async function checkCacheVersion() {
     if ('caches' in window) {
         const cacheNames = await caches.keys();
@@ -598,22 +559,19 @@ async function checkCacheVersion() {
     }
 }
 
-// Exporter les fonctions pour un usage global
 window.refreshApp = refreshApp;
 window.syncOfflineData = syncOfflineData;
 
 // ============================================
-# AUTO-INITIALISATION
-============================================
+// AUTO-INITIALISATION
+// ============================================
 
-// S'assurer que le DOM est chargé
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initPWA);
 } else {
     initPWA();
 }
 
-// Export pour ES modules
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         registerServiceWorker,
