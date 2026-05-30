@@ -1,4 +1,4 @@
-/* Styles pour le Chatbot - GMAO Sakété */
+/* Styles pour le Chatbot - GMAO Sakete */
 
 /* ============================================
    VARIABLES CSS
@@ -51,7 +51,7 @@
 
 .chatbot-button:hover {
     transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(0,102,255,0.4);
+    box-shadow: 0 6px 20px rgba(0, 102, 255, 0.4);
 }
 
 .chatbot-button:active {
@@ -131,7 +131,7 @@
 .chatbot-header-left .avatar {
     width: 40px;
     height: 40px;
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -182,7 +182,7 @@
 }
 
 .chatbot-close:hover {
-    background: rgba(255,255,255,0.2);
+    background: rgba(255, 255, 255, 0.2);
 }
 
 /* Zone des messages */
@@ -326,7 +326,7 @@
 
 .chatbot-input:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 2px rgba(0,102,255,0.1);
+    box-shadow: 0 0 0 2px rgba(0, 102, 255, 0.1);
 }
 
 .chatbot-send {
@@ -387,7 +387,7 @@
     transform: translateY(-1px);
 }
 
-/* Messages spéciaux - Diagnostic */
+/* Messages speciaux - Diagnostic */
 .message-diagnostic {
     background: #fef3c7;
     border-left: 4px solid var(--warning-color);
@@ -481,7 +481,7 @@
     margin-bottom: 8px;
 }
 
-/* Mode réduit (collapsed) */
+/* Mode reduit (collapsed) */
 .chatbot-window.collapsed {
     height: 60px;
     overflow: hidden;
@@ -497,7 +497,7 @@
     cursor: pointer;
 }
 
-/* Mode plein écran */
+/* Mode plein ecran */
 .chatbot-window.fullscreen {
     position: fixed;
     top: 0;
@@ -593,7 +593,7 @@
     }
 }
 
-/* Support des animations réduites */
+/* Support des animations reduites */
 @media (prefers-reduced-motion: reduce) {
     .chatbot-button,
     .chatbot-window,
