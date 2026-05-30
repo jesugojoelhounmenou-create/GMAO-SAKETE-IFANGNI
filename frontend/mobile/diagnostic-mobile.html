@@ -206,27 +206,27 @@
 <body>
 
 <div class="header">
-    <h2>🤖 Diagnostic Expert IA</h2>
-    <p>Assistant technique biomédical intelligent</p>
+    <h2>Diagnostic Expert IA</h2>
+    <p>Assistant technique biomedical intelligent</p>
 </div>
 
 <div class="chat-container">
     <div class="equipment-select">
-        <label>📋 Équipement concerné (optionnel)</label>
+        <label>Equipement concerne (optionnel)</label>
         <select id="equipmentSelect">
-            <option value="">🔍 Sélectionner un équipement...</option>
+            <option value="">Selectionner un equipement...</option>
         </select>
-        <button class="clear-equipment" onclick="clearEquipment()" style="display:none;" id="clearEquipBtn">✕ Effacer la sélection</button>
+        <button class="clear-equipment" onclick="clearEquipment()" style="display:none;" id="clearEquipBtn">Effacer la selection</button>
     </div>
     
     <div class="messages" id="messages">
         <div class="message bot">
-            <div class="message-content">👋 <strong>Bonjour Technicien !</strong><br><br>Je suis votre assistant de diagnostic biomédical.<br><br>🔍 Décrivez le symptôme observé ou sélectionnez un équipement pour un diagnostic plus précis.<br><br>💡 <em>Je vous guiderai vers les causes probables et la procédure d'intervention.</em></div>
+            <div class="message-content"><strong>Bonjour Technicien !</strong><br><br>Je suis votre assistant de diagnostic biomedical.<br><br>Decrivez le symptome observe ou selectionnez un equipement pour un diagnostic plus precis.<br><br><em>Je vous guiderai vers les causes probables et la procedure d'intervention.</em></div>
         </div>
     </div>
     
     <div class="input-area">
-        <input type="text" id="messageInput" placeholder="Décrivez le problème technique..." onkeypress="if(event.key==='Enter') sendMessage()">
+        <input type="text" id="messageInput" placeholder="Decrivez le probleme technique..." onkeypress="if(event.key==='Enter') sendMessage()">
         <button id="sendBtn" onclick="sendMessage()">➤</button>
     </div>
 </div>
@@ -254,7 +254,6 @@
     
     function getToken() { return localStorage.getItem('token'); }
     
-    // Auth check
     if (!getToken()) window.location.href = '/login.html';
     
     const userRole = localStorage.getItem('userRole');
@@ -271,7 +270,7 @@
             let equipements = Array.isArray(data) ? data : (data.equipements || []);
             
             const select = document.getElementById('equipmentSelect');
-            select.innerHTML = '<option value="">🔍 Sélectionner un équipement...</option>';
+            select.innerHTML = '<option value="">Selectionner un equipement...</option>';
             
             equipements.forEach(equip => {
                 const option = document.createElement('option');
@@ -280,20 +279,19 @@
                 select.appendChild(option);
             });
             
-            // Ajouter l'écouteur de changement
             select.addEventListener('change', () => {
                 currentEquipmentId = select.value || null;
                 const clearBtn = document.getElementById('clearEquipBtn');
                 if (currentEquipmentId) {
                     clearBtn.style.display = 'inline-block';
-                    addMessage(`📱 Équipement sélectionné : ${select.options[select.selectedIndex].text.split(' - ')[0]}`, 'bot');
+                    addMessage(`Equipement selectionne : ${select.options[select.selectedIndex].text.split(' - ')[0]}`, 'bot');
                 } else {
                     clearBtn.style.display = 'none';
                 }
             });
             
         } catch(e) { 
-            console.error('Erreur chargement équipements:', e);
+            console.error('Erreur chargement equipements:', e);
         }
     }
     
@@ -301,7 +299,7 @@
         document.getElementById('equipmentSelect').value = '';
         currentEquipmentId = null;
         document.getElementById('clearEquipBtn').style.display = 'none';
-        addMessage('🔄 Équipement désélectionné. Décrivez un nouveau symptôme.', 'bot');
+        addMessage('Equipement deselectionne. Decrivez un nouveau symptome.', 'bot');
     }
     
     function addMessage(text, sender) {
@@ -371,7 +369,7 @@
             
             if (!res.ok) {
                 const errorData = await res.json().catch(() => ({}));
-                addMessage(errorData.reply || '❌ Erreur serveur. Réessayez.', 'bot');
+                addMessage(errorData.reply || 'Erreur serveur. Reessayez.', 'bot');
                 sendBtn.disabled = false;
                 return;
             }
@@ -379,7 +377,6 @@
             const data = await res.json();
             if (data.conversationId) conversationId = data.conversationId;
             
-            // Équipement détecté automatiquement
             if (data.data?.equipmentId && !currentEquipmentId) {
                 currentEquipmentId = data.data.equipmentId;
                 const select = document.getElementById('equipmentSelect');
@@ -388,11 +385,10 @@
                     document.getElementById('clearEquipBtn').style.display = 'inline-block';
                 }
                 if (data.data.equipmentNom) {
-                    addMessage(`📱 Équipement détecté : **${data.data.equipmentNom}**`, 'bot');
+                    addMessage(`Equipement detecte : **${data.data.equipmentNom}**`, 'bot');
                 }
             }
             
-            // Gérer les actions
             switch (data.action) {
                 case 'show_diagnostic':
                     addMessage(data.reply, 'bot');
@@ -411,13 +407,12 @@
         } catch(error) {
             hideTyping();
             console.error('Erreur:', error);
-            addMessage('❌ Connexion impossible. Vérifiez votre connexion internet.', 'bot');
+            addMessage('Connexion impossible. Verifiez votre connexion internet.', 'bot');
         } finally {
             sendBtn.disabled = false;
         }
     }
     
-    // Chargement initial
     loadEquipments();
 </script>
 </body>
