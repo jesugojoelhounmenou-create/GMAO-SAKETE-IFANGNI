@@ -13,7 +13,7 @@ const isEmailConfigured = () => {
 };
 
 if (!isEmailConfigured() && process.env.NODE_ENV === 'production') {
-    console.warn('⚠️ Email non configuré - les emails seront en mode simulation');
+    console.warn('Email non configure - les emails seront en mode simulation');
     console.warn('   Variables manquantes: EMAIL_USER, EMAIL_PASS');
 }
 
@@ -23,7 +23,6 @@ if (!isEmailConfigured() && process.env.NODE_ENV === 'production') {
 
 const getTransporter = () => {
     if (!isEmailConfigured()) {
-        // Mode simulation
         return null;
     }
 
@@ -44,7 +43,6 @@ const getTransporter = () => {
         rateLimit: 5
     };
 
-    // Configuration spécifique pour Gmail
     if (config.host === 'smtp.gmail.com') {
         config.auth = {
             user: process.env.EMAIL_USER,
@@ -57,76 +55,46 @@ const getTransporter = () => {
 
 let transporter = null;
 
-// ============================================
-// FONCTION D'ENVOI D'EMAIL
-// ============================================
-
-/**
- * Envoyer un email
- * @param {string} to - Destinataire
- * @param {string} subject - Sujet
- * @param {string} html - Contenu HTML
- * @param {string} text - Contenu texte (optionnel)
- * @returns {Promise<Object>} Résultat de l'envoi
- */
 export const sendEmail = async (to, subject, html, text = null) => {
-    // Mode simulation
     if (!isEmailConfigured()) {
-        console.log('📧 [SIMULATION] Email envoyé à', to);
+        console.log('[SIMULATION] Email envoye a', to);
         console.log('   Sujet:', subject);
         console.log('   Contenu:', text || html.replace(/<[^>]*>/g, '').substring(0, 200));
         return { messageId: `sim-${Date.now()}`, accepted: [to] };
     }
 
-    // Initialiser le transporteur si nécessaire
     if (!transporter) {
         transporter = getTransporter();
-        // Vérifier la connexion
         try {
             await transporter.verify();
-            console.log('✅ Serveur email connecté');
+            console.log('Serveur email connecte');
         } catch (error) {
-            console.error('❌ Erreur connexion email:', error.message);
+            console.error('Erreur connexion email:', error.message);
             throw error;
         }
     }
 
     try {
         const info = await transporter.sendMail({
-            from: `"GMAO Hôpital Sakété" <${process.env.EMAIL_USER}>`,
+            from: `"GMAO Hopital Sakete" <${process.env.EMAIL_USER}>`,
             to: Array.isArray(to) ? to.join(', ') : to,
             subject: subject,
             text: text || html.replace(/<[^>]*>/g, ''),
             html: html,
         });
 
-        console.log(`✅ Email envoyé à ${to} (${info.messageId})`);
+        console.log(`Email envoye a ${to} (${info.messageId})`);
         return info;
     } catch (error) {
-        console.error('❌ Erreur envoi email:', error.message);
+        console.error('Erreur envoi email:', error.message);
         throw error;
     }
 };
 
-// ============================================
-// TEMPLATE DE BASE
-// ============================================
-
-/**
- * Template de base pour les emails
- */
 const getBaseTemplate = (title, content, buttonText = null, buttonUrl = null, color = '#0066FF') => {
     const buttonHtml = buttonText && buttonUrl ? `
         <div style="text-align: center; margin: 25px 0;">
-            <a href="${buttonUrl}" style="
-                background: ${color};
-                color: white;
-                padding: 12px 30px;
-                text-decoration: none;
-                border-radius: 50px;
-                display: inline-block;
-                font-weight: bold;
-            ">${buttonText}</a>
+            <a href="${buttonUrl}" style="background: ${color}; color: white; padding: 12px 30px; text-decoration: none; border-radius: 50px; display: inline-block; font-weight: bold;">${buttonText}</a>
         </div>
     ` : '';
 
@@ -149,7 +117,7 @@ const getBaseTemplate = (title, content, buttonText = null, buttonUrl = null, co
         <body>
             <div class="container">
                 <div class="header">
-                    <h2>🏥 GMAO Hôpital Sakété-Ifangni</h2>
+                    <h2>GMAO Hopital Sakete-Ifangni</h2>
                 </div>
                 <div class="content">
                     <h3>${title}</h3>
@@ -157,10 +125,10 @@ const getBaseTemplate = (title, content, buttonText = null, buttonUrl = null, co
                     ${buttonHtml}
                 </div>
                 <div class="footer">
-                    <p>GMAO - Gestion de Maintenance Assistée par Ordinateur</p>
-                    <p>Hôpital de Zone Sakété-Ifangni • Bénin</p>
+                    <p>GMAO - Gestion de Maintenance Assistee par Ordinateur</p>
+                    <p>Hopital de Zone Sakete-Ifangni • Benin</p>
                     <p style="margin-top: 10px;">
-                        <a href="${process.env.FRONTEND_URL || 'https://gmao-sakete.netlify.app'}" style="color: #0066FF; text-decoration: none;">Accéder à la plateforme</a>
+                        <a href="${process.env.FRONTEND_URL || 'https://gmao-sakete.netlify.app'}" style="color: #0066FF; text-decoration: none;">Acceder a la plateforme</a>
                     </p>
                 </div>
             </div>
@@ -169,96 +137,75 @@ const getBaseTemplate = (title, content, buttonText = null, buttonUrl = null, co
     `;
 };
 
-// ============================================
-// EMAILS SPÉCIFIQUES
-// ============================================
-
-/**
- * Email de validation de compte
- */
 export const sendValidationEmail = async (user) => {
     const content = `
         <p>Bonjour <strong>${user.nom} ${user.prenom || ''}</strong>,</p>
-        <p>Votre compte a été <strong style="color: #22c55e;">validé</strong> par le service biomédical.</p>
+        <p>Votre compte a ete <strong style="color: #22c55e;">valide</strong> par le service biomedical.</p>
         
         <div class="info-box">
-            <p><strong>📋 Vos identifiants :</strong></p>
-            <p>👤 Identifiant : ${user.email}</p>
-            <p>🆔 Matricule : ${user.matricule}</p>
+            <p><strong>Vos identifiants :</strong></p>
+            <p>Identifiant : ${user.email}</p>
+            <p>Matricule : ${user.matricule}</p>
         </div>
         
-        <p>Vous pouvez maintenant vous connecter à l'application GMAO.</p>
+        <p>Vous pouvez maintenant vous connecter a l'application GMAO.</p>
     `;
 
     const html = getBaseTemplate(
-        '✅ Votre compte GMAO a été validé',
+        'Votre compte GMAO a ete valide',
         content,
-        '🔐 Se connecter',
+        'Se connecter',
         `${process.env.FRONTEND_URL || 'https://gmao-sakete.netlify.app'}/login.html`,
         '#22c55e'
     );
 
-    return sendEmail(user.email, '✅ Votre compte GMAO a été validé', html);
+    return sendEmail(user.email, 'Votre compte GMAO a ete valide', html);
 };
 
-/**
- * Email de bienvenue après inscription
- */
 export const sendWelcomeEmail = async (user, plainPassword) => {
     const content = `
         <p>Bonjour <strong>${user.nom} ${user.prenom || ''}</strong>,</p>
-        <p>Votre compte a été créé avec succès sur la plateforme GMAO.</p>
+        <p>Votre compte a ete cree avec succes sur la plateforme GMAO.</p>
         
         <div class="info-box">
-            <p><strong>📋 Vos identifiants de connexion :</strong></p>
-            <p><strong>👤 Identifiant :</strong> ${user.email}</p>
-            <p><strong>🔑 Mot de passe :</strong> ${plainPassword}</p>
-            <p><strong>🆔 Matricule :</strong> ${user.matricule}</p>
+            <p><strong>Vos identifiants de connexion :</strong></p>
+            <p><strong>Identifiant :</strong> ${user.email}</p>
+            <p><strong>Mot de passe :</strong> ${plainPassword}</p>
+            <p><strong>Matricule :</strong> ${user.matricule}</p>
         </div>
         
         <div style="background: #fef3c7; padding: 15px; border-radius: 12px; margin: 15px 0;">
-            <p><strong>⚠️ Important :</strong> Votre compte est en attente de validation par le technicien biomédical.</p>
-            <p>Vous recevrez un email de confirmation dès son activation.</p>
+            <p><strong>Important :</strong> Votre compte est en attente de validation par le technicien biomedical.</p>
+            <p>Vous recevrez un email de confirmation des son activation.</p>
         </div>
     `;
 
     const html = getBaseTemplate(
-        '🏥 Bienvenue sur GMAO Sakété',
+        'Bienvenue sur GMAO Sakete',
         content,
-        '🔐 Se connecter',
+        'Se connecter',
         `${process.env.FRONTEND_URL || 'https://gmao-sakete.netlify.app'}/login.html`,
         '#0066FF'
     );
 
-    return sendEmail(user.email, '🏥 Bienvenue sur GMAO Sakété', html);
+    return sendEmail(user.email, 'Bienvenue sur GMAO Sakete', html);
 };
 
-// ============================================
-// TEST DE CONNEXION
-// ============================================
-
-/**
- * Tester la connexion email
- */
 export const testEmailConnection = async () => {
     if (!isEmailConfigured()) {
-        return { success: false, error: 'Email non configuré' };
+        return { success: false, error: 'Email non configure' };
     }
 
     try {
         const testTransporter = getTransporter();
         await testTransporter.verify();
-        console.log('✅ Connexion email établie');
+        console.log('Connexion email etablie');
         return { success: true };
     } catch (error) {
-        console.error('❌ Erreur connexion email:', error.message);
+        console.error('Erreur connexion email:', error.message);
         return { success: false, error: error.message };
     }
 };
-
-// ============================================
-// EXPORTATION
-// ============================================
 
 export default {
     sendEmail,
