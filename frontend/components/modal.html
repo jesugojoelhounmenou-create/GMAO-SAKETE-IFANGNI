@@ -1,16 +1,16 @@
-<!-- Modal générique réutilisable -->
+<!-- Modal generique reusable -->
 <div id="genericModal" class="generic-modal" style="display: none;">
     <div class="generic-modal-content">
         <div class="generic-modal-header">
             <h3 id="modalTitle">Titre</h3>
-            <span class="generic-modal-close" onclick="closeGenericModal()">&times;</span>
+            <span class="generic-modal-close">&times;</span>
         </div>
         <div class="generic-modal-body" id="modalBody">
             Contenu du modal
         </div>
         <div class="generic-modal-footer" id="modalFooter">
-            <button class="modal-btn modal-btn-secondary" onclick="closeGenericModal()">Fermer</button>
-            <button class="modal-btn modal-btn-primary" id="modalConfirmBtn" onclick="confirmModalAction()">Confirmer</button>
+            <button class="modal-btn modal-btn-secondary">Fermer</button>
+            <button class="modal-btn modal-btn-primary" id="modalConfirmBtn">Confirmer</button>
         </div>
     </div>
 </div>
@@ -162,7 +162,6 @@
         transform: translateY(-1px);
     }
     
-    /* Types de modal */
     .generic-modal-warning .generic-modal-header h3 { color: #f59e0b; }
     .generic-modal-warning .modal-btn-primary { background: linear-gradient(135deg, #f59e0b, #d97706); }
     
@@ -172,7 +171,6 @@
     .generic-modal-success .generic-modal-header h3 { color: #22c55e; }
     .generic-modal-success .modal-btn-primary { background: linear-gradient(135deg, #22c55e, #16a34a); }
     
-    /* Responsive */
     @media (max-width: 480px) {
         .generic-modal-content { width: 95%; }
         .generic-modal-header { padding: 16px 20px; }
@@ -184,7 +182,6 @@
 </style>
 
 <script>
-    // Configuration du modal
     const Modal = {
         element: null,
         callback: null,
@@ -192,13 +189,23 @@
         
         init: function() {
             this.element = document.getElementById('genericModal');
-            // Fermer avec Echap
+            
+            const closeBtn = this.element.querySelector('.generic-modal-close');
+            if (closeBtn) {
+                closeBtn.onclick = () => this.close();
+            }
+            
+            const cancelBtn = this.element.querySelector('.modal-btn-secondary');
+            if (cancelBtn) {
+                cancelBtn.onclick = () => this.close();
+            }
+            
             document.addEventListener('keydown', (e) => {
                 if (e.key === 'Escape' && this.element && this.element.style.display === 'flex') {
                     this.close();
                 }
             });
-            // Fermer en cliquant en dehors
+            
             this.element.addEventListener('click', (e) => {
                 if (e.target === this.element) {
                     this.close();
@@ -210,7 +217,7 @@
             const {
                 confirmText = 'Confirmer',
                 cancelText = 'Fermer',
-                type = 'default', // default, warning, danger, success
+                type = 'default',
                 showConfirm = true,
                 showCancel = true,
                 onConfirm = null,
@@ -219,34 +226,26 @@
                 cancelButtonClass = ''
             } = options;
             
-            // Mettre à jour le contenu
             document.getElementById('modalTitle').innerText = title;
             document.getElementById('modalBody').innerHTML = typeof body === 'string' ? body : '';
             
-            // Mettre à jour le type de modal
             this.element.classList.remove('generic-modal-warning', 'generic-modal-danger', 'generic-modal-success');
             if (type !== 'default') {
                 this.element.classList.add(`generic-modal-${type}`);
             }
             
-            // Configurer les boutons
             const footer = document.getElementById('modalFooter');
             const confirmBtn = document.getElementById('modalConfirmBtn');
             let cancelBtn = footer.querySelector('.modal-btn-secondary');
             
-            // Supprimer l'ancien bouton annuler si présent
             if (cancelBtn && !cancelBtn.classList.contains('keep')) {
                 cancelBtn.remove();
             }
             
-            // Mettre à jour le texte du bouton confirmer
             confirmBtn.innerText = confirmText;
             confirmBtn.style.display = showConfirm ? 'block' : 'none';
-            
-            // Appliquer la classe personnalisée au bouton confirmer
             confirmBtn.className = `modal-btn modal-btn-primary ${confirmButtonClass}`;
             
-            // Ajouter le bouton annuler si nécessaire
             if (showCancel) {
                 const newCancelBtn = document.createElement('button');
                 newCancelBtn.className = `modal-btn modal-btn-secondary ${cancelButtonClass}`;
@@ -255,15 +254,12 @@
                     if (onCancel) onCancel();
                     this.close();
                 };
-                // Insérer avant le bouton confirmer
                 footer.insertBefore(newCancelBtn, confirmBtn);
             }
             
-            // Stocker les callbacks
             this.callback = onConfirm;
             this.onCloseCallback = options.onClose || null;
             
-            // Afficher le modal
             this.element.style.display = 'flex';
         },
         
@@ -274,15 +270,7 @@
                 this.onCloseCallback();
                 this.onCloseCallback = null;
             }
-            // Réinitialiser le type
             this.element.classList.remove('generic-modal-warning', 'generic-modal-danger', 'generic-modal-success');
-        },
-        
-        confirm: function() {
-            if (this.callback) {
-                this.callback();
-            }
-            this.close();
         },
         
         alert: function(title, message, onClose = null) {
@@ -294,7 +282,7 @@
             });
         },
         
-        confirmAction: function(title, message, onConfirm, onCancel = null) {
+        confirm: function(title, message, onConfirm, onCancel = null) {
             this.open(title, message, {
                 confirmText: 'Confirmer',
                 cancelText: 'Annuler',
@@ -333,7 +321,6 @@
         }
     };
     
-    // Fonctions globales pour compatibilité
     function openGenericModal(title, body, confirmText = 'Confirmer', callback = null, cancelCallback = null) {
         Modal.open(title, body, {
             confirmText: confirmText,
@@ -346,71 +333,57 @@
         Modal.close();
     }
     
-    function confirmModalAction() {
-        Modal.confirm();
-    }
-    
-    // Initialisation
     document.addEventListener('DOMContentLoaded', () => {
         Modal.init();
     });
     
-    // Exporter pour utilisation globale
     window.Modal = Modal;
     window.openGenericModal = openGenericModal;
     window.closeGenericModal = closeGenericModal;
-    window.confirmModalAction = confirmModalAction;
 </script>
 
-<!-- Exemples d'utilisation -->
 <script>
-    // Exemple: Modal simple
     function showSimpleModal() {
         Modal.alert('Information', 'Ceci est une simple notification.');
     }
     
-    // Exemple: Modal de confirmation
     function showConfirmModal() {
-        Modal.confirmAction('Confirmation', 'Êtes-vous sûr de vouloir effectuer cette action ?', 
-            () => console.log('Action confirmée'),
-            () => console.log('Action annulée')
+        Modal.confirm('Confirmation', 'Etes-vous sur de vouloir effectuer cette action ?', 
+            () => console.log('Action confirmee'),
+            () => console.log('Action annulee')
         );
     }
     
-    // Exemple: Modal d'avertissement
     function showWarningModal() {
-        Modal.warning('Attention', 'Cette action est irréversible. Voulez-vous continuer ?',
-            () => console.log('Action dangereuse confirmée')
+        Modal.warning('Attention', 'Cette action est irreversible. Voulez-vous continuer ?',
+            () => console.log('Action dangereuse confirmee')
         );
     }
     
-    // Exemple: Modal avec contenu HTML
     function showHtmlModal() {
         const htmlContent = `
             <div style="text-align:center;">
                 <div style="font-size:48px; margin-bottom:10px;">📱</div>
                 <p><strong>Version 2.1.0</strong></p>
-                <p>Dernière mise à jour : 21 mai 2026</p>
+                <p>Derniere mise a jour : 21 mai 2026</p>
                 <hr style="margin:15px 0;">
                 <ul style="text-align:left;">
-                    <li>✅ Nouvelles fonctionnalités</li>
-                    <li>🐛 Corrections de bugs</li>
-                    <li>⚡ Performances améliorées</li>
+                    <li>Nouvelles fonctionnalites</li>
+                    <li>Corrections de bugs</li>
+                    <li>Performances ameliorees</li>
                 </ul>
             </div>
         `;
-        Modal.open('À propos', htmlContent, { confirmText: 'Fermer', showCancel: false });
+        Modal.open('A propos', htmlContent, { confirmText: 'Fermer', showCancel: false });
     }
     
-    // Exemple: Modal de succès
     function showSuccessModal() {
-        Modal.success('Succès', 'L\'opération a été effectuée avec succès !');
+        Modal.success('Succes', 'L\'operation a ete effectuee avec succes !');
     }
     
-    // Exemple: Modal de suppression
     function showDeleteModal() {
-        Modal.danger('Suppression', 'Êtes-vous sûr de vouloir supprimer cet élément ? Cette action est irréversible.',
-            () => console.log('Élément supprimé')
+        Modal.danger('Suppression', 'Etes-vous sur de vouloir supprimer cet element ? Cette action est irreversible.',
+            () => console.log('Element supprime')
         );
     }
 </script>
