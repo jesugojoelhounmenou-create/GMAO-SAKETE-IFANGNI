@@ -1,6 +1,5 @@
 import prisma from '../config/database.js';
 
-// Obtenir tout le planning
 export const getPlanning = async (req, res) => {
   const { startDate, endDate } = req.query;
 
@@ -24,11 +23,10 @@ export const getPlanning = async (req, res) => {
     res.json(planning);
   } catch (error) {
     console.error('Erreur get planning:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation du planning' });
   }
 };
 
-// Mon planning (technicien connecté)
 export const getMyPlanning = async (req, res) => {
   try {
     const planning = await prisma.planningGarde.findMany({
@@ -38,16 +36,19 @@ export const getMyPlanning = async (req, res) => {
     });
     res.json(planning);
   } catch (error) {
-    console.error('Erreur my planning:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    console.error('Erreur get my planning:', error);
+    res.status(500).json({ message: 'Erreur lors de la recuperation de votre planning' });
   }
 };
 
-// Ajouter une garde
 export const addPlanning = async (req, res) => {
   const { technicienId, date, typeGarde, heureDebut, heureFin, observateur } = req.body;
 
   try {
+    if (!technicienId || !date || !typeGarde) {
+      return res.status(400).json({ message: 'Technicien, date et type de garde sont requis' });
+    }
+
     const planning = await prisma.planningGarde.create({
       data: {
         technicienId: parseInt(technicienId),
@@ -62,36 +63,58 @@ export const addPlanning = async (req, res) => {
     res.status(201).json(planning);
   } catch (error) {
     console.error('Erreur add planning:', error);
-    res.status(500).json({ message: 'Erreur lors de l\'ajout' });
+    res.status(500).json({ message: 'Erreur lors de l\'ajout de la garde' });
   }
 };
 
-// Mettre à jour une garde
 export const updatePlanning = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
 
   try {
+    const existing = await prisma.planningGarde.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existing) {
+      return res.status(404).json({ message: 'Garde non trouvee' });
+    }
+
     const planning = await prisma.planningGarde.update({
       where: { id: parseInt(id) },
-      data: updateData
+      data: {
+        technicienId: updateData.technicienId ? parseInt(updateData.technicienId) : existing.technicienId,
+        date: updateData.date ? new Date(updateData.date) : existing.date,
+        typeGarde: updateData.typeGarde || existing.typeGarde,
+        heureDebut: updateData.heureDebut !== undefined ? updateData.heureDebut : existing.heureDebut,
+        heureFin: updateData.heureFin !== undefined ? updateData.heureFin : existing.heureFin,
+        observateur: updateData.observateur !== undefined ? updateData.observateur : existing.observateur,
+        valide: updateData.valide !== undefined ? updateData.valide : existing.valide
+      }
     });
     res.json(planning);
   } catch (error) {
     console.error('Erreur update planning:', error);
-    res.status(500).json({ message: 'Erreur lors de la mise à jour' });
+    res.status(500).json({ message: 'Erreur lors de la mise a jour de la garde' });
   }
 };
 
-// Supprimer une garde
 export const deletePlanning = async (req, res) => {
   const { id } = req.params;
 
   try {
+    const existing = await prisma.planningGarde.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existing) {
+      return res.status(404).json({ message: 'Garde non trouvee' });
+    }
+
     await prisma.planningGarde.delete({ where: { id: parseInt(id) } });
-    res.json({ message: 'Garde supprimée' });
+    res.json({ message: 'Garde supprimee' });
   } catch (error) {
     console.error('Erreur delete planning:', error);
-    res.status(500).json({ message: 'Erreur lors de la suppression' });
+    res.status(500).json({ message: 'Erreur lors de la suppression de la garde' });
   }
 };
