@@ -185,26 +185,26 @@
 <body>
 
 <div class="header">
-    <h2>🏥 GMAO Mobile</h2>
+    <h2>GMAO Mobile</h2>
     <div class="user-name" id="userName">Chargement...</div>
 </div>
 
 <div class="stats-grid">
     <div class="stat-card" onclick="location.href='/technicien/inventaire.html'">
         <div class="stat-value" id="equipCount">-</div>
-        <div class="stat-label">📦 Équipements</div>
+        <div class="stat-label">Equipements</div>
     </div>
     <div class="stat-card" onclick="location.href='/technicien/maintenances.html'">
         <div class="stat-value" id="interCount">-</div>
-        <div class="stat-label">🔧 Interventions</div>
+        <div class="stat-label">Interventions</div>
     </div>
     <div class="stat-card" onclick="location.href='/technicien/alertes.html'">
         <div class="stat-value" id="alertCount">-</div>
-        <div class="stat-label">⚠️ Alertes</div>
+        <div class="stat-label">Alertes</div>
     </div>
     <div class="stat-card" onclick="location.href='/technicien/stock.html'">
         <div class="stat-value" id="stockCount">-</div>
-        <div class="stat-label">⚙️ Pièces</div>
+        <div class="stat-label">Pieces</div>
     </div>
 </div>
 
@@ -261,7 +261,7 @@
 
 <div class="section">
     <div class="section-title">
-        <span>🚨 Alertes récentes</span>
+        <span>Alertes recentes</span>
         <button class="btn-sm" onclick="location.href='/technicien/alertes.html'">Voir tout</button>
     </div>
     <div id="alertesList">
@@ -271,7 +271,7 @@
     </div>
 </div>
 
-<button class="logout-btn" onclick="logout()">🚪 Se déconnecter</button>
+<button class="logout-btn" onclick="logout()">Se deconnecter</button>
 
 <div class="bottom-nav">
     <a href="dashboard-mobile.html" class="nav-item active">
@@ -281,7 +281,7 @@
         <span class="nav-icon">🔧</span>Travaux
     </a>
     <a href="/technicien/inventaire.html" class="nav-item">
-        <span class="nav-icon">📦</span>Équip.
+        <span class="nav-icon">📦</span>Equip.
     </a>
     <a href="/soignant/scanner.html" class="nav-item">
         <span class="nav-icon">📷</span>Scan
@@ -296,7 +296,6 @@
     
     function getToken() { return localStorage.getItem('token'); }
     
-    // Auth check
     if (!getToken()) window.location.href = '/login.html';
     
     const userRole = localStorage.getItem('userRole');
@@ -351,7 +350,7 @@
             const container = document.getElementById('alertesList');
             
             if (alertes.length === 0) {
-                container.innerHTML = '<div class="empty-state">✅ Aucune alerte active</div>';
+                container.innerHTML = '<div class="empty-state">Aucune alerte active</div>';
                 return;
             }
             
@@ -373,7 +372,7 @@
             
         } catch(e) { 
             console.error('Erreur alertes:', e);
-            document.getElementById('alertesList').innerHTML = '<div class="empty-state">❌ Erreur de chargement</div>';
+            document.getElementById('alertesList').innerHTML = '<div class="empty-state">Erreur de chargement</div>';
         }
     }
     
@@ -402,13 +401,12 @@
     }
     
     function logout() { 
-        if (confirm('🚪 Voulez-vous vraiment vous déconnecter ?')) {
+        if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
             localStorage.clear(); 
             window.location.href = '/login.html'; 
         }
     }
     
-    // Rafraîchissement automatique toutes les 30 secondes
     chargerStats();
     chargerAlertes();
     setInterval(() => {
