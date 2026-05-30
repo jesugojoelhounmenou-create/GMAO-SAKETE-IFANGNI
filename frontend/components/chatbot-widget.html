@@ -22,6 +22,7 @@
         border: none;
         color: white;
         font-size: 28px;
+        position: relative;
     }
     
     .chatbot-button:hover { 
@@ -320,14 +321,14 @@
 
 <div class="chatbot-container">
     <button class="chatbot-button" onclick="toggleChatbot()">
-        🤖
+        💬
         <span class="unread-badge" id="unreadBadge" style="display: none;">1</span>
     </button>
     
     <div class="chatbot-window" id="chatbotWindow">
         <div class="chatbot-header">
             <div class="chatbot-header-left">
-                <div class="avatar">🤖</div>
+                <div class="avatar">💬</div>
                 <div class="chatbot-header-info">
                     <h4>Assistant Maintenance</h4>
                     <p><span class="status-online"></span> En ligne</p>
@@ -339,7 +340,7 @@
         <div class="chatbot-messages" id="chatbotMessages">
             <div class="message message-bot">
                 <div class="message-content">
-                    👋 <strong>Bonjour !</strong><br><br>
+                    <strong>Bonjour !</strong><br><br>
                     Je suis votre assistant de maintenance.<br>
                     Comment puis-je vous aider aujourd'hui ?
                 </div>
@@ -347,15 +348,15 @@
         </div>
         
         <div class="quick-actions">
-            <button class="quick-btn" onclick="sendQuickMessage('signaler une panne')">⚠️ Panne</button>
-            <button class="quick-btn" onclick="sendQuickMessage('état du respirateur')">🔍 État</button>
-            <button class="quick-btn" onclick="sendQuickMessage('guide')">📖 Guide</button>
-            <button class="quick-btn" onclick="sendQuickMessage('aide')">❓ Aide</button>
-            <button class="quick-btn" onclick="openScanner()">📱 Scanner QR</button>
+            <button class="quick-btn" onclick="sendQuickMessage('signaler une panne')">Panne</button>
+            <button class="quick-btn" onclick="sendQuickMessage('état du respirateur')">Etat</button>
+            <button class="quick-btn" onclick="sendQuickMessage('guide')">Guide</button>
+            <button class="quick-btn" onclick="sendQuickMessage('aide')">Aide</button>
+            <button class="quick-btn" onclick="openScanner()">Scanner QR</button>
         </div>
         
         <div class="chatbot-input-area">
-            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Écrivez votre message..." onkeypress="if(event.key==='Enter') sendChatbotMessage()">
+            <input type="text" class="chatbot-input" id="chatbotInput" placeholder="Ecrivez votre message..." onkeypress="if(event.key==='Enter') sendChatbotMessage()">
             <button class="chatbot-send" id="chatbotSendBtn" onclick="sendChatbotMessage()">➤</button>
         </div>
     </div>
@@ -378,7 +379,6 @@
             window.classList.remove('open');
         } else {
             window.classList.add('open');
-            // Cacher le badge de notification
             document.getElementById('unreadBadge').style.display = 'none';
         }
     }
@@ -465,7 +465,7 @@
             hideTyping();
             
             if (!res.ok) {
-                addChatbotMessage('❌ Erreur serveur. Veuillez réessayer.', 'bot');
+                addChatbotMessage('Erreur serveur. Veuillez reessayer.', 'bot');
                 setSendDisabled(false);
                 return;
             }
@@ -473,7 +473,6 @@
             const data = await res.json();
             if (data.conversationId) conversationId = data.conversationId;
             
-            // Gérer les actions spéciales
             if (data.action === 'open_scanner') {
                 addChatbotMessage(data.reply, 'bot');
                 setTimeout(() => openScanner(), 1500);
@@ -484,7 +483,7 @@
         } catch(error) {
             hideTyping();
             console.error('Erreur chatbot:', error);
-            addChatbotMessage('❌ Connexion impossible. Vérifiez votre connexion internet.', 'bot');
+            addChatbotMessage('Connexion impossible. Verifiez votre connexion internet.', 'bot');
         } finally {
             setSendDisabled(false);
         }
@@ -494,27 +493,24 @@
         window.location.href = '/soignant/scanner.html'; 
     }
     
-    // Afficher une notification si la fenêtre est fermée
-    function showNotification() {
+    function showUnreadNotification() {
         const window = document.getElementById('chatbotWindow');
         if (!window.classList.contains('open')) {
             document.getElementById('unreadBadge').style.display = 'flex';
         }
     }
     
-    // Écouter les messages entrants (ex: depuis WebSocket)
     function receiveExternalMessage(message) {
         addChatbotMessage(message, 'bot');
-        showNotification();
+        showUnreadNotification();
     }
     
-    // Nettoyer les messages (optionnel)
     function clearMessages() {
         const container = document.getElementById('chatbotMessages');
         container.innerHTML = `
             <div class="message message-bot">
                 <div class="message-content">
-                    👋 <strong>Bonjour !</strong><br><br>
+                    <strong>Bonjour !</strong><br><br>
                     Je suis votre assistant de maintenance.<br>
                     Comment puis-je vous aider aujourd'hui ?
                 </div>
