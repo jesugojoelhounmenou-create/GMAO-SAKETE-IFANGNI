@@ -1,45 +1,36 @@
-// sidebar.js - Gestion dynamique de la sidebar pour GMAO Sakété v2.1.0
+// sidebar.js - Gestion dynamique de la sidebar pour GMAO Sakete v2.1.0
 
 // ============================================
 // CONFIGURATION
 // ============================================
 
 const SIDEBAR_CONFIG = {
-    // Chemin du fichier sidebar
     url: '/components/sidebar.html',
-    // Classe pour le conteneur
     containerId: 'sidebar-container',
-    // Événements après chargement
     onLoaded: null,
-    // Cache pour éviter les rechargements
     cache: true,
-    // Durée du cache (30 minutes)
     cacheDuration: 30 * 60 * 1000
 };
 
-// Cache de la sidebar
 let sidebarCache = null;
 let sidebarCacheTime = null;
 
 // ============================================
-# FONCTIONS PRINCIPALES
-============================================
+// FONCTIONS PRINCIPALES
+// ============================================
 
-// Créer le conteneur de sidebar si nécessaire
 function ensureSidebarContainer() {
     let sidebarContainer = document.getElementById(SIDEBAR_CONFIG.containerId);
     
     if (!sidebarContainer) {
         sidebarContainer = document.createElement('div');
         sidebarContainer.id = SIDEBAR_CONFIG.containerId;
-        // Insérer au début du body
         document.body.insertBefore(sidebarContainer, document.body.firstChild);
     }
     
     return sidebarContainer;
 }
 
-// Déterminer l'élément actif dans la sidebar
 function setActiveMenuItem() {
     const currentPath = window.location.pathname;
     const currentPage = currentPath.split('/').pop() || 'index.html';
@@ -50,10 +41,8 @@ function setActiveMenuItem() {
     sidebarItems.forEach(item => {
         const href = item.getAttribute('href');
         if (href) {
-            // Nettoyer les classes actives
             item.classList.remove('active');
             
-            // Vérifier si c'est la page courante
             if (href === currentPage || 
                 (currentPage === '' && href === 'index.html') ||
                 (currentPath.includes(href) && href !== '#')) {
@@ -63,7 +52,6 @@ function setActiveMenuItem() {
         }
     });
     
-    // Si aucun élément actif trouvé, activer le premier si nécessaire
     if (!activeFound && sidebarItems.length > 0) {
         const firstItem = sidebarItems[0];
         if (firstItem && firstItem.getAttribute('href') !== '#') {
@@ -72,7 +60,6 @@ function setActiveMenuItem() {
     }
 }
 
-// Mettre à jour les informations utilisateur dans la sidebar
 function updateUserInfoInSidebar() {
     const userName = localStorage.getItem('userName') || 'Utilisateur';
     const userRole = localStorage.getItem('userRole');
@@ -87,39 +74,34 @@ function updateUserInfoInSidebar() {
     if (userRoleSpan) {
         let roleText = '';
         if (userRole === 'TECHNICIEN') {
-            roleText = '🔧 Technicien Biomédical';
+            roleText = 'Technicien Biomedical';
         } else if (userRole === 'SOIGNANT') {
-            roleText = '👨‍⚕️ Personnel Soignant';
+            roleText = 'Personnel Soignant';
         } else {
-            roleText = '👤 Utilisateur';
+            roleText = 'Utilisateur';
         }
         userRoleSpan.textContent = roleText;
     }
 }
 
-// Initialiser les événements de la sidebar
 function initSidebarEvents() {
-    // Déconnexion
     const logoutBtn = document.querySelector('.sidebar-logout, #sidebarLogoutBtn');
     if (logoutBtn) {
-        // Supprimer les anciens événements pour éviter les doublons
         const newLogoutBtn = logoutBtn.cloneNode(true);
         logoutBtn.parentNode.replaceChild(newLogoutBtn, logoutBtn);
         
         newLogoutBtn.addEventListener('click', (e) => {
             e.preventDefault();
-            if (confirm('🚪 Voulez-vous vraiment vous déconnecter ?')) {
+            if (confirm('Voulez-vous vraiment vous deconnecter ?')) {
                 localStorage.clear();
                 window.location.href = '/login.html';
             }
         });
     }
     
-    // Gérer les liens actifs au clic
     const sidebarItems = document.querySelectorAll('.sidebar-item');
     sidebarItems.forEach(item => {
         item.addEventListener('click', function() {
-            // Sauvegarder la page active dans sessionStorage
             const href = this.getAttribute('href');
             if (href && href !== '#') {
                 sessionStorage.setItem('lastPage', href);
@@ -129,24 +111,21 @@ function initSidebarEvents() {
 }
 
 // ============================================
-# CHARGEMENT DE LA SIDEBAR
-============================================
+// CHARGEMENT DE LA SIDEBAR
+// ============================================
 
-// Charger la sidebar depuis le cache ou le réseau
 async function loadSidebarFromCache() {
     if (!SIDEBAR_CONFIG.cache) return null;
     
-    // Vérifier si le cache est valide
     if (sidebarCache && sidebarCacheTime && 
         (Date.now() - sidebarCacheTime) < SIDEBAR_CONFIG.cacheDuration) {
-        console.log('📦 Sidebar chargée depuis le cache');
+        console.log('Sidebar chargee depuis le cache');
         return sidebarCache;
     }
     
     return null;
 }
 
-// Charger la sidebar depuis le réseau
 async function loadSidebarFromNetwork() {
     try {
         const response = await fetch(SIDEBAR_CONFIG.url);
@@ -157,7 +136,6 @@ async function loadSidebarFromNetwork() {
         
         const html = await response.text();
         
-        // Mettre en cache
         if (SIDEBAR_CONFIG.cache) {
             sidebarCache = html;
             sidebarCacheTime = Date.now();
@@ -167,12 +145,10 @@ async function loadSidebarFromNetwork() {
     } catch (error) {
         console.error('Erreur chargement sidebar:', error);
         
-        // Fallback: sidebar par défaut
         return getDefaultSidebar();
     }
 }
 
-// Sidebar par défaut (fallback en cas d'erreur)
 function getDefaultSidebar() {
     const userRole = localStorage.getItem('userRole');
     const isTechnicien = userRole === 'TECHNICIEN';
@@ -181,8 +157,8 @@ function getDefaultSidebar() {
         return `
             <div class="sidebar">
                 <div class="sidebar-header">
-                    <div class="sidebar-logo">🏥 <span>GMAO</span> Sakété</div>
-                    <div class="sidebar-subtitle">Hôpital de Zone Sakété-Ifangni</div>
+                    <div class="sidebar-logo">GMAO Sakete</div>
+                    <div class="sidebar-subtitle">Hopital de Zone Sakete-Ifangni</div>
                 </div>
                 <div class="sidebar-menu">
                     <div class="sidebar-section">Principal</div>
@@ -190,7 +166,7 @@ function getDefaultSidebar() {
                     <a href="/technicien/inventaire.html" class="sidebar-item"><span class="sidebar-icon">📦</span><span class="sidebar-text">Inventaire</span></a>
                     <a href="/technicien/maintenances.html" class="sidebar-item"><span class="sidebar-icon">🔧</span><span class="sidebar-text">Maintenances</span></a>
                     <a href="/technicien/stock.html" class="sidebar-item"><span class="sidebar-icon">⚙️</span><span class="sidebar-text">Stock</span></a>
-                    <div class="sidebar-section">Système</div>
+                    <div class="sidebar-section">Systeme</div>
                     <a href="/technicien/profil.html" class="sidebar-item"><span class="sidebar-icon">👤</span><span class="sidebar-text">Mon profil</span></a>
                 </div>
                 <div class="sidebar-footer">
@@ -201,7 +177,7 @@ function getDefaultSidebar() {
                             <div class="user-role" id="sidebarUserRole">Technicien</div>
                         </div>
                     </div>
-                    <button class="sidebar-logout">🚪 Déconnexion</button>
+                    <button class="sidebar-logout">Deconnexion</button>
                 </div>
             </div>
         `;
@@ -209,8 +185,8 @@ function getDefaultSidebar() {
         return `
             <div class="sidebar">
                 <div class="sidebar-header">
-                    <div class="sidebar-logo">🏥 <span>GMAO</span> Sakété</div>
-                    <div class="sidebar-subtitle">Hôpital de Zone Sakété-Ifangni</div>
+                    <div class="sidebar-logo">GMAO Sakete</div>
+                    <div class="sidebar-subtitle">Hopital de Zone Sakete-Ifangni</div>
                 </div>
                 <div class="sidebar-menu">
                     <div class="sidebar-section">Principal</div>
@@ -228,14 +204,13 @@ function getDefaultSidebar() {
                             <div class="user-role" id="sidebarUserRole">Soignant</div>
                         </div>
                     </div>
-                    <button class="sidebar-logout">🚪 Déconnexion</button>
+                    <button class="sidebar-logout">Deconnexion</button>
                 </div>
             </div>
         `;
     }
 }
 
-// Afficher un indicateur de chargement
 function showSidebarLoader() {
     const container = ensureSidebarContainer();
     container.innerHTML = `
@@ -266,56 +241,44 @@ function showSidebarLoader() {
     `;
 }
 
-// Charger la sidebar
 async function loadSidebar(options = {}) {
     const config = { ...SIDEBAR_CONFIG, ...options };
     
-    // Afficher le loader
     showSidebarLoader();
     
-    // Essayer de charger depuis le cache
     let sidebarHtml = await loadSidebarFromCache();
     
-    // Sinon depuis le réseau
     if (!sidebarHtml) {
         sidebarHtml = await loadSidebarFromNetwork();
     }
     
-    // Insérer dans le DOM
     const container = ensureSidebarContainer();
     container.innerHTML = sidebarHtml;
     
-    // Ajouter les styles si nécessaire
     ensureSidebarStyles();
     
-    // Initialiser les événements
     initSidebarEvents();
     
-    // Mettre à jour les informations utilisateur
     updateUserInfoInSidebar();
     
-    // Définir l'élément actif
     setActiveMenuItem();
     
-    // Exécuter le callback
     if (config.onLoaded && typeof config.onLoaded === 'function') {
         config.onLoaded();
     }
     
-    // Ajouter la classe pour les animations
     setTimeout(() => {
         container.classList.add('sidebar-loaded');
     }, 100);
     
-    console.log('✅ Sidebar chargée');
+    console.log('Sidebar chargee');
 }
 
 // ============================================
-# STYLES
-============================================
+// STYLES
+// ============================================
 
 function ensureSidebarStyles() {
-    // Vérifier si les styles sont déjà présents
     if (document.getElementById('sidebar-styles')) return;
     
     const style = document.createElement('style');
@@ -484,7 +447,6 @@ function ensureSidebarStyles() {
             transform: translateY(-1px);
         }
         
-        /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -495,7 +457,6 @@ function ensureSidebarStyles() {
             }
         }
         
-        /* Animation d'entrée */
         .sidebar-loaded .sidebar {
             animation: fadeInLeft 0.3s ease;
         }
@@ -516,33 +477,29 @@ function ensureSidebarStyles() {
 }
 
 // ============================================
-# UTILITAIRES
-============================================
+// UTILITAIRES
+// ============================================
 
-// Rafraîchir la sidebar (recharger)
 function refreshSidebar() {
     sidebarCache = null;
     sidebarCacheTime = null;
     loadSidebar();
 }
 
-// Mettre à jour les informations utilisateur sans recharger
 function updateSidebarUserInfo() {
     updateUserInfoInSidebar();
 }
 
 // ============================================
-# INITIALISATION
-============================================
+// INITIALISATION
+// ============================================
 
-// Exécuter au chargement
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => loadSidebar());
 } else {
     loadSidebar();
 }
 
-// Export pour ES modules (si nécessaire)
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         loadSidebar,
@@ -552,7 +509,6 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 
-// Export global
 if (typeof window !== 'undefined') {
     window.Sidebar = {
         load: loadSidebar,
