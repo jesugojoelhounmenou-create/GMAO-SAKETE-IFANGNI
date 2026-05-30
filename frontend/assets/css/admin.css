@@ -13,13 +13,25 @@
     padding: 20px;
     flex: 1;
     min-width: 150px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card-admin:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stat-number-admin {
     font-size: 32px;
     font-weight: bold;
-    color: #1a2a4f;
+    color: #0066FF;
+}
+
+.stat-label-admin {
+    font-size: 13px;
+    color: #64748b;
+    margin-top: 5px;
 }
 
 .filter-bar {
@@ -30,6 +42,7 @@
     background: white;
     padding: 16px;
     border-radius: 20px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .filter-bar input,
@@ -40,9 +53,17 @@
     font-size: 14px;
     flex: 1;
     min-width: 150px;
+    background: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Equipment grid */
+.filter-bar input:focus,
+.filter-bar select:focus {
+    outline: none;
+    border-color: #0066FF;
+    box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1);
+}
+
 .equipment-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -53,17 +74,18 @@
     background: white;
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    transition: transform 0.2s;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    transition: transform 0.2s, box-shadow 0.2s;
     cursor: pointer;
 }
 
 .equipment-card:hover {
     transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .card-header {
-    background: linear-gradient(135deg, #1a2a4f, #1e3a5f);
+    background: linear-gradient(135deg, #0066FF, #0052CC);
     color: white;
     padding: 16px;
     position: relative;
@@ -72,6 +94,7 @@
 .card-header h3 {
     font-size: 18px;
     margin-bottom: 5px;
+    padding-right: 80px;
 }
 
 .card-code {
@@ -89,9 +112,20 @@
     font-weight: bold;
 }
 
-.status-FONCTIONNEL { background: #22c55e; }
-.status-EN_PANNE { background: #ef4444; }
-.status-EN_MAINTENANCE { background: #f97316; }
+.status-FONCTIONNEL {
+    background: #22c55e;
+    color: white;
+}
+
+.status-EN_PANNE {
+    background: #ef4444;
+    color: white;
+}
+
+.status-EN_MAINTENANCE {
+    background: #f97316;
+    color: white;
+}
 
 .card-body {
     padding: 16px;
@@ -104,8 +138,14 @@
     font-size: 13px;
 }
 
-.info-label { color: #64748b; }
-.info-value { font-weight: 500; }
+.info-label {
+    color: #64748b;
+}
+
+.info-value {
+    font-weight: 500;
+    color: #1e293b;
+}
 
 .card-actions {
     display: flex;
@@ -122,8 +162,115 @@
     border: none;
     font-size: 12px;
     cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 500;
 }
 
-.btn-edit { background: #e2e8f0; color: #1e293b; }
-.btn-qr { background: #3b82f6; color: white; }
-.btn-delete { background: #ef4444; color: white; }
+.btn-sm:hover {
+    transform: translateY(-1px);
+}
+
+.btn-edit {
+    background: #e2e8f0;
+    color: #1e293b;
+}
+
+.btn-edit:hover {
+    background: #cbd5e1;
+}
+
+.btn-qr {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-qr:hover {
+    background: #2563eb;
+}
+
+.btn-delete {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+}
+
+.btn-primary {
+    background: #0066FF;
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #0052CC;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-cards {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .filter-bar {
+        flex-direction: column;
+    }
+    
+    .filter-bar input,
+    .filter-bar select {
+        width: 100%;
+    }
+    
+    .equipment-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .card-header h3 {
+        font-size: 16px;
+    }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+    .stat-card-admin,
+    .filter-bar,
+    .equipment-card,
+    .card-actions {
+        background: #1e293b;
+    }
+    
+    .stat-number-admin {
+        color: #60a5fa;
+    }
+    
+    .stat-label-admin,
+    .info-label {
+        color: #94a3b8;
+    }
+    
+    .info-value {
+        color: #e2e8f0;
+    }
+    
+    .filter-bar input,
+    .filter-bar select {
+        background: #334155;
+        border-color: #475569;
+        color: white;
+    }
+    
+    .filter-bar input::placeholder {
+        color: #94a3b8;
+    }
+    
+    .btn-edit {
+        background: #334155;
+        color: #e2e8f0;
+    }
+    
+    .btn-edit:hover {
+        background: #475569;
+    }
+}
