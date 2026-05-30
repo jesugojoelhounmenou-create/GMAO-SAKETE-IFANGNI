@@ -1,6 +1,5 @@
 import prisma from '../config/database.js';
 
-// Liste des fournisseurs
 export const getFournisseurs = async (req, res) => {
   const { type, actif, search } = req.query;
 
@@ -11,9 +10,9 @@ export const getFournisseurs = async (req, res) => {
 
     if (search) {
       filters.OR = [
-        { nom: { contains: search } },
-        { contact: { contains: search } },
-        { email: { contains: search } }
+        { nom: { contains: search, mode: 'insensitive' } },
+        { contact: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } }
       ];
     }
 
@@ -30,11 +29,10 @@ export const getFournisseurs = async (req, res) => {
     res.json(fournisseurs);
   } catch (error) {
     console.error('Erreur get fournisseurs:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des fournisseurs' });
   }
 };
 
-// Détail d'un fournisseur
 export const getFournisseurById = async (req, res) => {
   const { id } = req.params;
 
@@ -49,21 +47,24 @@ export const getFournisseurById = async (req, res) => {
     });
 
     if (!fournisseur) {
-      return res.status(404).json({ message: 'Fournisseur non trouvé' });
+      return res.status(404).json({ message: 'Fournisseur non trouve' });
     }
 
     res.json(fournisseur);
   } catch (error) {
-    console.error('Erreur get fournisseur:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    console.error('Erreur get fournisseur by id:', error);
+    res.status(500).json({ message: 'Erreur lors de la recuperation du fournisseur' });
   }
 };
 
-// Ajouter un fournisseur
 export const addFournisseur = async (req, res) => {
   const { nom, contact, telephone, email, adresse, siteWeb, type, note, delaiMoyen } = req.body;
 
   try {
+    if (!nom) {
+      return res.status(400).json({ message: 'Le nom du fournisseur est requis' });
+    }
+
     const fournisseur = await prisma.fournisseur.create({
       data: {
         nom,
@@ -79,40 +80,65 @@ export const addFournisseur = async (req, res) => {
       }
     });
 
-    res.status(201).json({ message: 'Fournisseur ajouté', fournisseur });
+    res.status(201).json({ message: 'Fournisseur ajoute', fournisseur });
   } catch (error) {
     console.error('Erreur add fournisseur:', error);
-    res.status(500).json({ message: 'Erreur lors de l\'ajout' });
+    res.status(500).json({ message: 'Erreur lors de l\'ajout du fournisseur' });
   }
 };
 
-// Mettre à jour un fournisseur
 export const updateFournisseur = async (req, res) => {
   const { id } = req.params;
   const updateData = req.body;
 
   try {
-    const fournisseur = await prisma.fournisseur.update({
-      where: { id: parseInt(id) },
-      data: updateData
+    const existing = await prisma.fournisseur.findUnique({
+      where: { id: parseInt(id) }
     });
 
-    res.json({ message: 'Fournisseur mis à jour', fournisseur });
+    if (!existing) {
+      return res.status(404).json({ message: 'Fournisseur non trouve' });
+    }
+
+    const fournisseur = await prisma.fournisseur.update({
+      where: { id: parseInt(id) },
+      data: {
+        nom: updateData.nom,
+        contact: updateData.contact || null,
+        telephone: updateData.telephone || null,
+        email: updateData.email || null,
+        adresse: updateData.adresse || null,
+        siteWeb: updateData.siteWeb || null,
+        type: updateData.type || 'EQUIPEMENT',
+        note: updateData.note ? parseFloat(updateData.note) : null,
+        delaiMoyen: updateData.delaiMoyen ? parseInt(updateData.delaiMoyen) : null,
+        actif: updateData.actif !== undefined ? updateData.actif : existing.actif
+      }
+    });
+
+    res.json({ message: 'Fournisseur mis a jour', fournisseur });
   } catch (error) {
     console.error('Erreur update fournisseur:', error);
-    res.status(500).json({ message: 'Erreur lors de la mise à jour' });
+    res.status(500).json({ message: 'Erreur lors de la mise a jour du fournisseur' });
   }
 };
 
-// Supprimer un fournisseur
 export const deleteFournisseur = async (req, res) => {
   const { id } = req.params;
 
   try {
+    const existing = await prisma.fournisseur.findUnique({
+      where: { id: parseInt(id) }
+    });
+
+    if (!existing) {
+      return res.status(404).json({ message: 'Fournisseur non trouve' });
+    }
+
     await prisma.fournisseur.delete({ where: { id: parseInt(id) } });
-    res.json({ message: 'Fournisseur supprimé' });
+    res.json({ message: 'Fournisseur supprime' });
   } catch (error) {
     console.error('Erreur delete fournisseur:', error);
-    res.status(500).json({ message: 'Erreur lors de la suppression' });
+    res.status(500).json({ message: 'Erreur lors de la suppression du fournisseur' });
   }
 };
