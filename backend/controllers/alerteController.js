@@ -1,6 +1,5 @@
 import prisma from '../config/database.js';
 
-// Liste des alertes
 export const getAlertes = async (req, res) => {
   const { type, niveau, resolue, limit } = req.query;
 
@@ -23,11 +22,10 @@ export const getAlertes = async (req, res) => {
     res.json(alertes);
   } catch (error) {
     console.error('Erreur get alertes:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des alertes' });
   }
 };
 
-// Détail d'une alerte
 export const getAlerteById = async (req, res) => {
   const { id } = req.params;
 
@@ -41,17 +39,16 @@ export const getAlerteById = async (req, res) => {
     });
 
     if (!alerte) {
-      return res.status(404).json({ message: 'Alerte non trouvée' });
+      return res.status(404).json({ message: 'Alerte non trouvee' });
     }
 
     res.json(alerte);
   } catch (error) {
-    console.error('Erreur get alerte:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    console.error('Erreur get alerte by id:', error);
+    res.status(500).json({ message: 'Erreur lors de la recuperation de l alerte' });
   }
 };
 
-// Résoudre une alerte
 export const resoudreAlerte = async (req, res) => {
   const { id } = req.params;
   const { commentaire } = req.body;
@@ -67,14 +64,13 @@ export const resoudreAlerte = async (req, res) => {
       }
     });
 
-    res.json({ message: 'Alerte résolue', alerte });
+    res.json({ message: 'Alerte resolue', alerte });
   } catch (error) {
     console.error('Erreur resolution alerte:', error);
-    res.status(500).json({ message: 'Erreur lors de la résolution' });
+    res.status(500).json({ message: 'Erreur lors de la resolution de l alerte' });
   }
 };
 
-// Alertes non résolues
 export const getAlertesNonResolues = async (req, res) => {
   try {
     const criticales = await prisma.alerte.findMany({
@@ -103,52 +99,87 @@ export const getAlertesNonResolues = async (req, res) => {
     });
   } catch (error) {
     console.error('Erreur get alertes non resolues:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des alertes non resolues' });
   }
 };
 
-// Statistiques des alertes
 export const getStatsAlertes = async (req, res) => {
   try {
-    const [parType, parNiveau, evolution, tempsResolution] = await Promise.all([
-      prisma.alerte.groupBy({
-        by: ['type'],
-        _count: true,
-        where: { resolue: false }
-      }),
-      prisma.alerte.groupBy({
-        by: ['niveau'],
-        _count: true,
-        where: { resolue: false }
-      }),
-      prisma.$queryRaw`
-        SELECT 
-          strftime('%Y-%m', dateCreation) as mois,
-          COUNT(*) as total,
-          SUM(CASE WHEN resolue = 1 THEN 1 ELSE 0 END) as resolues
-        FROM Alerte
-        WHERE dateCreation >= date('now', '-6 months')
-        GROUP BY strftime('%Y-%m', dateCreation)
-        ORDER BY mois ASC
-      `,
-      prisma.$queryRaw`
-        SELECT 
-          AVG(julianday(dateResolution) - julianday(dateCreation)) * 24 as avgHeures
-        FROM Alerte
-        WHERE resolue = 1
-          AND dateResolution IS NOT NULL
-      `
-    ]);
+    const parType = await prisma.alerte.groupBy({
+      by: ['type'],
+      _count: true,
+      where: { resolue: false }
+    });
+
+    const parNiveau = await prisma.alerte.groupBy({
+      by: ['niveau'],
+      _count: true,
+      where: { resolue: false }
+    });
+
+    const now = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(now.getMonth() - 6);
+
+    const evolution = await prisma.alerte.findMany({
+      where: {
+        dateCreation: { gte: sixMonthsAgo }
+      },
+      select: {
+        dateCreation: true,
+        resolue: true
+      }
+    });
+
+    const evolutionParMois = {};
+    evolution.forEach(alerte => {
+      const mois = alerte.dateCreation.toISOString().slice(0, 7);
+      if (!evolutionParMois[mois]) {
+        evolutionParMois[mois] = { total: 0, resolues: 0 };
+      }
+      evolutionParMois[mois].total++;
+      if (alerte.resolue) evolutionParMois[mois].resolues++;
+    });
+
+    const evolutionArray = Object.entries(evolutionParMois).map(([mois, data]) => ({
+      mois,
+      total: data.total,
+      resolues: data.resolues
+    })).sort((a, b) => a.mois.localeCompare(b.mois));
+
+    const alertesResolues = await prisma.alerte.findMany({
+      where: {
+        resolue: true,
+        dateResolution: { not: null }
+      },
+      select: {
+        dateCreation: true,
+        dateResolution: true
+      }
+    });
+
+    let tempsTotalHeures = 0;
+    let countResolues = 0;
+    alertesResolues.forEach(alerte => {
+      if (alerte.dateCreation && alerte.dateResolution) {
+        const diffHeures = (alerte.dateResolution.getTime() - alerte.dateCreation.getTime()) / (1000 * 60 * 60);
+        tempsTotalHeures += diffHeures;
+        countResolues++;
+      }
+    });
+
+    const tempsMoyenResolution = countResolues > 0 ? (tempsTotalHeures / countResolues).toFixed(1) : 0;
+    const totalNonResolues = parType.reduce((acc, t) => acc + t._count, 0);
 
     res.json({
       parType,
       parNiveau,
-      evolution,
-      tempsMoyenResolution: tempsResolution[0]?.avgHeures?.toFixed(1) || 0,
-      totalNonResolues: parType.reduce((acc, t) => acc + t._count, 0)
+      evolution: evolutionArray,
+      tempsMoyenResolution: parseFloat(tempsMoyenResolution),
+      totalNonResolues
     });
   } catch (error) {
     console.error('Erreur stats alertes:', error);
-    res.status(500).json({ message: 'Erreur lors de la récupération' });
+    res.status(500).json({ message: 'Erreur lors de la recuperation des statistiques' });
   }
 };
