@@ -3,7 +3,7 @@
     <div class="spinner-overlay">
         <div class="spinner-container">
             <div class="spinner"></div>
-            <div class="spinner-icon">⏳</div>
+            <div class="spinner-icon"></div>
             <p class="spinner-text" id="spinnerText">Chargement en cours...</p>
             <p class="spinner-subtext" id="spinnerSubtext"></p>
         </div>
@@ -100,7 +100,6 @@
         to { transform: rotate(360deg); }
     }
     
-    /* Variante pour mobile */
     @media (max-width: 480px) {
         .spinner-container {
             padding: 25px 30px;
@@ -119,19 +118,15 @@
 </style>
 
 <script>
-    // Configuration du spinner
     const Spinner = {
-        // Éléments DOM
         element: null,
         textEl: null,
         subtextEl: null,
         spinnerEl: null,
         iconEl: null,
-        
-        // Compteur de requêtes en cours
         requestCount: 0,
+        visibleSince: null,
         
-        // Initialisation
         init: function() {
             this.element = document.getElementById('loadingSpinner');
             this.textEl = document.getElementById('spinnerText');
@@ -139,19 +134,16 @@
             this.spinnerEl = document.querySelector('.spinner');
             this.iconEl = document.querySelector('.spinner-icon');
             
-            // Écouter les événements de chargement AJAX
             if (typeof window.$ !== 'undefined') {
                 $(document).ajaxStart(() => this.show());
                 $(document).ajaxStop(() => this.hide());
             }
         },
         
-        // Afficher le spinner
         show: function(text = 'Chargement en cours...', subtext = '', type = 'spinner') {
             this.requestCount++;
             
             if (this.element && this.element.style.display === 'block') {
-                // Mettre à jour le texte si déjà visible
                 if (text) this.updateText(text, subtext);
                 return;
             }
@@ -160,11 +152,11 @@
                 this.updateText(text, subtext);
                 this.setType(type);
                 this.element.style.display = 'block';
+                this.visibleSince = Date.now();
                 document.body.style.overflow = 'hidden';
             }
         },
         
-        // Masquer le spinner
         hide: function() {
             this.requestCount--;
             
@@ -172,21 +164,21 @@
                 this.requestCount = 0;
                 if (this.element) {
                     this.element.style.display = 'none';
+                    this.visibleSince = null;
                     document.body.style.overflow = '';
                 }
             }
         },
         
-        // Forcer le masquage (réinitialiser le compteur)
         forceHide: function() {
             this.requestCount = 0;
             if (this.element) {
                 this.element.style.display = 'none';
+                this.visibleSince = null;
                 document.body.style.overflow = '';
             }
         },
         
-        // Mettre à jour le texte
         updateText: function(text, subtext = '') {
             if (this.textEl) this.textEl.innerText = text;
             if (this.subtextEl) {
@@ -195,7 +187,6 @@
             }
         },
         
-        // Changer le type d'animation
         setType: function(type) {
             if (type === 'icon' && this.iconEl && this.spinnerEl) {
                 this.spinnerEl.style.display = 'none';
@@ -206,32 +197,33 @@
             }
         },
         
-        // Afficher un spinner de succès temporaire
         success: function(message, duration = 1500) {
             this.updateText(message, '');
             this.setType('icon');
-            this.iconEl.innerHTML = '✅';
+            this.iconEl.innerHTML = '✓';
+            this.iconEl.style.fontSize = '40px';
             
             setTimeout(() => {
                 this.hide();
                 this.setType('spinner');
+                this.iconEl.innerHTML = '';
             }, duration);
         },
         
-        // Afficher un spinner d'erreur temporaire
         error: function(message, duration = 2000) {
-            this.updateText(message, 'Veuillez réessayer');
+            this.updateText(message, 'Veuillez reessayer');
             this.setType('icon');
-            this.iconEl.innerHTML = '❌';
+            this.iconEl.innerHTML = '✗';
+            this.iconEl.style.fontSize = '40px';
             
             setTimeout(() => {
                 this.hide();
                 this.setType('spinner');
+                this.iconEl.innerHTML = '';
             }, duration);
         }
     };
     
-    // Fonctions globales pour compatibilité
     function showSpinner(text = 'Chargement en cours...', subtext = '') {
         Spinner.show(text, subtext);
     }
@@ -240,11 +232,10 @@
         Spinner.hide();
     }
     
-    // Auto-hide après 30 secondes (sécurité)
     function initSpinnerAutoHide() {
         setInterval(() => {
             if (Spinner.element && Spinner.element.style.display === 'block') {
-                const visibleTime = Date.now() - (Spinner._visibleSince || Date.now());
+                const visibleTime = Date.now() - (Spinner.visibleSince || Date.now());
                 if (visibleTime > 30000) {
                     console.warn('Spinner auto-hidden after 30 seconds');
                     Spinner.forceHide();
@@ -253,27 +244,22 @@
         }, 5000);
     }
     
-    // Intercepter les promesses non gérées
     window.addEventListener('unhandledrejection', (event) => {
-        console.error('Promise non gérée:', event.reason);
+        console.error('Promise non geree:', event.reason);
         Spinner.error('Une erreur est survenue', 3000);
     });
     
-    // Initialiser au chargement
     document.addEventListener('DOMContentLoaded', () => {
         Spinner.init();
         initSpinnerAutoHide();
     });
     
-    // Exporter pour utilisation globale
     window.Spinner = Spinner;
     window.showSpinner = showSpinner;
     window.hideSpinner = hideSpinner;
 </script>
 
-<!-- Exemple d'utilisation avec fetch -->
 <script>
-    // Fonction utilitaire pour les appels API avec spinner automatique
     async function fetchWithSpinner(url, options = {}, spinnerText = 'Chargement...') {
         showSpinner(spinnerText);
         
@@ -289,7 +275,6 @@
         }
     }
     
-    // Fonction pour les requêtes avec timeout
     async function fetchWithTimeout(url, options = {}, timeout = 10000) {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), timeout);
