@@ -234,7 +234,7 @@
     <a href="index.html" class="back-link">← Retour</a>
     
     <div class="header">
-        <h1>📋 Historique des signalements</h1>
+        <h1>Historique des signalements</h1>
         <button class="logout-btn" onclick="logout()">Déconnexion</button>
     </div>
 
@@ -254,13 +254,13 @@
     </div>
 
     <div class="filter-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Rechercher par équipement..." onkeyup="debouncedSearch()">
+        <input type="text" id="searchInput" placeholder="Rechercher par équipement..." onkeyup="debouncedSearch()">
         <select id="statusFilter" onchange="loadHistorique()">
-            <option value="">📊 Tous les statuts</option>
-            <option value="EN_ATTENTE">⏳ En attente</option>
-            <option value="EN_COURS">🔧 En cours</option>
-            <option value="TERMINE">✅ Terminé</option>
-            <option value="RESOLU">✅ Résolu</option>
+            <option value="">Tous les statuts</option>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="EN_COURS">En cours</option>
+            <option value="TERMINE">Terminé</option>
+            <option value="RESOLU">Résolu</option>
         </select>
     </div>
 
@@ -272,22 +272,21 @@
     </div>
 </div>
 
-<!-- Bottom Navigation -->
 <div class="bottom-nav">
     <a href="index.html" class="nav-item">
-        <span class="nav-icon">🏠</span>Accueil
+        <span class="nav-icon">Accueil</span>
     </a>
     <a href="signaler-panne.html" class="nav-item">
-        <span class="nav-icon">⚠️</span>Panne
+        <span class="nav-icon">Panne</span>
     </a>
     <a href="scanner.html" class="nav-item">
-        <span class="nav-icon">📷</span>Scan
+        <span class="nav-icon">Scan</span>
     </a>
     <a href="historique.html" class="nav-item active">
-        <span class="nav-icon">📋</span>Historique
+        <span class="nav-icon">Historique</span>
     </a>
     <a href="profil.html" class="nav-item">
-        <span class="nav-icon">👤</span>Profil
+        <span class="nav-icon">Profil</span>
     </a>
 </div>
 
@@ -297,17 +296,15 @@
     
     function getToken() { return localStorage.getItem('token'); }
     
-    // Auth check
     if (!getToken()) window.location.href = '/login.html';
     
-    // Rediriger les techniciens
     const userRole = localStorage.getItem('userRole');
     if (userRole === 'TECHNICIEN') {
         window.location.href = '/technicien/dashboard.html';
     }
 
     function logout() { 
-        if (confirm('🚪 Voulez-vous vraiment vous déconnecter ?')) {
+        if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
             localStorage.clear(); 
             window.location.href = '/login.html'; 
         }
@@ -315,12 +312,12 @@
     
     function getStatusText(statut) {
         const map = {
-            'EN_ATTENTE': '⏳ En attente',
-            'EN_COURS': '🔧 En cours',
-            'TERMINE': '✅ Terminé',
-            'RESOLU': '✅ Résolu'
+            'EN_ATTENTE': 'En attente',
+            'EN_COURS': 'En cours',
+            'TERMINE': 'Terminé',
+            'RESOLU': 'Résolu'
         };
-        return map[statut] || statut || '📋 En cours';
+        return map[statut] || statut;
     }
     
     function getStatusClass(statut) {
@@ -338,10 +335,10 @@
     
     function getPriorityLabel(priorite) {
         const map = {
-            'CRITIQUE': '🚨 Critique',
-            'HAUTE': '🟠 Haute',
-            'MOYENNE': '🟡 Moyenne',
-            'BASSE': '🟢 Basse'
+            'CRITIQUE': 'Critique',
+            'HAUTE': 'Haute',
+            'MOYENNE': 'Moyenne',
+            'BASSE': 'Basse'
         };
         return map[priorite] || priorite;
     }
@@ -407,7 +404,7 @@
             
             if (signalements.length === 0) {
                 document.getElementById('historiqueList').innerHTML = 
-                    '<div class="empty-state">📭 Aucun signalement trouvé</div>';
+                    '<div class="empty-state">Aucun signalement trouvé</div>';
                 return;
             }
             
@@ -417,16 +414,18 @@
                 const description = s.description || '-';
                 const statut = s.statut || 'EN_ATTENTE';
                 
+                const estTermine = s.statut === 'TERMINE' || s.statut === 'RESOLU';
+                
                 return `
                     <div class="card" onclick="voirDetail(${s.id})">
-                        <div style="font-size: 24px;">${s.statut === 'TERMINE' || s.statut === 'RESOLU' ? '✅' : '⚠️'}</div>
+                        <div style="font-size: 24px;">${estTermine ? '✓' : '⚠'}</div>
                         <div style="flex:1">
                             <div>
                                 <strong>${escapeHtml(equipement.nom || 'Équipement inconnu')}</strong>
                                 <span class="priority-badge ${getPriorityClass(priorite)}">${getPriorityLabel(priorite)}</span>
                             </div>
                             <div class="equipment-code">${escapeHtml(equipement.codeInventaire || '-')}</div>
-                            <div class="date">📅 ${formatDate(s.dateSignalement || s.createdAt)}</div>
+                            <div class="date">${formatDate(s.dateSignalement || s.createdAt)}</div>
                             <div style="font-size:13px; margin-top:8px; color:#475569;">
                                 ${escapeHtml(description.substring(0, 80))}${description.length > 80 ? '...' : ''}
                             </div>
@@ -440,7 +439,7 @@
         } catch (error) {
             console.error('Erreur:', error);
             document.getElementById('historiqueList').innerHTML = 
-                '<div class="empty-state">❌ Erreur de chargement. Vérifiez votre connexion.</div>';
+                '<div class="empty-state">Erreur de chargement. Vérifiez votre connexion.</div>';
         }
     }
     
@@ -453,7 +452,6 @@
         searchTimeout = setTimeout(() => loadHistorique(), 500);
     }
     
-    // Initialisation
     loadHistorique();
 </script>
 </body>
